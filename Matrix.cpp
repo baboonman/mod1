@@ -24,15 +24,15 @@ const GLfloat   *Matrix::toGLfloat(void) const {
 }
 
 GLfloat         &Matrix::operator ()(unsigned int x, unsigned int y) const {
-    return this->_matrix[x * this->_sizeY + y];
+    return this->_matrix[y * this->_sizeX + x];
 }
 
 std::ostream& operator<< (std::ostream &out, Matrix &matrix)
 {
     out << std::setprecision(4);
-    for (unsigned int x = 0; x < matrix._sizeX; x++) {
+    for (unsigned int y = 0; y < matrix._sizeY; y++) {
         out << "[";
-        for (unsigned int y = 0; y < matrix._sizeY; y++) {
+        for (unsigned int x = 0; x < matrix._sizeX; x++) {
             out  << std::setw(6) << matrix(x, y);
             if (y != matrix._sizeY - 1) {
                 std::cout << ",";

@@ -7,10 +7,13 @@ int main(int argc, char **argv) {
     Matrix      m1(4, 4, GenerateMatrix::IDENTITY);
     Matrix      m2(4, 4, GenerateMatrix::IDENTITY);
     Matrix      m3(4, 4, GenerateMatrix::IDENTITY);
-    m1(0, 2) = 1;
+ /*   m1(0, 2) = 1;
     m1(1, 2) = 0;
     m1(2, 2) = 0.5;
     m1(3, 2) = 0;
+
+    */
+    m1(2, 1) = 666;
 
     m2(2, 0) = 1;
     m2(2, 1) = 1;
