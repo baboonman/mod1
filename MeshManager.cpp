@@ -14,7 +14,7 @@ void    MeshManager::makeMesh(GLuint program) {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(GLfloat), indexes, GL_STATIC_DRAW);
 
     /* Prepare the attributes for rendering */
-    attrloc = glGetAttribLocation(program, "x");
+    attrloc = glGetAttribLocation(program, "coord");
     glBindBuffer(GL_ARRAY_BUFFER, this->meshVbo[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 24, positionData, GL_STATIC_DRAW);
     glEnableVertexAttribArray(attrloc);

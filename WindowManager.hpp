@@ -24,8 +24,8 @@ class WindowManager {
         GLuint      shaderProgram;
         GLint       ulocModelview;
         GLint       ulocProject;
-        GLfloat      projectionMatrix[16];
-        GLfloat      modelViewMatrix[16];
+        Matrix      projectionMatrix;
+        Matrix      modelViewMatrix;
         GLfloat     viewAngle;
         GLfloat     aspectRatio;
         GLfloat     zFar;

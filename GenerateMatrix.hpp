@@ -5,12 +5,12 @@
 # include <GLFW/glfw3.h>
 # include <cmath>
 # include <iostream>
+# include "Matrix.hpp"
 
-namespace Matrix {
+namespace GenerateMatrix {
 
-    void setProjection( GLfloat *matrix, GLfloat viewAngle, GLfloat aspectRatio, GLfloat zFar,GLfloat zNear);
-    void setModelView( GLfloat *matrix);
-    void displayMatrix(GLfloat *matrix);
+    void setProjection(Matrix &matrix, GLfloat viewAngle, GLfloat aspectRatio, GLfloat zFar,GLfloat zNear);
+    void setModelView(Matrix &matrix);
 
     const GLfloat  IDENTITY[] = {
     1.0f, 0.0f, 0.0f, 0.0f,
@@ -18,6 +18,8 @@ namespace Matrix {
     0.0f, 0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 0.0f, 1.0f
     };
+
+    const Matrix    MTX_INDENTITY(4, 4, IDENTITY);
 }
 
 #endif

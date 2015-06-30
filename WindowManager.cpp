@@ -1,6 +1,7 @@
 #include "WindowManager.hpp"
 
-WindowManager::WindowManager( int sizeX, int sizeY) {
+WindowManager::WindowManager( int sizeX, int sizeY) 
+ : projectionMatrix(4, 4), modelViewMatrix(4, 4) {
 
     std::string     *vertexShader;
     std::string     *fragmentShader;
@@ -46,8 +47,8 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
 
     this->initMatrix();
 
-    glUniformMatrix4fv(ulocProject, 1, GL_FALSE, this->projectionMatrix);
-    glUniformMatrix4fv(ulocModelview, 1, GL_FALSE, this->modelViewMatrix);
+    glUniformMatrix4fv(ulocProject, 1, GL_FALSE, this->projectionMatrix.toGLfloat());
+    glUniformMatrix4fv(ulocModelview, 1, GL_FALSE, this->modelViewMatrix.toGLfloat());
 
     this->meshManager->initMap();
     this->meshManager->makeMesh(this->shaderProgram);
@@ -64,7 +65,7 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
         /* render the next frame */
         glViewport(0,0,sizeX * 4, sizeY* 4);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glDrawElements(GL_TRIANGLES, 2 * MAP_NUM_LINES , GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         /* display and process events through callbacks */
         glfwSwapBuffers(window);
@@ -76,9 +77,6 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
             /* generate the next iteration of the heightmap */
             if (this->iter < MAX_ITER)
             {
-     //           this->meshManager->updateMap(NUM_ITER_AT_A_TIME);
-     //           this->meshManager->updateMesh();
-          //      this->meshManager->makeMesh(this->shaderProgram);
                 iter += NUM_ITER_AT_A_TIME;
             }
             this->lastUpdateTime = dt;
@@ -89,7 +87,7 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
 }
 
 void        WindowManager::initMatrix() {
-    Matrix::setProjection(
+    GenerateMatrix::setProjection(
         this->projectionMatrix,
         this->viewAngle,
         this->aspectRatio,
@@ -97,9 +95,9 @@ void        WindowManager::initMatrix() {
         this->zNear
     );
 
-    Matrix::setModelView(this->modelViewMatrix);
-    Matrix::displayMatrix(this->projectionMatrix);
-    Matrix::displayMatrix(this->modelViewMatrix);
+    GenerateMatrix::setModelView(this->modelViewMatrix);
+    std::cout << this->projectionMatrix << std::endl;
+    std::cout << this->modelViewMatrix << std::endl;
 }
 
 void    WindowManager::errorCallback(int error, const char* description)

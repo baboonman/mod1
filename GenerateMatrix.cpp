@@ -1,17 +1,10 @@
 #include "GenerateMatrix.hpp"
 
-namespace Matrix {
-    namespace  {
-        void copyMatrix(const GLfloat *src, GLfloat *dest) {
-            for (int i = 0; i < 16; i++) {
-                dest[i] = src[i];
-            }
-        }
-    }
+namespace GenerateMatrix {
 
-    void setProjection( GLfloat *matrix, GLfloat viewAngle, GLfloat aspectRatio, GLfloat zFar,GLfloat zNear) {
+    void setProjection( Matrix &matrix, GLfloat viewAngle, GLfloat aspectRatio, GLfloat zFar,GLfloat zNear) {
         float   f;
-        copyMatrix(IDENTITY, matrix);
+        matrix = MTX_INDENTITY;
         f = 1.0f / tanf(viewAngle / 2.0f);
         matrix[0]  = f / aspectRatio;
         matrix[5]  = f;
@@ -20,19 +13,10 @@ namespace Matrix {
         matrix[14] = 2.0f * (zFar * zNear) / (zNear - zFar);
     }
 
-    void setModelView( GLfloat *matrix) {
-        copyMatrix(IDENTITY, matrix);
+    void setModelView(Matrix &matrix) {
+        matrix = MTX_INDENTITY;
         matrix[12]  = -5.0f;
         matrix[13]  = -5.0f;
         matrix[14]  = -20.0f;
-    }
-
-    void displayMatrix(GLfloat *matrix) {
-        for (int i = 0; i < 16; i++) {
-            if (i % 4 == 0)
-                std::cout << std::endl;
-            std::cout << matrix[i] << ",";
-        }
-        std::cout << std::endl;
     }
 }

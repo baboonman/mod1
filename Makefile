@@ -5,7 +5,8 @@ NAME=mod1
 SRC= main.cpp \
 	 WindowManager.cpp \
 	 GenerateMatrix.cpp \
-	 MeshManager.cpp
+	 MeshManager.cpp \
+	 Matrix.cpp
 
 OBJ= $(SRC:.cpp=.o)
 

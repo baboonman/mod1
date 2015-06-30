@@ -1,11 +1,14 @@
 #version 150
 uniform mat4 project;
 uniform mat4 modelview;
-in vec3     x;
+in vec3     coord;
 out vec3    color_frag;
 
 void main()
 {
-   gl_Position = project * modelview * vec4(x, 1.0);
-   color_frag = x;
+   float    color;
+   gl_Position = project * modelview * vec4(coord, 1.0);
+   color = (coord.y + 1.0) / 2.0;
+   color_frag = vec3(color, (color / 2.0) + abs(coord.x), (color / 2.0) +
+   abs(coord.y));
 }
