@@ -59,7 +59,7 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
         ++this->frame;
         /* render the next frame */
         glClear(GL_COLOR_BUFFER_BIT);
-        glDrawElements(GL_LINES, 2 * MAP_NUM_LINES , GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 2 * MAP_NUM_LINES , GL_UNSIGNED_INT, 0);
 
         /* display and process events through callbacks */
         glfwSwapBuffers(window);
