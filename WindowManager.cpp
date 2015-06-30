@@ -14,13 +14,16 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
+//    glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
+    glfwWindowHint(GLFW_DEPTH_BITS, 16);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    this->window = glfwCreateWindow(800, 600, "MOD1", NULL, NULL);
+    this->window = glfwCreateWindow(sizeX, sizeY, "MOD1", NULL, NULL);
 
     if (!window)
         exit(EXIT_FAILURE);
@@ -28,6 +31,8 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
     glfwSetKeyCallback(this->window, keyCallback);
     glfwMakeContextCurrent(this->window);
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     vertexShader = this->getShader("shaders/vertext.ver");
     fragmentShader = this->getShader("shaders/fragment.frag");
     this->shaderProgram = this->makeShaderProgram(vertexShader, fragmentShader);
@@ -47,7 +52,6 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
     this->meshManager->initMap();
     this->meshManager->makeMesh(this->shaderProgram);
 
-    glViewport(0, 0, 800, 600);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     this->frame = 0;
@@ -58,7 +62,8 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
     {
         ++this->frame;
         /* render the next frame */
-        glClear(GL_COLOR_BUFFER_BIT);
+        glViewport(0,0,sizeX * 4, sizeY* 4);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glDrawElements(GL_TRIANGLES, 2 * MAP_NUM_LINES , GL_UNSIGNED_INT, 0);
 
         /* display and process events through callbacks */
@@ -71,8 +76,9 @@ WindowManager::WindowManager( int sizeX, int sizeY) {
             /* generate the next iteration of the heightmap */
             if (this->iter < MAX_ITER)
             {
-                this->meshManager->updateMap(NUM_ITER_AT_A_TIME);
-                this->meshManager->updateMesh();
+     //           this->meshManager->updateMap(NUM_ITER_AT_A_TIME);
+     //           this->meshManager->updateMesh();
+          //      this->meshManager->makeMesh(this->shaderProgram);
                 iter += NUM_ITER_AT_A_TIME;
             }
             this->lastUpdateTime = dt;

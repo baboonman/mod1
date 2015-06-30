@@ -4,31 +4,21 @@ void    MeshManager::makeMesh(GLuint program) {
 
     GLuint attrloc;
 
+  //  glEnable(GL_DEPTH_TEST);
+  //  glDepthFunc(GL_LESS);
     glGenVertexArrays(1, &(this->mesh));
     glGenBuffers(4, this->meshVbo);
     glBindVertexArray(this->mesh);
     /* Prepare the data for drawing through a buffer inidices */
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshVbo[3]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* MAP_NUM_LINES * 2, this->mapLineIndices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshVbo[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(GLfloat), indexes, GL_STATIC_DRAW);
 
     /* Prepare the attributes for rendering */
     attrloc = glGetAttribLocation(program, "x");
     glBindBuffer(GL_ARRAY_BUFFER, this->meshVbo[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &(this->mapVertices[0][0]), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 24, positionData, GL_STATIC_DRAW);
     glEnableVertexAttribArray(attrloc);
-    glVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
-
-    attrloc = glGetAttribLocation(program, "z");
-    glBindBuffer(GL_ARRAY_BUFFER, this->meshVbo[2]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &(this->mapVertices[2][0]), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(attrloc);
-    glVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
-
-    attrloc = glGetAttribLocation(program, "y");
-    glBindBuffer(GL_ARRAY_BUFFER, this->meshVbo[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &(this->mapVertices[1][0]), GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(attrloc);
-    glVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
 void    MeshManager::updateMap(int numIter) {
@@ -74,7 +64,7 @@ void    MeshManager::generateHeightmapCircle(float *centerX, float *centerY,
 
 void    MeshManager::updateMesh(void)
 {
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &(this->mapVertices[1][0]));
+  //  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &(this->mapVertices[1][0]));
 }
 
 void    MeshManager::initMap( void ) {

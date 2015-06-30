@@ -43,25 +43,4 @@ class WindowManager {
         void        initMatrix( void );
 };
 
-static const char* vertexShaderText =
-"#version 150\n"
-"uniform mat4 project;\n"
-"uniform mat4 modelview;\n"
-"in float x;\n"
-"in float y;\n"
-"in float z;\n"
-"\n"
-"void main()\n"
-"{\n"
-"   gl_Position = project * modelview * vec4(x, y, z, 1.0);\n"
-"}\n";
-
-static const char* fragmentShaderText =
-"#version 150\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"    color = vec4(0.2, 1.0, 0.2, 1.0); \n"
-"}\n";
-
 #endif

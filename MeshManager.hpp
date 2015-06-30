@@ -26,14 +26,89 @@ class MeshManager {
         void    updateMap(int numIter);
         void    updateMesh(void);
         void    initMap(void);
+        void    updateView();
     private:
         GLuint  mesh;
-        GLuint  meshVbo[4];
         GLfloat mapVertices[3][MAP_NUM_TOTAL_VERTICES];
         GLuint  mapLineIndices[2 * MAP_NUM_LINES];
+
+        GLuint meshVbo[3];
 
         void    generateHeightmapCircle(float *centerX, float *centerY,
                 float* size, float* displacement);
 };
+
+static GLfloat color[] = {
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 1.0f,
+    1.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 1.0f,
+    0.6f, 0.1f, 1.0f,
+};
+static GLfloat positionData[] = 
+{
+    -1.0f, 1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, -1.0f, 1.0f,
+    -1.0f, -1.0f, 1.0f,
+};
+
+static GLuint indexes[] = 
+{
+    0, 1, 2, 0, 2, 3,
+    4, 5, 6, 4, 6, 7, 
+    0, 3, 7, 0, 7, 4, 
+    1, 5, 6, 1, 6, 2, 
+    0, 4, 5, 0, 5, 1, 
+    2, 3, 7, 2, 7, 6
+};
+
+static const GLfloat bigCube[] = {
+    -1.0f,-1.0f,-1.0f,
+    -1.0f,-1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f,-1.0f,
+    -1.0f,-1.0f,-1.0f,
+    -1.0f, 1.0f,-1.0f,
+    1.0f,-1.0f, 1.0f,
+    -1.0f,-1.0f,-1.0f,
+    1.0f,-1.0f,-1.0f,
+    1.0f, 1.0f,-1.0f,
+    1.0f,-1.0f,-1.0f,
+    -1.0f,-1.0f,-1.0f,
+    -1.0f,-1.0f,-1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f,-1.0f,
+    1.0f,-1.0f, 1.0f,
+    -1.0f,-1.0f, 1.0f,
+    -1.0f,-1.0f,-1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f,-1.0f, 1.0f,
+    1.0f,-1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f,-1.0f,-1.0f,
+    1.0f, 1.0f,-1.0f,
+    1.0f,-1.0f,-1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f,-1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f,-1.0f,
+    -1.0f, 1.0f,-1.0f,
+    1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f,-1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f,-1.0f, 1.0f
+};
+
+
 
 #endif
