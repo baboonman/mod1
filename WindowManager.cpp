@@ -1,7 +1,7 @@
 #include "WindowManager.hpp"
 
 WindowManager::WindowManager( int sizeX, int sizeY) 
- : projectionMatrix(4, 4), modelViewMatrix(4, 4) {
+ : projectionMatrix(4, 4), modelViewMatrix(4, 4), rotationMatrix(4, 4), finalProjMatrix(4, 4), _sizeX(sizeX), _sizeY(sizeY) {
 
     std::string     *vertexShader;
     std::string     *fragmentShader;
@@ -42,48 +42,46 @@ WindowManager::WindowManager( int sizeX, int sizeY)
         exit(EXIT_FAILURE);
 
     glUseProgram(this->shaderProgram);
-    ulocProject   = glGetUniformLocation(this->shaderProgram, "project");
-    ulocModelview = glGetUniformLocation(this->shaderProgram, "modelview");
+    this->ulocProject   = glGetUniformLocation(this->shaderProgram, "proj");
+    this->ulocRot = glGetUniformLocation(this->shaderProgram, "rotation");
 
     this->initMatrix();
 
-    glUniformMatrix4fv(ulocProject, 1, GL_FALSE, this->projectionMatrix.toGLfloat());
-    glUniformMatrix4fv(ulocModelview, 1, GL_FALSE, this->modelViewMatrix.toGLfloat());
+    glUniformMatrix4fv(this->ulocProject, 1, GL_FALSE, this->finalProjMatrix.toGLfloat());
+    glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
 
-    this->meshManager->initMap();
     this->meshManager->makeMesh(this->shaderProgram);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    this->run();
 
+}
+
+void        WindowManager::run() {
     this->frame = 0;
     this->iter = 0;
     this->lastUpdateTime = glfwGetTime();
 
+    glViewport(0 ,0 ,this->_sizeX * 4, this->_sizeY * 4);
+
     while (!glfwWindowShouldClose(window))
     {
         ++this->frame;
-        /* render the next frame */
-        glViewport(0,0,sizeX * 4, sizeY* 4);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
-        /* display and process events through callbacks */
         glfwSwapBuffers(window);
         glfwPollEvents();
-        /* Check the frame rate and update the heightmap if needed */
         this->dt = glfwGetTime();
-        if ((this->dt - this->lastUpdateTime) > 0.2)
+        if ((this->dt - this->lastUpdateTime) > 0.01f)
         {
-            /* generate the next iteration of the heightmap */
-            if (this->iter < MAX_ITER)
-            {
-                iter += NUM_ITER_AT_A_TIME;
-            }
+            GenerateMatrix::setRotation(this->rotationMatrix, static_cast<GLfloat>(iter) / 100.0f, static_cast<GLfloat>(iter) / 150.0f, static_cast<GLfloat>(iter) / 200.0f);
+            glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
+            this->iter++;
+
             this->lastUpdateTime = dt;
             this->frame = 0;
         }
     }
-
 }
 
 void        WindowManager::initMatrix() {
@@ -96,7 +94,11 @@ void        WindowManager::initMatrix() {
     );
 
     GenerateMatrix::setModelView(this->modelViewMatrix);
+    GenerateMatrix::setRotation(this->rotationMatrix, 0.1f, 0.1f, 0.1f);
+    this->finalProjMatrix = this->modelViewMatrix * this->projectionMatrix;
+    std::cout << "Projection matrix: " << std::endl;
     std::cout << this->projectionMatrix << std::endl;
+    std::cout << "ModelView matrix: " << std::endl;
     std::cout << this->modelViewMatrix << std::endl;
 }
 
@@ -165,7 +167,6 @@ GLuint      WindowManager::makeShader(GLenum type, const std::string* text)
     const char  *srcShader;
     
     srcShader = text->c_str();
-    std::cout << *text << std::endl;
 
     shader = glCreateShader(type);
     if (shader != 0)

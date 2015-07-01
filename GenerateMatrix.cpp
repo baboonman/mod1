@@ -19,4 +19,34 @@ namespace GenerateMatrix {
         matrix[13]  = -5.0f;
         matrix[14]  = -20.0f;
     }
+
+    void    setRotation(Matrix &matrix, GLfloat x, GLfloat y, GLfloat z) {
+        GLfloat sinX = sin(x);
+        GLfloat sinY= sin(y);
+        GLfloat sinZ = sin(z);
+
+        GLfloat cosX = cos(x);
+        GLfloat cosY= cos(y);
+        GLfloat cosZ = cos(z);
+
+        matrix(0, 0) = cosY * cosZ;
+        matrix(0, 1) = cosX * sinZ + sinX * sinY * cosZ;
+        matrix(0, 2) = sinX * sinZ - cosX * sinY * cosZ;
+        matrix(0, 3) = 0;
+
+        matrix(1, 0) = -cosY * sinZ;
+        matrix(1, 1) = cosX * cosZ - sinX * sinY * sinZ;
+        matrix(1, 2) = cosX * sinY * sinZ + sinX * cosZ;
+        matrix(1, 3) = 0;
+
+        matrix(2, 0) = sinY;
+        matrix(2, 1) = -sinX * cosY;
+        matrix(2, 2) = cosX * cosY;
+        matrix(2, 3) = 0;
+
+        matrix(3, 0) = 0;
+        matrix(3, 1) = 0;
+        matrix(3, 2) = 0;
+        matrix(3, 3) = 1;
+    }
 }

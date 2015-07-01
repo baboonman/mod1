@@ -9,8 +9,9 @@
 
 namespace GenerateMatrix {
 
-    void setProjection(Matrix &matrix, GLfloat viewAngle, GLfloat aspectRatio, GLfloat zFar,GLfloat zNear);
-    void setModelView(Matrix &matrix);
+    void    setProjection(Matrix &matrix, GLfloat viewAngle, GLfloat aspectRatio, GLfloat zFar,GLfloat zNear);
+    void    setModelView(Matrix &matrix);
+    void    setRotation(Matrix &matrix, GLfloat x, GLfloat y, GLfloat z);
 
     const GLfloat  IDENTITY[] = {
     1.0f, 0.0f, 0.0f, 0.0f,

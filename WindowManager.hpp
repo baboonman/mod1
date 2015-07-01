@@ -22,10 +22,12 @@ class WindowManager {
     private:
         GLFWwindow  *window;
         GLuint      shaderProgram;
-        GLint       ulocModelview;
         GLint       ulocProject;
+        GLint       ulocRot;
         Matrix      projectionMatrix;
         Matrix      modelViewMatrix;
+        Matrix      rotationMatrix;
+        Matrix      finalProjMatrix;
         GLfloat     viewAngle;
         GLfloat     aspectRatio;
         GLfloat     zFar;
@@ -34,6 +36,8 @@ class WindowManager {
         int         iter;
         double      dt;
         double      lastUpdateTime;
+        int         _sizeX;
+        int         _sizeY;
 
         GLuint      makeShaderProgram(const std::string *vsText, const std::string *fsText);
         GLuint      makeShader(GLenum type, const std::string *text);
@@ -41,6 +45,7 @@ class WindowManager {
         std::string *getShader(std::string filename) const; 
 
         void        initMatrix( void );
+        void        run(void);
 };
 
 #endif
