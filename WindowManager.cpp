@@ -9,7 +9,7 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     this->zNear = 1.0f;
     this->aspectRatio = 4.0f / 3.0f;
     this->viewAngle = 45.0f;
-    this->meshManager = new MeshManager();
+    this->meshManager = new MeshManager(4, 4);
 
     glfwSetErrorCallback(WindowManager::errorCallback);
     if (!glfwInit())

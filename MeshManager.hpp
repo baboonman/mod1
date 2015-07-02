@@ -8,31 +8,32 @@
 #define MAX_ITER (200)
 #define NUM_ITER_AT_A_TIME (1)
 
-/* Map general information */
-#define MAP_SIZE (10.0f)
-#define MAP_NUM_VERTICES (80)
-#define MAP_NUM_TOTAL_VERTICES (MAP_NUM_VERTICES*MAP_NUM_VERTICES)
-#define MAP_NUM_LINES (3* (MAP_NUM_VERTICES - 1) * (MAP_NUM_VERTICES - 1) + \
-               2 * (MAP_NUM_VERTICES - 1))
-
 # include <glad/glad.h>
 # include <GLFW/glfw3.h>
 # include <math.h>
 # include <stdlib.h>
+# include <iostream>
 
 class MeshManager {
     public:
+        MeshManager(unsigned int mapX, unsigned int mapY);
         void    makeMesh(GLuint program);
         void    updateMap(int numIter);
         void    updateMesh(void);
         void    initMap(void);
         void    updateView();
+        void    generatePoint(void);
+        void    generateIndices(void);
     private:
         GLuint  mesh;
-        GLfloat mapVertices[3][MAP_NUM_TOTAL_VERTICES];
-        GLuint  mapLineIndices[2 * MAP_NUM_LINES];
+        GLfloat *_mapVertices[3];
+        GLuint  *_mapIndices;
+        unsigned int _nbVertices;
+        unsigned int _nbIndices;
+        unsigned int _mapX;
+        unsigned int _mapY;
 
-        GLuint meshVbo[3];
+        GLuint meshVbo[4];
 
         void    generateHeightmapCircle(float *centerX, float *centerY,
                 float* size, float* displacement);
