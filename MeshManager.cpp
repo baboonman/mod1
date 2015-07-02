@@ -42,17 +42,11 @@ void    MeshManager::generateIndices(void) {
             this->_mapIndices[i++] = maxX * y + x + maxX - 1;
             this->_mapIndices[i++] = maxX * y + (x - 1);
 
-        }
-    }
-    std::cout << "I: " << i << std::endl;
-    for (unsigned int y = 0; y < this->_mapY; y++) {
-        for (unsigned int x = 1; x < maxX; x++) {
             this->_mapIndices[i++] = maxX * y + x;
             this->_mapIndices[i++] = maxX * y + x + maxX - 1;
             this->_mapIndices[i++] = maxX * y + x + maxX;
         }
     }
-    std::cout << "I: " << i << std::endl;
 }
 
 GLuint    MeshManager::getNbIndices(void) {

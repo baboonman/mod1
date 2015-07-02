@@ -14,7 +14,7 @@
 
 class WindowManager {
     public:
-        WindowManager(int sizeX, int sizeY);
+        WindowManager(int sizeX, int sizeY, std::string filename);
         virtual ~WindowManager();
         static void errorCallback(int error, const char* description);
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -38,6 +38,10 @@ class WindowManager {
         double      lastUpdateTime;
         int         _sizeX;
         int         _sizeY;
+        GLfloat      _rotX;
+        GLfloat      _rotY;
+        GLfloat      _rotZ;
+        Mesh        *_loadedMesh;
 
         GLuint      makeShaderProgram(const std::string *vsText, const std::string *fsText);
         GLuint      makeShader(GLenum type, const std::string *text);

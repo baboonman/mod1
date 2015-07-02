@@ -33,6 +33,9 @@ class MeshManager {
         unsigned int _nbIndices;
         unsigned int _mapX;
         unsigned int _mapY;
+        GLfloat      _rotX;
+        GLfloat      _rotY;
+        GLfloat      _rotZ;
 
         GLuint meshVbo[4];
 

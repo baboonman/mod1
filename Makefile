@@ -6,6 +6,7 @@ SRC= main.cpp \
 	 WindowManager.cpp \
 	 GenerateMatrix.cpp \
 	 MeshManager.cpp \
+	 Mesh.cpp \
 	 Matrix.cpp
 
 OBJ= $(SRC:.cpp=.o)

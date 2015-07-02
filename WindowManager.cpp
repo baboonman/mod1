@@ -5,17 +5,22 @@ WindowManager::WindowManager( int sizeX, int sizeY)
 
     std::string     *vertexShader;
     std::string     *fragmentShader;
+
     this->zFar = 1000.0f;
     this->zNear = 1.0f;
     this->aspectRatio = 4.0f / 3.0f;
     this->viewAngle = 45.0f;
     this->meshManager = new MeshManager(20, 20);
 
+    this->_rotX = 0;
+    this->_rotY = 0;
+    this->_rotZ = 0;
+
     glfwSetErrorCallback(WindowManager::errorCallback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-//    glfwWindowHint(GLFW_SAMPLES, 4);
+    glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
     glfwWindowHint(GLFW_DEPTH_BITS, 16);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -77,7 +82,7 @@ void        WindowManager::run() {
         this->dt = glfwGetTime();
         if ((this->dt - this->lastUpdateTime) > 0.01f)
         {
-            GenerateMatrix::setRotation(this->rotationMatrix, static_cast<GLfloat>(iter) / 100.0f, static_cast<GLfloat>(iter) / 150.0f, static_cast<GLfloat>(iter) / 200.0f);
+            GenerateMatrix::setRotation(this->rotationMatrix, this->_rotX, this->_rotY, this->_rotZ);
             glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
             this->iter++;
 
@@ -97,7 +102,7 @@ void        WindowManager::initMatrix() {
     );
 
     GenerateMatrix::setModelView(this->modelViewMatrix);
-    GenerateMatrix::setRotation(this->rotationMatrix, 0.1f, 0.1f, 0.1f);
+    GenerateMatrix::setRotation(this->rotationMatrix, this->_rotX, this->_rotY, this->_rotZ);
     this->finalProjMatrix = this->modelViewMatrix * this->projectionMatrix;
     std::cout << "Projection matrix: " << std::endl;
     std::cout << this->projectionMatrix << std::endl;
