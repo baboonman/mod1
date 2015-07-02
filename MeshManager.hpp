@@ -24,6 +24,7 @@ class MeshManager {
         void    updateView();
         void    generatePoint(void);
         void    generateIndices(void);
+        GLuint  getNbIndices(void);
     private:
         GLuint  mesh;
         GLfloat *_mapVertices[3];

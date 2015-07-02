@@ -5,11 +5,11 @@ WindowManager::WindowManager( int sizeX, int sizeY)
 
     std::string     *vertexShader;
     std::string     *fragmentShader;
-    this->zFar = 100.0f;
+    this->zFar = 1000.0f;
     this->zNear = 1.0f;
     this->aspectRatio = 4.0f / 3.0f;
     this->viewAngle = 45.0f;
-    this->meshManager = new MeshManager(4, 4);
+    this->meshManager = new MeshManager(20, 20);
 
     glfwSetErrorCallback(WindowManager::errorCallback);
     if (!glfwInit())
@@ -60,14 +60,17 @@ void        WindowManager::run() {
     this->frame = 0;
     this->iter = 0;
     this->lastUpdateTime = glfwGetTime();
+    GLuint  nbTriangle;
 
-    glViewport(0 ,0 ,this->_sizeX * 4, this->_sizeY * 4);
+    glViewport(0 ,0 ,this->_sizeX * 1, this->_sizeY * 1);
+    nbTriangle = this->meshManager->getNbIndices();
 
     while (!glfwWindowShouldClose(window))
     {
         ++this->frame;
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        //glViewport(0 ,0 ,this->_sizeX * 4, this->_sizeY * 4);
+        glDrawElements(GL_TRIANGLES, nbTriangle, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
