@@ -7,9 +7,9 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     std::string     *fragmentShader;
 
     this->zFar = 1000.0f;
-    this->zNear = 1.0f;
+    this->zNear = 0.1f;
     this->aspectRatio = 4.0f / 3.0f;
-    this->viewAngle = 45.0f;
+    this->viewAngle = 0.5f * M_PI;
     this->meshManager = new MeshManager(20, 20);
 
     this->_rotX = 0;
@@ -21,8 +21,8 @@ WindowManager::WindowManager( int sizeX, int sizeY)
         exit(EXIT_FAILURE);
 
     glfwWindowHint(GLFW_SAMPLES, 4);
-    glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
-    glfwWindowHint(GLFW_DEPTH_BITS, 16);
+  //  glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
+  //  glfwWindowHint(GLFW_DEPTH_BITS, 16);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
@@ -51,11 +51,29 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     this->ulocRot = glGetUniformLocation(this->shaderProgram, "rotation");
 
     this->initMatrix();
-
+/*
+    this->finalProjMatrix(0, 0) = 1.79259;
+    this->finalProjMatrix(0, 1) = 0;
+    this->finalProjMatrix(0, 2) = 0;
+    this->finalProjMatrix(0, 3) = 0;
+    this->finalProjMatrix(1, 0) = 0;
+    this->finalProjMatrix(1, 1) = 1.79259;
+    this->finalProjMatrix(1, 2) = 0;
+    this->finalProjMatrix(1, 3) = 0;
+    this->finalProjMatrix(2, 0) = 0;
+    this->finalProjMatrix(2, 1) = 0;
+    this->finalProjMatrix(2, 2) = -1.00200;
+    this->finalProjMatrix(2, 3) = 4.80981;
+    this->finalProjMatrix(3, 0) = 0;
+    this->finalProjMatrix(3, 1) = 0;
+    this->finalProjMatrix(3, 2) = -1.00000;
+    this->finalProjMatrix(3, 3) = 5.00000;
+*/
+    std::cout << this->finalProjMatrix << std::endl;
     glUniformMatrix4fv(this->ulocProject, 1, GL_FALSE, this->finalProjMatrix.toGLfloat());
     glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
 
-    this->meshManager->makeMesh(this->shaderProgram);
+ //   this->meshManager->makeMesh(this->shaderProgram);
 
     this->run();
 
@@ -69,11 +87,13 @@ void        WindowManager::run() {
 
     glViewport(0 ,0 ,this->_sizeX * 1, this->_sizeY * 1);
     nbTriangle = this->meshManager->getNbIndices();
+    this->meshManager->makeMesh(this->shaderProgram);
 
     while (!glfwWindowShouldClose(window))
     {
         ++this->frame;
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+ //       this->meshManager->makeMesh(this->shaderProgram);
         //glViewport(0 ,0 ,this->_sizeX * 4, this->_sizeY * 4);
         glDrawElements(GL_TRIANGLES, nbTriangle, GL_UNSIGNED_INT, 0);
 
@@ -82,6 +102,9 @@ void        WindowManager::run() {
         this->dt = glfwGetTime();
         if ((this->dt - this->lastUpdateTime) > 0.01f)
         {
+            this->_rotX += 0.01;
+            this->_rotY += 0.02;
+            this->_rotZ += 0.04;
             GenerateMatrix::setRotation(this->rotationMatrix, this->_rotX, this->_rotY, this->_rotZ);
             glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
             this->iter++;
@@ -103,7 +126,7 @@ void        WindowManager::initMatrix() {
 
     GenerateMatrix::setModelView(this->modelViewMatrix);
     GenerateMatrix::setRotation(this->rotationMatrix, this->_rotX, this->_rotY, this->_rotZ);
-    this->finalProjMatrix = this->modelViewMatrix * this->projectionMatrix;
+    this->finalProjMatrix = this->projectionMatrix * this->modelViewMatrix;
     std::cout << "Projection matrix: " << std::endl;
     std::cout << this->projectionMatrix << std::endl;
     std::cout << "ModelView matrix: " << std::endl;

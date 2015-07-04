@@ -11,13 +11,14 @@ namespace GenerateMatrix {
         matrix[10] = (zFar + zNear)/ (zNear - zFar);
         matrix[11] = -1.0f;
         matrix[14] = 2.0f * (zFar * zNear) / (zNear - zFar);
+        matrix[15] = 0.0f;
     }
 
     void setModelView(Matrix &matrix) {
         matrix = MTX_INDENTITY;
-        matrix[12]  = -5.0f;
-        matrix[13]  = -5.0f;
-        matrix[14]  = -20.0f;
+        matrix(3, 0)  = -5.0f;
+        matrix(3, 1)  = -5.0f;
+        matrix(3, 2) = 5.0f;
     }
 
     void    setRotation(Matrix &matrix, GLfloat x, GLfloat y, GLfloat z) {

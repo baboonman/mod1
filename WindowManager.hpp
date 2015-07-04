@@ -7,14 +7,16 @@
 # include <iostream>
 # include <string>
 # include <unistd.h>
+# include <fstream>
+# include <string>
+
 # include "GenerateMatrix.hpp"
 # include "MeshManager.hpp"
-#include <fstream>
-#include <string>
+# include "Mesh.hpp"
 
 class WindowManager {
     public:
-        WindowManager(int sizeX, int sizeY, std::string filename);
+        WindowManager(int sizeX, int sizeY);
         virtual ~WindowManager();
         static void errorCallback(int error, const char* description);
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);

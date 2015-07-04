@@ -14,6 +14,8 @@
 # include <stdlib.h>
 # include <iostream>
 
+# include "Mesh.hpp"
+
 class MeshManager {
     public:
         MeshManager(unsigned int mapX, unsigned int mapY);
@@ -27,17 +29,13 @@ class MeshManager {
         GLuint  getNbIndices(void);
     private:
         GLuint  mesh;
-        GLfloat *_mapVertices[3];
-        GLuint  *_mapIndices;
-        unsigned int _nbVertices;
-        unsigned int _nbIndices;
+        std::vector<GLfloat> *_mapVertices;
+        std::vector<GLuint>  *_mapIndices;
         unsigned int _mapX;
         unsigned int _mapY;
-        GLfloat      _rotX;
-        GLfloat      _rotY;
-        GLfloat      _rotZ;
 
         GLuint meshVbo[4];
+        Mesh    *_loadedMesh;
 
         void    generateHeightmapCircle(float *centerX, float *centerY,
                 float* size, float* displacement);
