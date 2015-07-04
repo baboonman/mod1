@@ -8,7 +8,7 @@ namespace GenerateMatrix {
         f = 1.0f / tanf(viewAngle / 2.0f);
         matrix[0]  = f / aspectRatio;
         matrix[5]  = f;
-        matrix[10] = (zFar + zNear)/ (zNear - zFar);
+        matrix[10] = (zFar + zNear) / (zNear - zFar);
         matrix[11] = -1.0f;
         matrix[14] = 2.0f * (zFar * zNear) / (zNear - zFar);
         matrix[15] = 0.0f;
@@ -16,9 +16,9 @@ namespace GenerateMatrix {
 
     void setModelView(Matrix &matrix) {
         matrix = MTX_INDENTITY;
-        matrix(3, 0)  = -5.0f;
-        matrix(3, 1)  = -5.0f;
-        matrix(3, 2) = 5.0f;
+        matrix(3, 0)  = 0.0f;
+        matrix(3, 1)  = 0.0f;
+        matrix(3, 2) = -5.0f;
     }
 
     void    setRotation(Matrix &matrix, GLfloat x, GLfloat y, GLfloat z) {

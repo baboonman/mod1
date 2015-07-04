@@ -6,10 +6,10 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     std::string     *vertexShader;
     std::string     *fragmentShader;
 
-    this->zFar = 1000.0f;
-    this->zNear = 0.1f;
-    this->aspectRatio = 4.0f / 3.0f;
-    this->viewAngle = 0.5f * M_PI;
+    this->zFar = 100.0f;
+    this->zNear = 1.0f;
+    this->aspectRatio = 1.0f;
+    this->viewAngle = 0.25f * M_PI;
     this->meshManager = new MeshManager(20, 20);
 
     this->_rotX = 0;
@@ -85,7 +85,7 @@ void        WindowManager::run() {
     this->lastUpdateTime = glfwGetTime();
     GLuint  nbTriangle;
 
-    glViewport(0 ,0 ,this->_sizeX * 1, this->_sizeY * 1);
+    glViewport(0 ,0 ,this->_sizeX * 2, this->_sizeY * 2);
     nbTriangle = this->meshManager->getNbIndices();
     this->meshManager->makeMesh(this->shaderProgram);
 
