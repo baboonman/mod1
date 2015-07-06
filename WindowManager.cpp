@@ -51,7 +51,6 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     this->ulocRot = glGetUniformLocation(this->shaderProgram, "rotation");
 
     this->initMatrix();
-/*
     this->finalProjMatrix(0, 0) = 1.79259;
     this->finalProjMatrix(0, 1) = 0;
     this->finalProjMatrix(0, 2) = 0;
@@ -68,7 +67,7 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     this->finalProjMatrix(3, 1) = 0;
     this->finalProjMatrix(3, 2) = -1.00000;
     this->finalProjMatrix(3, 3) = 5.00000;
-*/
+
     std::cout << this->finalProjMatrix << std::endl;
     glUniformMatrix4fv(this->ulocProject, 1, GL_FALSE, this->finalProjMatrix.toGLfloat());
     glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());

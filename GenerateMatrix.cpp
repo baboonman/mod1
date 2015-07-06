@@ -12,6 +12,22 @@ namespace GenerateMatrix {
         matrix[11] = -1.0f;
         matrix[14] = 2.0f * (zFar * zNear) / (zNear - zFar);
         matrix[15] = 0.0f;
+
+        /*
+        GLfloat top = zNear * tanf((M_PI / 180) * 90.0f / 2.0);
+        GLfloat bottom = -top;
+        GLfloat right = top * aspectRatio;
+        GLfloat left = -right;
+
+        matrix = MTX_INDENTITY;
+        matrix(0, 0) = (2 * zNear) / (right - left);
+        matrix(1, 1) = (2 * zNear) / (top - bottom);
+        matrix(2, 2) = -(zFar + zNear) / (zFar - zNear);
+        matrix(3, 3) = 0.0f;
+        matrix(0, 2) = (right + left) / (right - left);
+        matrix(1, 2) = (top + bottom) / (top - bottom);
+        matrix(2, 3) = (2 * zFar * zNear) / (zFar - zNear);
+        */
     }
 
     void setModelView(Matrix &matrix) {
