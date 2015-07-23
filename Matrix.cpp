@@ -34,7 +34,7 @@ std::ostream& operator<< (std::ostream &out, Matrix &matrix)
         out << "[";
         for (unsigned int x = 0; x < matrix._sizeX; x++) {
             out  << std::setw(6) << matrix(x, y);
-            if (y != matrix._sizeY - 1) {
+            if (x != matrix._sizeX - 1) {
                 std::cout << ",";
             }
         }

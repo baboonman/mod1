@@ -12,20 +12,16 @@
 
 class Mesh {
     public:
-        Mesh(std::string filename);
-        std::vector<GLfloat>    *getVertices();
+        Mesh();
+        std::vector<GLfloat>   *getVertices();
+        std::vector<GLfloat>   *getNormal();
         std::vector<GLuint>    *getIndices();
-    private:
+        virtual ~Mesh();
+    protected:
         std::vector<GLfloat>    *_vertices;
         std::vector<GLuint>     *_indicesVert;
         std::vector<GLuint>     *_indicesNorm;
         std::vector<GLfloat>    *_normal;
-
-        void    _addPoint(std::vector<std::string> &vector);
-        void    _addNormal(std::vector<std::string> &vector);
-        void    _addIndices(std::vector<std::string> &vector);
-        void    _processLine(std::string);
-        void    _split(std::vector<std::string> &vector, std::string line, std::string separator);
 };
 
 #endif

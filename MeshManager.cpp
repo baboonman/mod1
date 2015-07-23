@@ -3,58 +3,16 @@
 MeshManager::MeshManager(unsigned int mapX, unsigned int mapY)
     : _mapX(mapX), _mapY(mapY) {
 
-        this->_loadedMesh = new Mesh("suzanne.obj");
-
-    /*
-    unsigned int    nbSquare = mapX * mapY;
-
-    this->_nbVertices = (1 + this->_mapX) * (this->_mapY + 1);
-
-    this->_mapVertices[0]  = new GLfloat[this->_nbVertices];
-    this->_mapVertices[1]  = new GLfloat[this->_nbVertices];
-    this->_mapVertices[2]  = new GLfloat[this->_nbVertices];
-    std::cout << _nbVertices << std::endl;
-    this->_nbIndices = nbSquare * 6;
-    this->_mapIndices = new GLuint[this->_nbIndices];
-    std::cout << "Nb §vertices: " << this->_nbVertices << " nb indices: " << this->_nbIndices << std::endl;
-    this->generatePoint();
-    this->generateIndices();
-    */
+        this->_loadedMesh = new MapMesh(300, 300, 0.04);
+        this->_mapManager = new MapManager("map", this->_loadedMesh);
+        this->_mapManager->generateMountain();
+ //       (*(this->_loadedMesh))(0, 5) = 3;
 }
 
-void    MeshManager::generatePoint(void) {
-    /*
-    GLfloat     x;
-    GLfloat     y;
+MeshManager::~MeshManager() {
+    delete this->_loadedMesh;
+    delete this->_mapManager;
 
-    for (unsigned int i = 0; i < this->_nbVertices; i++) {
-        x = i % (this->_mapX + 1);
-        y = i / (this->_mapY + 1);
-        this->_mapVertices[1][i] = x;
-        this->_mapVertices[0][i] = y;
-        this->_mapVertices[2][i] = 0.1f;
-    }
-    */
-}
-
-void    MeshManager::generateIndices(void) {
-    /*
-    unsigned int    i = 0;
-    unsigned int    maxX = this->_mapX + 1;
-
-    for (unsigned int y = 0; y < this->_mapY; y++) {
-        for (unsigned int x = 1; x < maxX; x++) {
-
-            this->_mapIndices[i++] = maxX * y + x;
-            this->_mapIndices[i++] = maxX * y + x + maxX - 1;
-            this->_mapIndices[i++] = maxX * y + (x - 1);
-
-            this->_mapIndices[i++] = maxX * y + x;
-            this->_mapIndices[i++] = maxX * y + x + maxX - 1;
-            this->_mapIndices[i++] = maxX * y + x + maxX;
-        }
-    }
-    */
 }
 
 GLuint    MeshManager::getNbIndices(void) {
@@ -78,7 +36,7 @@ void    MeshManager::makeMesh(GLuint program) {
         index[i] = (*this->_mapIndices)[i];
     }
     glGenVertexArrays(1, &(this->mesh));
-    glGenBuffers(2, this->meshVbo);
+    glGenBuffers(3, this->meshVbo);
     glBindVertexArray(this->mesh);
     /* Prepare the data for drawing through a buffer inidices */
     std::cout << "indice: " << this->_mapIndices << std::endl;
@@ -92,6 +50,17 @@ void    MeshManager::makeMesh(GLuint program) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->_mapVertices->size(), vertice, GL_STATIC_DRAW);
     glEnableVertexAttribArray(attrloc);
     glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    std::cout << "vertex: " << this->_mapVertices<< std::endl;
+    attrloc = glGetAttribLocation(program, "normal");
+    glBindBuffer(GL_ARRAY_BUFFER, this->meshVbo[2]);
+    glBufferData(GL_ARRAY_BUFFER,
+            sizeof(GLfloat) * this->_loadedMesh->getNormal()->size(),
+            this->_loadedMesh->getNormal()->data(),
+            GL_STATIC_DRAW);
+    glEnableVertexAttribArray(attrloc);
+    glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
     delete index;
     delete vertice;
 }

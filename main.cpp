@@ -1,5 +1,6 @@
 #include "WindowManager.hpp"
 #include "Matrix.hpp"
+#include "Vector.hpp"
 
 int main(int argc, char **argv) {
     (void) argc;

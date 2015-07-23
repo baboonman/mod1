@@ -66,7 +66,7 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     this->finalProjMatrix(3, 0) = 0;
     this->finalProjMatrix(3, 1) = 0;
     this->finalProjMatrix(3, 2) = -1.00000;
-    this->finalProjMatrix(3, 3) = 5.00000;
+    this->finalProjMatrix(3, 3) = 20.00000;
 
     std::cout << this->finalProjMatrix << std::endl;
     glUniformMatrix4fv(this->ulocProject, 1, GL_FALSE, this->finalProjMatrix.toGLfloat());
@@ -92,8 +92,6 @@ void        WindowManager::run() {
     {
         ++this->frame;
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
- //       this->meshManager->makeMesh(this->shaderProgram);
-        //glViewport(0 ,0 ,this->_sizeX * 4, this->_sizeY * 4);
         glDrawElements(GL_TRIANGLES, nbTriangle, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
@@ -101,9 +99,9 @@ void        WindowManager::run() {
         this->dt = glfwGetTime();
         if ((this->dt - this->lastUpdateTime) > 0.01f)
         {
-            this->_rotX += 0.01;
-            this->_rotY += 0.02;
-            this->_rotZ += 0.04;
+            this->_rotX += 0.005;
+            this->_rotY += 0.002;
+            this->_rotZ += 0.004;
             GenerateMatrix::setRotation(this->rotationMatrix, this->_rotX, this->_rotY, this->_rotZ);
             glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
             this->iter++;

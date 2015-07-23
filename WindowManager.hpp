@@ -43,7 +43,6 @@ class WindowManager {
         GLfloat      _rotX;
         GLfloat      _rotY;
         GLfloat      _rotZ;
-        Mesh        *_loadedMesh;
 
         GLuint      makeShaderProgram(const std::string *vsText, const std::string *fsText);
         GLuint      makeShader(GLenum type, const std::string *text);

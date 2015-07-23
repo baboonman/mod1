@@ -14,11 +14,13 @@
 # include <stdlib.h>
 # include <iostream>
 
-# include "Mesh.hpp"
+# include "MapMesh.hpp"
+# include "MapManager.hpp"
 
 class MeshManager {
     public:
         MeshManager(unsigned int mapX, unsigned int mapY);
+        ~MeshManager();
         void    makeMesh(GLuint program);
         void    updateMap(int numIter);
         void    updateMesh(void);
@@ -35,7 +37,8 @@ class MeshManager {
         unsigned int _mapY;
 
         GLuint meshVbo[4];
-        Mesh    *_loadedMesh;
+        MapMesh    *_loadedMesh;
+        MapManager *_mapManager;
 
         void    generateHeightmapCircle(float *centerX, float *centerY,
                 float* size, float* displacement);

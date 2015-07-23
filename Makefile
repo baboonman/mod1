@@ -7,6 +7,10 @@ SRC= main.cpp \
 	 GenerateMatrix.cpp \
 	 MeshManager.cpp \
 	 Mesh.cpp \
+	 MapMesh.cpp \
+	 MapManager.cpp \
+	 Top.cpp \
+	 Vector.cpp \
 	 Matrix.cpp
 
 OBJ= $(SRC:.cpp=.o)
