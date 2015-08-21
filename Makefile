@@ -1,5 +1,5 @@
 CC= g++
-FLAGS=-Wall -Wextra -Wno-deprecated-declarations -std=c++11 -I./includes/ -I./includes/GLFW -g
+FLAGS=-Wall -Wextra -Wno-deprecated-declarations -std=c++11 -I./includes/ -I./includes/GLFW
 NAME=mod1 
 
 SRC= main.cpp \
@@ -11,6 +11,10 @@ SRC= main.cpp \
 	 MapManager.cpp \
 	 Top.cpp \
 	 Vector.cpp \
+	 Platform.cpp \
+	 clUtil.cpp \
+	 OpenCL.cpp \
+	 Device.cpp \
 	 Matrix.cpp
 
 OBJ= $(SRC:.cpp=.o)
@@ -22,7 +26,8 @@ FRWK=   -framework AGL \
 		-framework OpenGL \
 		-framework IOKit \
 		-framework CoreFoundation \
-		-framework CoreVideo
+		-framework CoreVideo \
+		-framework OpenCL
 
 .PHONY: clean fclean re
 .SILENT:

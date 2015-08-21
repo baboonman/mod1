@@ -2,7 +2,9 @@
 uniform mat4 proj;
 uniform mat4 rotation;
 in vec3 coord;
+in vec3 normal;
 out vec3    color_frag;
+out vec3    normal_vec;
 
 vec3    changeColor(in vec3 color) {
     color.x = color.x / 255.0f;
@@ -20,6 +22,8 @@ void main()
     vec3    medium;
     vec3    low;
 
+    normal_vec = normal;
+
     high = vec3(203, 208, 211);
     medium = vec3(46, 204, 113);
     low = vec3(241, 196, 15);
@@ -33,15 +37,4 @@ void main()
         color_frag = low * (tmp) + medium * (1 - tmp);
     }
     color_frag = changeColor(color_frag);
- //  if (x == 10.0)
-  //     color_frag = vec3(1.0, 1.0, 1.0);
-  // else if (y == 10.0)
- //      color_frag = vec3(0.0, 1.0, 1.0);
- //  else if (x == 0)
- //      color_frag = vec3(0.0, 0.0, 1.0);
- //   else if (y == 0)
- //      color_frag = vec3(1.0, 0.0, 1.0);
- //  else
-  //     color_frag = vec3(91.0f / 255.0f, 60.0f / 255.0f, 17.0f / 255.0f);
-   //   abs(coord.y);
 }
