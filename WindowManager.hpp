@@ -18,6 +18,9 @@ class WindowManager {
     public:
         WindowManager(int sizeX, int sizeY);
         virtual ~WindowManager();
+        void        run(void);
+        GLFWwindow  *getWindow( void );
+        GLuint      getWaterVBO();
         static void errorCallback(int error, const char* description);
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
@@ -50,7 +53,6 @@ class WindowManager {
         std::string *getShader(std::string filename) const; 
 
         void        initMatrix( void );
-        void        run(void);
 };
 
 #endif

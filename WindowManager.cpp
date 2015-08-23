@@ -68,14 +68,17 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     this->finalProjMatrix(3, 2) = -1.00000;
     this->finalProjMatrix(3, 3) = 20.00000;
 
-    std::cout << this->finalProjMatrix << std::endl;
     glUniformMatrix4fv(this->ulocProject, 1, GL_FALSE, this->finalProjMatrix.toGLfloat());
     glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
+    this->meshManager->makeMesh(this->shaderProgram);
+}
 
- //   this->meshManager->makeMesh(this->shaderProgram);
+GLFWwindow  *WindowManager::getWindow( void ) {
+    return this->window;
+}
 
-    this->run();
-
+GLuint      WindowManager::getWaterVBO() {
+    return this->meshManager->getWaterVBO();
 }
 
 void        WindowManager::run() {
@@ -86,7 +89,6 @@ void        WindowManager::run() {
 
     glViewport(0 ,0 ,this->_sizeX * 2, this->_sizeY * 2);
     nbTriangle = this->meshManager->getNbIndices();
-    this->meshManager->makeMesh(this->shaderProgram);
 
     while (!glfwWindowShouldClose(window))
     {

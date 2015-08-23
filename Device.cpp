@@ -3,20 +3,24 @@
 Device::Device(cl_platform_id platformId)
     : _platformId(platformId) {
         checkCLSuccess(clGetDeviceIDs(this->_platformId,
-                    CL_DEVICE_TYPE_ALL,
+                    CL_DEVICE_TYPE_GPU,
                     0,
                     NULL,
                     &(this->_nbDevices)),
                 "clGetDeviceIDs");
 
-        this->_deviceIds = (cl_device_id *)alloca(sizeof(cl_device_id) * this->_nbDevices);
+        this->_deviceIds = (cl_device_id *)malloc(sizeof(cl_device_id) * this->_nbDevices);
 
         checkCLSuccess(clGetDeviceIDs(this->_platformId,
-                    CL_DEVICE_TYPE_ALL,
+                    CL_DEVICE_TYPE_GPU,
                     this->_nbDevices,
                     this->_deviceIds,
                     NULL),
                 "clGetDeviceIDs");
+}
+
+cl_device_id    Device::getDeviceId(int deviceId) {
+    return this->_deviceIds[deviceId];
 }
 
 void    Device::displayInfoDevices() {
@@ -28,13 +32,14 @@ void    Device::displayInfoDevices() {
 
     for (cl_uint j = 0; j < this->_nbDevices; j++) {
         // print device name
-        clGetDeviceInfo(this->_deviceIds[j], CL_DEVICE_PROFILE, 10, NULL, &valueSize);
-        std::cout << "Size: " << valueSize << std::endl;
+        checkCLSuccess(clGetDeviceInfo(this->_deviceIds[j], CL_DEVICE_NAME, 0, NULL, &valueSize),
+                "clGetDeviceInfo size");
         value = (char*) malloc(valueSize);
-        clGetDeviceInfo(this->_deviceIds[j], CL_DEVICE_PROFILE, valueSize, value, NULL);
+        checkCLSuccess(clGetDeviceInfo(this->_deviceIds[j], CL_DEVICE_NAME, valueSize, value, NULL),
+                "clGetDeviceInfo info");
+        std::cout << "Device: " << value << std::endl;
         free(value);
 
-        /**
         // print hardware device version
         clGetDeviceInfo(this->_deviceIds[j], CL_DEVICE_VERSION, 0, NULL, &valueSize);
         value = (char*) malloc(valueSize * sizeof(char *));
@@ -59,7 +64,23 @@ void    Device::displayInfoDevices() {
         // print parallel compute units
         clGetDeviceInfo(this->_deviceIds[j], CL_DEVICE_MAX_COMPUTE_UNITS,
                 sizeof(maxComputeUnits), &maxComputeUnits, NULL);
-        printf(" %d.%d Parallel compute units: %d\n\n", j+1, 4, maxComputeUnits);
-        */
+        printf(" %d.%d Parallel compute units: %d\n", j+1, 4, maxComputeUnits);
+
+        // print c version supported by compiler for device
+        clGetDeviceInfo(this->_deviceIds[j], CL_DEVICE_EXTENSIONS, 0, NULL, &valueSize);
+        value = (char*) malloc(valueSize);
+        clGetDeviceInfo(this->_deviceIds[j], CL_DEVICE_EXTENSIONS, valueSize, value, NULL);
+        this->displayExtensionsInfo(value);
+        free(value);
+        std::cout << std::endl;
     }
+}
+
+void    Device::displayExtensionsInfo(std::string extensions) {
+    std::cout << "     OpenGL buffer sharing support: "; 
+    if (extensions.find("cl_APPLE_gl_sharing") == std::string::npos) {
+        std::cout << "false" << std::endl;
+        return ;
+    }
+    std::cout << "true" << std::endl;
 }

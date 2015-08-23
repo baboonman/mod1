@@ -6,7 +6,6 @@ MeshManager::MeshManager(unsigned int mapX, unsigned int mapY)
         this->_loadedMesh = new MapMesh(300, 300, 0.04);
         this->_mapManager = new MapManager("map", this->_loadedMesh);
         this->_mapManager->generateMountain();
- //       (*(this->_loadedMesh))(0, 5) = 3;
 }
 
 MeshManager::~MeshManager() {
@@ -24,34 +23,52 @@ void    MeshManager::makeMesh(GLuint program) {
     GLuint attrloc;
     GLuint  *index;
     GLfloat *vertice;
+    GLfloat *waterZ;
 
     this->_mapIndices = this->_loadedMesh->getIndices();
     this->_mapVertices = this->_loadedMesh->getVertices();
+
+    this->_waterZ = new std::vector<GLfloat>;
+
     index = new GLuint[this->_mapIndices->size()];
     vertice = new GLfloat[this->_mapVertices->size()];
+
     for (size_t i = 0; i < this->_mapVertices->size(); i++) {
         vertice[i] = (*this->_mapVertices)[i];
+        if ((i  + 1) % 3 == 0) {
+            this->_waterZ->push_back(vertice[i]);
+        }
     }
+
+    waterZ = new GLfloat[this->_waterZ->size()];
+
+    for (size_t i = 0; i < this->_waterZ->size(); i++) {
+        waterZ[i] = (*this->_waterZ)[i];
+    }
+
     for (size_t i = 0; i < this->_mapIndices->size(); i++) {
         index[i] = (*this->_mapIndices)[i];
     }
+
     glGenVertexArrays(1, &(this->mesh));
-    glGenBuffers(3, this->meshVbo);
+    glGenBuffers(4, this->meshVbo);
     glBindVertexArray(this->mesh);
-    /* Prepare the data for drawing through a buffer inidices */
-    std::cout << "indice: " << this->_mapIndices << std::endl;
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshVbo[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(GLuint) * this->_mapIndices->size(), index, GL_STATIC_DRAW);
 
-    /* Prepare the attributes for rendering */
-    std::cout << "vertex: " << this->_mapVertices<< std::endl;
     attrloc = glGetAttribLocation(program, "coord");
     glBindBuffer(GL_ARRAY_BUFFER, this->meshVbo[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->_mapVertices->size(), vertice, GL_STATIC_DRAW);
     glEnableVertexAttribArray(attrloc);
     glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    std::cout << "vertex: " << this->_mapVertices<< std::endl;
+    attrloc = glGetAttribLocation(program, "waterz");
+    glBindBuffer(GL_ARRAY_BUFFER, this->meshVbo[3]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->_waterZ->size(), waterZ, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(attrloc);
+    glVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+
     attrloc = glGetAttribLocation(program, "normal");
     glBindBuffer(GL_ARRAY_BUFFER, this->meshVbo[2]);
     glBufferData(GL_ARRAY_BUFFER,
@@ -63,4 +80,9 @@ void    MeshManager::makeMesh(GLuint program) {
 
     delete index;
     delete vertice;
+    delete waterZ;
+}
+
+GLuint      MeshManager::getWaterVBO() {
+    return this->meshVbo[3];
 }

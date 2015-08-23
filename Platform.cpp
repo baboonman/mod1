@@ -6,22 +6,26 @@ Platform::Platform( void )
 
     errNum = clGetPlatformIDs(0, NULL, &(this->numPlatforms));
     checkCLSuccess(errNum, "clGetPlatformIDs");
-    this->platformIds = (cl_platform_id *)alloca(sizeof(cl_platform_id) * this->numPlatforms);
+    this->platformIds = (cl_platform_id *)malloc(sizeof(cl_platform_id) * this->numPlatforms);
     errNum = clGetPlatformIDs(this->numPlatforms, this->platformIds, NULL);
     checkCLSuccess(errNum, "clGetPlatformIDs");
+    for (cl_uint i = 0; i < this->numPlatforms; i++) {
+        this->_devices.push_back(new Device(this->platformIds[i]));
+    }
+}
+
+cl_device_id    Platform::getDevice(int platformId, int deviceId) {
+    return (this->_devices[platformId]->getDeviceId(deviceId));
 }
 
 void    Platform::displayInfoPlatforms() {
-    Device  *device;
     std::cout << "Nb platforms: " << this->numPlatforms << std::endl;
     for (cl_uint i = 0; i < this->numPlatforms; i++) {
         this->queryInfoPlatform(CL_PLATFORM_PROFILE, i, "PROFILE");
         this->queryInfoPlatform(CL_PLATFORM_VERSION, i, "VERSION");
         this->queryInfoPlatform(CL_PLATFORM_NAME, i, "NAME");
         this->queryInfoPlatform(CL_PLATFORM_VENDOR, i, "VENDOR");
-        device = new Device(this->platformIds[i]);
-        device->displayInfoDevices();
-        delete device;
+        this->_devices[i]->displayInfoDevices();
     }
 }
 

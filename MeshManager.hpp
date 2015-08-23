@@ -29,9 +29,11 @@ class MeshManager {
         void    generatePoint(void);
         void    generateIndices(void);
         GLuint  getNbIndices(void);
+        GLuint  getWaterVBO();
     private:
         GLuint  mesh;
         std::vector<GLfloat> *_mapVertices;
+        std::vector<GLfloat> *_waterZ;
         std::vector<GLuint>  *_mapIndices;
         unsigned int _mapX;
         unsigned int _mapY;
