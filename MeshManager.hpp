@@ -30,6 +30,7 @@ class MeshManager {
         void    generateIndices(void);
         GLuint  getNbIndices(void);
         GLuint  getWaterVBO();
+        size_t  getSizeWaterVBO();
     private:
         GLuint  mesh;
         std::vector<GLfloat> *_mapVertices;

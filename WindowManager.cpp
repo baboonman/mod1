@@ -71,6 +71,7 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     glUniformMatrix4fv(this->ulocProject, 1, GL_FALSE, this->finalProjMatrix.toGLfloat());
     glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
     this->meshManager->makeMesh(this->shaderProgram);
+    this->_openCL = new OpenCL(this->getWaterVBO(), this->meshManager->getSizeWaterVBO());
 }
 
 GLFWwindow  *WindowManager::getWindow( void ) {
@@ -87,6 +88,7 @@ void        WindowManager::run() {
     this->lastUpdateTime = glfwGetTime();
     GLuint  nbTriangle;
 
+    this->_openCL->initOpenCL();
     glViewport(0 ,0 ,this->_sizeX * 2, this->_sizeY * 2);
     nbTriangle = this->meshManager->getNbIndices();
 
@@ -110,6 +112,8 @@ void        WindowManager::run() {
 
             this->lastUpdateTime = dt;
             this->frame = 0;
+            glFinish();
+            this->_openCL->executeKernel();
         }
     }
 }

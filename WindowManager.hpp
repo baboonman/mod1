@@ -10,6 +10,7 @@
 # include <fstream>
 # include <string>
 
+#include "OpenCL.hpp"
 # include "GenerateMatrix.hpp"
 # include "MeshManager.hpp"
 # include "Mesh.hpp"
@@ -25,6 +26,7 @@ class WindowManager {
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
     private:
+        OpenCL      *_openCL;
         GLFWwindow  *window;
         GLuint      shaderProgram;
         GLint       ulocProject;

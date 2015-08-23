@@ -65,7 +65,7 @@ void    MeshManager::makeMesh(GLuint program) {
 
     attrloc = glGetAttribLocation(program, "waterz");
     glBindBuffer(GL_ARRAY_BUFFER, this->meshVbo[3]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->_waterZ->size(), waterZ, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * this->_waterZ->size(), waterZ, GL_STREAM_DRAW);
     glEnableVertexAttribArray(attrloc);
     glVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -85,4 +85,8 @@ void    MeshManager::makeMesh(GLuint program) {
 
 GLuint      MeshManager::getWaterVBO() {
     return this->meshVbo[3];
+}
+
+size_t      MeshManager::getSizeWaterVBO() {
+    return this->_waterZ->size();
 }
