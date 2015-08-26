@@ -22,6 +22,7 @@ class OpenCL {
         virtual ~OpenCL( void );
         void            initOpenCL();
         void            executeKernel();
+        void            release();
         std::string     *getKernel(std::string filename) const;
         static void     displayInformation();
     private:
@@ -43,12 +44,15 @@ class OpenCL {
         size_t                      _localWorkSize;
         size_t                      _globalWorkSize;
         size_t                      _nbWorkGroup;
+        cl_int                      _maxGid;
+        cl_int                      _lineWidth;
         cl_program                  _program;
         cl_kernel                   _kernel;
         cl_mem                      _waterBuffer;
+        cl_mem                      _atomicQuantity;
 
         GLuint                      _waterVBO;
-        size_t                      _sizeWaterVBO;
+        cl_int                      _sizeWaterVBO;
         size_t                      *_maxWorkItemSize;
 };
 

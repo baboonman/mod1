@@ -8,6 +8,7 @@ OpenCL::OpenCL(GLuint waterVBO, size_t sizeWaterVBO)
 void    OpenCL::initOpenCL() {
     this->_createContext();
     this->_getDeviceInfo();
+    this->_bindBuffer();
     this->_bindVBO();
     this->_createCommandQueue();
     this->_createProgram();
@@ -131,23 +132,33 @@ void    OpenCL::_createKernel() {
         NULL);
 
     checkCLSuccess(err, "clGetKernelWorkGroupInfo");
-    this->_nbWorkGroup = (this->_sizeWaterVBO / this->_localWorkSize + 1);
-    std::cout << "nb work group: " << this->_nbWorkGroup << std::endl;
+    if (this->_sizeWaterVBO % 9 != 0) {
+        std::cerr << "Size of water vbo must be a 9 multiple" << std::endl;
+        throw new OpenCLException;
+    }
+    this->_nbWorkGroup = ((this->_sizeWaterVBO / 9) / this->_localWorkSize + 1);
     this->_globalWorkSize = this->_nbWorkGroup * this->_localWorkSize;
+    this->_maxGid = this->_sizeWaterVBO / 9;
+    this->_lineWidth = 300;
+
     std::cout << "Local work size: " << this->_localWorkSize << std::endl;
     std::cout << "global work size: " << this->_globalWorkSize << std::endl;
+    std::cout << "nb work group: " << this->_nbWorkGroup << std::endl;
 }
 
 void    OpenCL::_setKernelArg() {
     checkCLSuccess(clSetKernelArg(this->_kernel, 0, sizeof(cl_mem), &this->_waterBuffer),
             "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(this->_kernel, 1, sizeof(cl_int), &this->_sizeWaterVBO),
+    checkCLSuccess(clSetKernelArg(this->_kernel, 2, sizeof(cl_int), &this->_lineWidth),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(this->_kernel, 3, sizeof(cl_int), &this->_sizeWaterVBO),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(this->_kernel, 4, sizeof(cl_int), &this->_maxGid),
             "clSetKernelArg");
 }
 
 void    OpenCL::executeKernel() {
     int     err;
-
 
     err = clEnqueueAcquireGLObjects(
         this->_commandQueue,
@@ -157,17 +168,21 @@ void    OpenCL::executeKernel() {
         NULL,
         NULL),
     checkCLSuccess(err, "clEnqueueAcquireGLObjects");
-    err = clEnqueueNDRangeKernel(
-            this->_commandQueue,
-            this->_kernel,
-            1,
-            NULL,
-            &this->_globalWorkSize,
-            &this->_localWorkSize,
-            0,
-            NULL,
-            NULL);
-    checkCLSuccess(err, "clEnqueueNDRangeKernel");
+    for (cl_int i = 0; i < 9; i++) {
+        err = clSetKernelArg(this->_kernel, 1, sizeof(cl_int), &i);
+        checkCLSuccess(err, "clSetKernelArg");
+        err = clEnqueueNDRangeKernel(
+                this->_commandQueue,
+                this->_kernel,
+                1,
+                NULL,
+                &this->_globalWorkSize,
+                &this->_localWorkSize,
+                0,
+                NULL,
+                NULL);
+        checkCLSuccess(err, "clEnqueueNDRangeKernel");
+    }
     clFinish(this->_commandQueue);
     err = clEnqueueReleaseGLObjects(
             this->_commandQueue,
@@ -178,6 +193,28 @@ void    OpenCL::executeKernel() {
             NULL);
 
     checkCLSuccess(err, "clEnqueueReleaseGLObjects");
+}
+
+void    OpenCL::release() {
+    int err;
+
+    clFinish(this->_commandQueue);
+    err = clEnqueueReleaseGLObjects(
+            this->_commandQueue,
+            1,
+            &this->_waterBuffer,
+            0,
+            NULL,
+            NULL);
+
+    checkCLSuccess(err, "clEnqueueReleaseGLObjects");
+/*
+    clReleaseMemObject(this->_waterBuffer);
+    clReleaseProgram(this->_program);
+    clReleaseKernel(this->_kernel);
+    clReleaseCommandQueue(this->_commandQueue);
+    clReleaseContext(this->_context);
+    */
 }
 
 void    OpenCL::_buildProgram() {
@@ -191,6 +228,11 @@ void    OpenCL::_buildProgram() {
         std::cerr << buildlog << std::endl;
         throw new OpenCLException();
     }
+}
+
+void    OpenCL::_bindBuffer() {
+    this->_atomicQuantity = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_sizeWaterVBO * sizeof(cl_int), NULL, &err);
+    checkCLSuccess("err", "clCreateBuffer");
 }
 
 void    OpenCL::_bindVBO() {
@@ -215,6 +257,6 @@ void    OpenCL::displayInformation( void ) {
 
 OpenCL::~OpenCL( void ) {
     if (this->_maxWorkItemSize != NULL) {
-     //   delete[] this->_maxWorkItemSize;
+        delete[] this->_maxWorkItemSize;
     }
 }

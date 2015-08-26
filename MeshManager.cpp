@@ -19,7 +19,6 @@ GLuint    MeshManager::getNbIndices(void) {
 }
 
 void    MeshManager::makeMesh(GLuint program) {
-
     GLuint attrloc;
     GLuint  *index;
     GLfloat *vertice;

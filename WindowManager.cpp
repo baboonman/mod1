@@ -72,6 +72,16 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
     this->meshManager->makeMesh(this->shaderProgram);
     this->_openCL = new OpenCL(this->getWaterVBO(), this->meshManager->getSizeWaterVBO());
+    this->getOpenCL(this->_openCL);
+}
+
+OpenCL      *WindowManager::getOpenCL( OpenCL *openCL ) {
+    static OpenCL *localOpenCL = NULL;
+    if (openCL == NULL) {
+        return localOpenCL;
+    }
+    localOpenCL = openCL;
+    return localOpenCL;
 }
 
 GLFWwindow  *WindowManager::getWindow( void ) {
@@ -92,6 +102,10 @@ void        WindowManager::run() {
     glViewport(0 ,0 ,this->_sizeX * 2, this->_sizeY * 2);
     nbTriangle = this->meshManager->getNbIndices();
 
+       this->_rotX += 0.5;
+       this->_rotY += 0.2;
+       this->_rotZ += 0.4;
+
     while (!glfwWindowShouldClose(window))
     {
         ++this->frame;
@@ -103,9 +117,9 @@ void        WindowManager::run() {
         this->dt = glfwGetTime();
         if ((this->dt - this->lastUpdateTime) > 0.01f)
         {
-            this->_rotX += 0.005;
-            this->_rotY += 0.002;
-            this->_rotZ += 0.004;
+         //   this->_rotX += 0.005;
+         //   this->_rotY += 0.002;
+         //   this->_rotZ += 0.004;
             GenerateMatrix::setRotation(this->rotationMatrix, this->_rotX, this->_rotY, this->_rotZ);
             glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
             this->iter++;
@@ -114,6 +128,7 @@ void        WindowManager::run() {
             this->frame = 0;
             glFinish();
             this->_openCL->executeKernel();
+          //  exit(0);
         }
     }
 }
@@ -226,7 +241,7 @@ void        WindowManager::keyCallback(GLFWwindow* window, int key, int scancode
     switch(key)
     {
         case GLFW_KEY_ESCAPE:
-            /* Exit program on Escape */
+            WindowManager::getOpenCL()->release();
             glfwSetWindowShouldClose(window, GL_TRUE);
             break;
     }
