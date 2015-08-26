@@ -9,11 +9,11 @@
 # include <unistd.h>
 # include <fstream>
 # include <string>
-
 #include "OpenCL.hpp"
 # include "GenerateMatrix.hpp"
 # include "MeshManager.hpp"
 # include "Mesh.hpp"
+
 
 class WindowManager {
     public:
@@ -24,8 +24,10 @@ class WindowManager {
         GLuint      getWaterVBO();
         static void errorCallback(int error, const char* description);
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static OpenCL   *getOpenCL( OpenCL *openCL = NULL);
 
     private:
+        static OpenCL   *staticOpenCL;
         OpenCL      *_openCL;
         GLFWwindow  *window;
         GLuint      shaderProgram;
