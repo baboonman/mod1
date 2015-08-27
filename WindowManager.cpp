@@ -71,7 +71,7 @@ WindowManager::WindowManager( int sizeX, int sizeY)
     glUniformMatrix4fv(this->ulocProject, 1, GL_FALSE, this->finalProjMatrix.toGLfloat());
     glUniformMatrix4fv(this->ulocRot, 1, GL_FALSE, this->rotationMatrix.toGLfloat());
     this->meshManager->makeMesh(this->shaderProgram);
-    this->_openCL = new OpenCL(this->getWaterVBO(), this->meshManager->getSizeWaterVBO());
+    this->_openCL = new OpenCL(100, 2.0f, 40, 10, 10, 10);
     this->getOpenCL(this->_openCL);
 }
 
@@ -106,6 +106,7 @@ void        WindowManager::run() {
        this->_rotY += 0.2;
        this->_rotZ += 0.4;
 
+    this->_openCL->executeKernel();
     while (!glfwWindowShouldClose(window))
     {
         ++this->frame;
@@ -127,7 +128,6 @@ void        WindowManager::run() {
             this->lastUpdateTime = dt;
             this->frame = 0;
             glFinish();
-            this->_openCL->executeKernel();
           //  exit(0);
         }
     }

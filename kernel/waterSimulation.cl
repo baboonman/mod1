@@ -83,7 +83,7 @@ void    updateCell(__global float *vbo, int id, int *cellToUpdateIds, double cur
         }
         i++;
     }
-    //printf("Diff: %f, %f, %f, %f\nwieght: %f, %f, %f, %f\n\n",
+    /*printf("Diff: %f, %f, %f, %f\nwieght: %f, %f, %f, %f\n\n",
            diffAdjacent[0],
            diffAdjacent[1],
            diffAdjacent[2],
@@ -92,6 +92,7 @@ void    updateCell(__global float *vbo, int id, int *cellToUpdateIds, double cur
            weightDiff[1],
            weightDiff[2],
            weightDiff[3]);
+    */
 
     for (int i = 0; i < tot; i++) {
         tmp = currentAmount - diffAdjacent[tot - 1] / 2.0f;

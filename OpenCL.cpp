@@ -1,19 +1,31 @@
 #include "OpenCL.hpp"
 
-OpenCL::OpenCL(GLuint waterVBO, size_t sizeWaterVBO) 
-: _waterVBO(waterVBO), _sizeWaterVBO(sizeWaterVBO), _maxWorkItemSize(NULL)
+OpenCL::OpenCL(cl_int nbParticle, cl_float sizeGridCoef, cl_int maxParticlePerCell, cl_int gridX, cl_int gridY, cl_int gridZ) 
+: _nbParticle(nbParticle), _sizeGridCoef(sizeGridCoef), _maxParticlePerCell(maxParticlePerCell), _maxWorkItemSize(NULL)
 {
+    std::cout << "Nb particle: " << this->_nbParticle << std::endl;
+    this->_gridSize[OpenCL::X] = gridX;
+    this->_gridSize[OpenCL::Y] = gridY;
+    this->_gridSize[OpenCL::Z] = gridZ;
+    this->_maxGid = this->_nbParticle - 1;
+}
+
+void    OpenCL::_initTask() {
+    cl_kernel       kernel;
+
+    this->_taskParticleInGrid = new TaskParticleInGrid(this->_context, this->_device, this->_nbParticle);
+    this->_taskParticleInGrid->createKernel();
+    this->_taskApplyForces = new TaskApplyForces(this->_context, this->_device, this->_nbParticle);
+    this->_taskApplyForces->createKernel();
 }
 
 void    OpenCL::initOpenCL() {
     this->_createContext();
     this->_getDeviceInfo();
     this->_bindBuffer();
-    this->_bindVBO();
+    this->_initTask();
+//    this->_bindVBO();
     this->_createCommandQueue();
-    this->_createProgram();
-    this->_buildProgram();
-    this->_createKernel();
     this->_setKernelArg();
 }
 
@@ -95,72 +107,41 @@ void    OpenCL::_getDeviceInfo() {
 
 }
 
-std::string     *OpenCL::getKernel(std::string filename) const {
-    std::ifstream ifs(filename);
-    std::string *content;
-        
-    content = new std::string( (std::istreambuf_iterator<char>(ifs) ),
-                            (std::istreambuf_iterator<char>()) );
-    return content;
-}
-
-void    OpenCL::_createProgram() {
-    const char        *src;
-    std::string *srcStr;
-
-    srcStr = this->getKernel("kernel/waterSimulation.cl");
-    src = srcStr->c_str();
-
-    this->_program = clCreateProgramWithSource(this->_context, 1, &src, NULL, NULL);
-    if (this->_program == NULL) {
-        std::cerr << "Program creation fail" << std::endl;
-        throw new OpenCLException;
-    }
-}
-
-void    OpenCL::_createKernel() {
-    int     err;
-
-    this->_kernel = clCreateKernel(this->_program, "waterSimulation", &err);
-    checkCLSuccess(err, "clCreateKernel");
-    err = clGetKernelWorkGroupInfo(
-        this->_kernel,
-        this->_device,
-        CL_KERNEL_WORK_GROUP_SIZE,
-        sizeof(this->_localWorkSize),
-        &(this->_localWorkSize),
-        NULL);
-
-    checkCLSuccess(err, "clGetKernelWorkGroupInfo");
-    if (this->_sizeWaterVBO % 9 != 0) {
-        std::cerr << "Size of water vbo must be a 9 multiple" << std::endl;
-        throw new OpenCLException;
-    }
-    this->_nbWorkGroup = ((this->_sizeWaterVBO / 9) / this->_localWorkSize + 1);
-    this->_globalWorkSize = this->_nbWorkGroup * this->_localWorkSize;
-    this->_maxGid = this->_sizeWaterVBO / 9;
-    this->_lineWidth = 300;
-
-    std::cout << "Local work size: " << this->_localWorkSize << std::endl;
-    std::cout << "global work size: " << this->_globalWorkSize << std::endl;
-    std::cout << "nb work group: " << this->_nbWorkGroup << std::endl;
+void    OpenCL::_setStdArg(cl_kernel kernel) {
+    checkCLSuccess(clSetKernelArg(kernel, 0, sizeof(cl_mem), &this->_particle),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 1, sizeof(cl_mem), &this->_particleVelocity),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 2, sizeof(cl_mem), &this->_particleProjection),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 3, sizeof(cl_mem), &this->_particleIdByCells),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 4, sizeof(cl_float), &this->_sizeGridCoef),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 5, sizeof(cl_int), &this->_gridSize[OpenCL::X]),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 6, sizeof(cl_int), &this->_gridSize[OpenCL::Y]),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 7, sizeof(cl_int), &this->_gridSize[OpenCL::Z]),
+            "clSetKernelArg");
+    std::cout << "max particle: " << this->_maxParticlePerCell<< std::endl;
+    checkCLSuccess(clSetKernelArg(kernel, 8, sizeof(cl_int), &this->_maxParticlePerCell),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 9, sizeof(cl_int), &this->_maxGid),
+            "clSetKernelArg");
 }
 
 void    OpenCL::_setKernelArg() {
-    checkCLSuccess(clSetKernelArg(this->_kernel, 0, sizeof(cl_mem), &this->_waterBuffer),
-            "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(this->_kernel, 2, sizeof(cl_int), &this->_lineWidth),
-            "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(this->_kernel, 3, sizeof(cl_int), &this->_sizeWaterVBO),
-            "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(this->_kernel, 4, sizeof(cl_int), &this->_maxGid),
-            "clSetKernelArg");
+    cl_kernel       kernel;
+
+    this->_setStdArg(this->_taskParticleInGrid->getKernel());
+    this->_setStdArg(this->_taskApplyForces->getKernel());
 }
 
 void    OpenCL::executeKernel() {
-    int     err;
+    //int     err;
 
-    err = clEnqueueAcquireGLObjects(
+/*    err = clEnqueueAcquireGLObjects(
         this->_commandQueue,
         1,
         &this->_waterBuffer,
@@ -168,22 +149,11 @@ void    OpenCL::executeKernel() {
         NULL,
         NULL),
     checkCLSuccess(err, "clEnqueueAcquireGLObjects");
-    for (cl_int i = 0; i < 9; i++) {
-        err = clSetKernelArg(this->_kernel, 1, sizeof(cl_int), &i);
-        checkCLSuccess(err, "clSetKernelArg");
-        err = clEnqueueNDRangeKernel(
-                this->_commandQueue,
-                this->_kernel,
-                1,
-                NULL,
-                &this->_globalWorkSize,
-                &this->_localWorkSize,
-                0,
-                NULL,
-                NULL);
-        checkCLSuccess(err, "clEnqueueNDRangeKernel");
-    }
+    */
+    this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
+    this->_taskApplyForces->enqueueKernel(this->_commandQueue);
     clFinish(this->_commandQueue);
+    /*
     err = clEnqueueReleaseGLObjects(
             this->_commandQueue,
             1,
@@ -193,12 +163,12 @@ void    OpenCL::executeKernel() {
             NULL);
 
     checkCLSuccess(err, "clEnqueueReleaseGLObjects");
+    */
 }
 
 void    OpenCL::release() {
-    int err;
-
     clFinish(this->_commandQueue);
+    /*
     err = clEnqueueReleaseGLObjects(
             this->_commandQueue,
             1,
@@ -208,7 +178,6 @@ void    OpenCL::release() {
             NULL);
 
     checkCLSuccess(err, "clEnqueueReleaseGLObjects");
-/*
     clReleaseMemObject(this->_waterBuffer);
     clReleaseProgram(this->_program);
     clReleaseKernel(this->_kernel);
@@ -217,30 +186,33 @@ void    OpenCL::release() {
     */
 }
 
-void    OpenCL::_buildProgram() {
+void    OpenCL::_bindBuffer() {
     int     err;
 
-    err = clBuildProgram(this->_program, 0, NULL, NULL, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        char    buildlog[16384];
-        clGetProgramBuildInfo(this->_program, this->_device, CL_PROGRAM_BUILD_LOG, sizeof(buildlog), buildlog, NULL);
-        std::cerr << "Error on compilation: " << std::endl;
-        std::cerr << buildlog << std::endl;
-        throw new OpenCLException();
-    }
+    this->_particle = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float) * 3, NULL, &err);
+    checkCLSuccess(err, "clCreateBuffer particle position");
+
+    this->_particleIdByCells = clCreateBuffer(this->_context,
+            CL_MEM_READ_WRITE, this->_gridSize[OpenCL::X] * this->_gridSize[OpenCL::Y] * this->_gridSize[OpenCL::Z] * sizeof(cl_int) * this->_maxParticlePerCell + 1,
+            NULL,
+            &err);
+    checkCLSuccess(err, "clCreateBuffer id by cell");
+
+    this->_particleVelocity = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float) * 3, NULL, &err);
+    checkCLSuccess(err, "clCreateBuffer particle velocity");
+
+    this->_particleProjection = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float) * 3, NULL, &err);
+    checkCLSuccess(err, "clCreateBuffer projection");
 }
 
-void    OpenCL::_bindBuffer() {
-    this->_atomicQuantity = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_sizeWaterVBO * sizeof(cl_int), NULL, &err);
-    checkCLSuccess("err", "clCreateBuffer");
-}
-
+/*
 void    OpenCL::_bindVBO() {
     cl_int     err;
 
     this->_waterBuffer = clCreateFromGLBuffer(this->_context, CL_MEM_READ_WRITE, this->_waterVBO, &err);
     checkCLSuccess(err, "clCreateFromGLBuffer");
 }
+*/
 
 void    OpenCL::_createCommandQueue( void ) {
     int     err;
@@ -256,7 +228,15 @@ void    OpenCL::displayInformation( void ) {
 }
 
 OpenCL::~OpenCL( void ) {
-    if (this->_maxWorkItemSize != NULL) {
+    if (this->_maxWorkItemSize) {
         delete[] this->_maxWorkItemSize;
+    }
+
+    if (this->_taskParticleInGrid) {
+        delete this->_taskParticleInGrid;
+    }
+
+    if (this->_taskApplyForces) {
+        delete this->_taskApplyForces;
     }
 }

@@ -15,25 +15,28 @@
 # include <GLFW/glfw3native.h>
 # include <fstream>
 # include "Platform.hpp"
+# include "TaskParticleInGrid.hpp"
+# include "TaskApplyForces.hpp"
 
 class OpenCL {
     public:
-        OpenCL( GLuint waterVBO, size_t sizeWaterVBO );
+        const size_t    X = 0;
+        const size_t    Y = 1;
+        const size_t    Z = 2;
+        OpenCL(cl_int nbParticle, cl_float sizeGridCoef, cl_int maxParticlePerCell, cl_int gridX, cl_int gridY, cl_int gridZ);
         virtual ~OpenCL( void );
         void            initOpenCL();
         void            executeKernel();
         void            release();
-        std::string     *getKernel(std::string filename) const;
         static void     displayInformation();
     private:
         void                        _createContext();
-        void                        _bindVBO();
-        void                        _createProgram();
+        void                        _bindBuffer();
         void                        _getDeviceInfo();
         void                        _createCommandQueue( void );
-        void                        _buildProgram();
-        void                        _createKernel();
         void                        _setKernelArg();
+        void                        _initTask();
+        void                        _setStdArg(cl_kernel kernel);
 
         Platform                    _platform;
         cl_device_id                _device;
@@ -41,18 +44,19 @@ class OpenCL {
         cl_context                  _context;
         cl_command_queue            _commandQueue;
         cl_uint                     _maxWorkingDimensions;
-        size_t                      _localWorkSize;
-        size_t                      _globalWorkSize;
-        size_t                      _nbWorkGroup;
         cl_int                      _maxGid;
-        cl_int                      _lineWidth;
-        cl_program                  _program;
-        cl_kernel                   _kernel;
-        cl_mem                      _waterBuffer;
-        cl_mem                      _atomicQuantity;
+        cl_mem                      _particle;
+        cl_mem                      _particleIdByCells;
+        cl_mem                      _particleVelocity;
+        cl_mem                      _particleProjection;
 
-        GLuint                      _waterVBO;
-        cl_int                      _sizeWaterVBO;
+        cl_int                      _nbParticle;
+        cl_int                      _gridSize[3];
+        cl_float                    _sizeGridCoef;
+        cl_int                      _maxParticlePerCell;
+        TaskParticleInGrid          *_taskParticleInGrid = NULL;
+        TaskApplyForces             *_taskApplyForces = NULL;
+
         size_t                      *_maxWorkItemSize;
 };
 

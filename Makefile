@@ -15,6 +15,9 @@ SRC= main.cpp \
 	 clUtil.cpp \
 	 OpenCL.cpp \
 	 Device.cpp \
+	 Task.cpp \
+	 TaskParticleInGrid.cpp \
+	 TaskApplyForces.cpp \
 	 Matrix.cpp
 
 OBJ= $(SRC:.cpp=.o)

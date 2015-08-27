@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 int     main(int argc, char **argv) {
-    (void) argc;
     (void) argv;
     WindowManager *windowManager;
 
@@ -12,9 +11,9 @@ int     main(int argc, char **argv) {
         OpenCL::displayInformation();
         return 0;
     }
-
     windowManager = new WindowManager(1000, 1080);
     windowManager->run();
+
     delete windowManager;
 
     return 0;
