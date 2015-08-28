@@ -20,6 +20,7 @@
 # include "TaskApplyForces.hpp"
 # include "TaskAddConst.hpp"
 # include "TaskInitBuffer.hpp"
+# include "TaskInitParticle.hpp"
 
 class OpenCL {
     public:
@@ -63,6 +64,7 @@ class OpenCL {
         TaskApplyForces             *_taskApplyForces = NULL;
         TaskAddConst                *_taskAddConst = NULL;
         TaskInitBuffer              *_taskInitBuffer = NULL;
+        TaskInitParticle            *_taskInitParticle = NULL;
 
         size_t                      *_maxWorkItemSize;
 };

@@ -15,9 +15,6 @@ __kernel void   particleInGrid(
     if (gid > maxGID)
         return;
     int pos = gid * 3;
-    particles[pos] = (float)(gid % 10) + 4.0f;
-    particles[pos + 1] = (float)(gid / 10);
-    particles[pos + 2] = 5.0f ;
     particlesVelocity[pos] = 0.0f;
     particlesVelocity[pos + 1] = 0.0f;
     particlesVelocity[pos + 2] = 0.0f;

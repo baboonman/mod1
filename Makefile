@@ -20,6 +20,7 @@ SRC= main.cpp \
 	 TaskApplyForces.cpp \
 	 TaskAddConst.cpp \
 	 TaskInitBuffer.cpp \
+	 TaskInitParticle.cpp \
 	 Matrix.cpp
 
 OBJ= $(SRC:.cpp=.o)

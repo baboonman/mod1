@@ -22,6 +22,9 @@ void    OpenCL::_initTask() {
 
     this->_taskInitBuffer = new TaskInitBuffer(this->_context, this->_device, this->_nbParticle);
     this->_taskInitBuffer->createKernel(this->_sizeGrid);
+
+    this->_taskInitParticle = new TaskInitParticle(this->_context, this->_device, this->_nbParticle);
+    this->_taskInitParticle->createKernel();
 }
 
 void    OpenCL::initOpenCL() {
@@ -158,6 +161,15 @@ void    OpenCL::_setKernelArg() {
             "clSetKernelArg");
     checkCLSuccess(clSetKernelArg(kernel, 1, sizeof(cl_int), &this->_sizeGrid),
             "clSetKernelArg");
+
+    kernel = this->_taskInitParticle->getKernel();
+
+    checkCLSuccess(clSetKernelArg(kernel, 0, sizeof(cl_mem), &this->_particle),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 1, sizeof(cl_mem), &this->_particleVelocity),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 2, sizeof(cl_int), &this->_maxGid),
+            "clSetKernelArg");
 }
 
 void    OpenCL::executeKernel() {
@@ -182,6 +194,7 @@ void    OpenCL::executeKernel() {
 
     gettimeofday(&timeVal1, NULL);
 
+    this->_taskInitParticle->enqueueKernel(this->_commandQueue);
     this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
     this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
     this->_taskApplyForces->enqueueKernel(this->_commandQueue);
