@@ -1,6 +1,6 @@
 #include "Mesh.hpp"
 //#include "MapMesh.hpp"
-//#include "OpenCL.hpp"
+#include "OpenCL.hpp"
 
 #include <stddef.h>
 #include <unistd.h>
@@ -62,7 +62,7 @@ int					main(int ac, char **av)
 	double			an_mod;
 	double			fps = 0.0;
 	std::vector<t_vec>		position;
-//	OpenCL			*_openCL;
+	OpenCL			_openCL(100, 2.0f, 40, 10, 10, 10);
 
 	if (ac == 2)
 		filename = av[1];
@@ -83,13 +83,14 @@ int					main(int ac, char **av)
 	std::cout << "Parsing done" << std::endl;
 
 	mesh.initMeshIndices(prog);
+	_openCL.initOpenCL(mesh.getVBO()[3]);
 //	map.initMeshIndices(prog);
 
 //	t_vec	vpo; vpo.x = 10.0f; vpo.y = 10.0f; vpo.z = 10.0f;
 //	position.push_back(vpo);
-	position = everywhere(32, M_PI / 2);
+//	position = everywhere(32, M_PI / 2);
 
-	mesh.sendPosition(32, position);
+//	mesh.sendPosition(32, position);
 
 //    _openCL = new OpenCL(this->getWaterVBO(), this->meshManager->getSizeWaterVBO());
 
@@ -105,7 +106,6 @@ int					main(int ac, char **av)
 	viewMat.translate(0.0, 0.0, -5.0);
 //	oGlMan.addMatricesToProgram(modelMat, viewMat);
 
- //   _openCL->initOpenCL();
 
 	userPtr.model = &modelMat;
 	userPtr.test = "IEEEE";
@@ -113,6 +113,7 @@ int					main(int ac, char **av)
 
     while (!oGlMan.shouldClose())
     {
+        _openCL.executeKernel();
 		before = glfwGetTime();
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -139,9 +140,8 @@ int					main(int ac, char **av)
 			fps = before;
 			std::cerr << fps << std::endl;
 		}
-		
-//            glFinish();
-//            _openCL->executeKernel();
+		glFinish();
+       // _openCL->executeKernel();
 	}
 
 	return 0;

@@ -27,14 +27,15 @@ void    OpenCL::_initTask() {
     this->_taskInitParticle->createKernel();
 }
 
-void    OpenCL::initOpenCL() {
+void    OpenCL::initOpenCL(GLuint vbo) {
     this->_createContext();
     this->_getDeviceInfo();
     this->_bindBuffer();
+    this->_bindVBO(vbo);
     this->_initTask();
-//    this->_bindVBO();
     this->_createCommandQueue();
     this->_setKernelArg();
+    this->_taskInitParticle->enqueueKernel(this->_commandQueue);
 }
 
 void    OpenCL::_createContext() {
@@ -173,7 +174,7 @@ void    OpenCL::_setKernelArg() {
 }
 
 void    OpenCL::executeKernel() {
-    //int     err;
+    int     err;
 
     struct timeval      timeVal1;
     struct timeval      timeVal2;
@@ -182,24 +183,21 @@ void    OpenCL::executeKernel() {
     double                  time;
     unsigned long long int  time2;
 
-/*    err = clEnqueueAcquireGLObjects(
-        err = clEnqueueAcquireGLObjects(
+    err = clEnqueueAcquireGLObjects(
         this->_commandQueue,
         1,
-        &this->_waterBuffer,
+        &this->_particle,
         0,
         NULL,
-        NULL),
+        NULL);
     checkCLSuccess(err, "clEnqueueAcquireGLObjects");
-    */
 
     gettimeofday(&timeVal1, NULL);
 
-    this->_taskInitParticle->enqueueKernel(this->_commandQueue);
-    this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
-    this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
+ //   this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
+//    this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
     this->_taskApplyForces->enqueueKernel(this->_commandQueue);
-    this->_taskAddConst->enqueueKernel(this->_commandQueue);
+//    this->_taskAddConst->enqueueKernel(this->_commandQueue);
     clFinish(this->_commandQueue);
     gettimeofday(&timeVal2, NULL);
     start = 1000000 * timeVal1.tv_sec + (timeVal1.tv_usec);
@@ -209,17 +207,16 @@ void    OpenCL::executeKernel() {
     printf("Execution time: %lf ms, %llu us\n", time * 1000.0f, time2);
 
 
-    /*
     err = clEnqueueReleaseGLObjects(
             this->_commandQueue,
             1,
-            &this->_waterBuffer,
+            &this->_particle,
             0,
             NULL,
             NULL);
+    clFinish(this->_commandQueue);
 
     checkCLSuccess(err, "clEnqueueReleaseGLObjects");
-    */
 }
 
 void    OpenCL::release() {
@@ -238,9 +235,6 @@ void    OpenCL::release() {
 void    OpenCL::_bindBuffer() {
     int     err;
 
-    this->_particle = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float) * 3, NULL, &err);
-    checkCLSuccess(err, "clCreateBuffer particle position");
-
     this->_sizeGrid = this->_gridSize[OpenCL::X] * this->_gridSize[OpenCL::Y] * this->_gridSize[OpenCL::Z] * (this->_maxParticlePerCell + 1);
     this->_particleIdByCells = clCreateBuffer(this->_context,
             CL_MEM_READ_WRITE, this->_sizeGrid * sizeof(cl_int),
@@ -256,14 +250,13 @@ void    OpenCL::_bindBuffer() {
 }
 
 
-/*
-void    OpenCL::_bindVBO() {
+void    OpenCL::_bindVBO(GLuint vbo) {
     cl_int     err;
 
-    this->_waterBuffer = clCreateFromGLBuffer(this->_context, CL_MEM_READ_WRITE, this->_waterVBO, &err);
+    this->_particle = clCreateFromGLBuffer(this->_context, CL_MEM_READ_WRITE, vbo, &err);
     checkCLSuccess(err, "clCreateFromGLBuffer");
 }
-*/
+
 void    OpenCL::_createCommandQueue( void ) {
     int     err;
 
@@ -284,9 +277,6 @@ OpenCL::~OpenCL( void ) {
     if (this->_taskParticleInGrid)
         delete this->_taskParticleInGrid;
 
-    if (this->_taskApplyForces)
-        delete this->_taskApplyForces;
- 
     if (this->_taskApplyForces)
         delete this->_taskApplyForces;
 }

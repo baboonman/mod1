@@ -54,7 +54,7 @@ void main() {
 
 //	fragVert = waterRing(fragVert, normal, n);
 	vec3 trans = vec3(coln - 16, 0.0, 0.0);
-	fragVert = instanceMove(fragVert, trans);
+	fragVert = instanceMove(fragVert, instancePosition);
 
 //	float coln = ( (n + a) / 2 ) / a;
 //	fragColor = vec3( (0.027 + coln) / 2 , (0.651 + coln) / 2 , (0.859 + coln) / 2 );

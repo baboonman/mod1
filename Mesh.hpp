@@ -37,6 +37,7 @@ class						Mesh
 		void				setModelMatrix( OpenGlMatrix newMatrix );
 		void				drawMesh( void ) const;
 void						sendPosition(unsigned int size, std::vector<t_vec> postion);
+        GLuint              *getVBO( void );
 
 	private:
 		void				getFace(std::string face);

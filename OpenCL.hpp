@@ -11,9 +11,6 @@
 # include <OpenCL/cl_gl.h>
 # include <OpenCL/cl_gl_ext.h>
 # include <OpenGL/OpenGL.h>
-# include <glad/glad.h>
-# include <GLFW/glfw3.h>
-# include <GLFW/glfw3native.h>
 # include <fstream>
 # include "Platform.hpp"
 # include "TaskParticleInGrid.hpp"
@@ -29,7 +26,7 @@ class OpenCL {
         const size_t    Z = 2;
         OpenCL(cl_int nbParticle, cl_float sizeGridCoef, cl_int maxParticlePerCell, cl_int gridX, cl_int gridY, cl_int gridZ);
         virtual ~OpenCL( void );
-        void            initOpenCL();
+        void            initOpenCL(GLuint vbo);
         void            executeKernel();
         void            release();
         static void     displayInformation();
@@ -42,6 +39,7 @@ class OpenCL {
         void           _initTask();
         void           _setStdArg(cl_kernel kernel);
         void           _setKernelConstArg(cl_kernel kernel);
+        void            _bindVBO(GLuint vbo);
 
         Platform                    _platform;
         cl_device_id                _device;
