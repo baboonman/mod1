@@ -2,8 +2,27 @@
 
 MapMesh::MapMesh(unsigned int sizeX, unsigned int sizeY, float step) 
     : Mesh(), _sizeX(sizeX), _sizeY(sizeY), _step(step) {
+	
+	std::vector<GLfloat>	mapVal;
+	MapManager map("map", 300, 300, 0.4);
     this->_generatePoint();
+	mapVal = map.generateMountain();
+	this->_transMap(mapVal);
+	this->calcNormal();
 }
+
+void	MapMesh::_transMap(std::vector<GLfloat> map)
+{
+	unsigned int		x, y;
+
+    for (unsigned int i = 0; i < map.size(); i++) {
+			x = i % this->_sizeX - 1;
+			y = i / this->_sizeX;
+//    		(*this->_vertices)[i] = map[i];
+    		(*this->_vertices)[x * this->_sizeY * 3 + y * 3 + MapMesh::Z] = map[i];
+        }
+}
+
 
 void    MapMesh::calcNormal() {
     Vector  v1;

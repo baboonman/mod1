@@ -3,24 +3,19 @@ FLAGS=-Wall -Wextra -Wno-deprecated-declarations -std=c++11 -I./includes/ -I./in
 NAME=mod1 
 
 SRC= main.cpp \
-	 WindowManager.cpp \
-	 GenerateMatrix.cpp \
-	 MeshManager.cpp \
-	 Mesh.cpp \
-	 MapMesh.cpp \
 	 MapManager.cpp \
+	 MapMesh.cpp \
 	 Top.cpp \
-	 Vector.cpp \
-	 Platform.cpp \
-	 clUtil.cpp \
-	 OpenCL.cpp \
-	 Device.cpp \
-	 Matrix.cpp
+	 Matrix.cpp \
+	 Mesh.cpp \
+	 OpenGlMatrix.cpp \
+	 OpenglManager.cpp	\
+	 Vector.cpp 
 
 OBJ= $(SRC:.cpp=.o)
 
 LIB=  -L./libs/ -lglad -lglfw3
-INC= -I/opt/X11/include
+
 FRWK=   -framework AGL \
 		-framework Cocoa \
 		-framework OpenGL \

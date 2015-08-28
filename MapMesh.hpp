@@ -11,6 +11,7 @@
 # include <GLFW/glfw3.h>
 # include "Mesh.hpp"
 # include "Vector.hpp"
+# include "MapManager.hpp"
 
 class MapMesh : public Mesh {
     public:
@@ -24,6 +25,7 @@ class MapMesh : public Mesh {
         void            calcNormal();
     private:
         void            _generatePoint();
+		void			_transMap(std::vector<GLfloat> map);
 
         unsigned int    _sizeX;
         unsigned int    _sizeY;
