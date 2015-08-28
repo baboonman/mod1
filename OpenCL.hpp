@@ -6,6 +6,7 @@
 
 # include <string>
 # include <iostream>
+# include <sys/time.h>
 # include <OpenCL/cl.h>
 # include <OpenCL/cl_gl.h>
 # include <OpenCL/cl_gl_ext.h>
@@ -17,6 +18,8 @@
 # include "Platform.hpp"
 # include "TaskParticleInGrid.hpp"
 # include "TaskApplyForces.hpp"
+# include "TaskAddConst.hpp"
+# include "TaskInitBuffer.hpp"
 
 class OpenCL {
     public:
@@ -30,13 +33,14 @@ class OpenCL {
         void            release();
         static void     displayInformation();
     private:
-        void                        _createContext();
-        void                        _bindBuffer();
-        void                        _getDeviceInfo();
-        void                        _createCommandQueue( void );
-        void                        _setKernelArg();
-        void                        _initTask();
-        void                        _setStdArg(cl_kernel kernel);
+        void           _createContext();
+        void           _bindBuffer();
+        void           _getDeviceInfo();
+        void           _createCommandQueue( void );
+        void           _setKernelArg();
+        void           _initTask();
+        void           _setStdArg(cl_kernel kernel);
+        void           _setKernelConstArg(cl_kernel kernel);
 
         Platform                    _platform;
         cl_device_id                _device;
@@ -49,6 +53,7 @@ class OpenCL {
         cl_mem                      _particleIdByCells;
         cl_mem                      _particleVelocity;
         cl_mem                      _particleProjection;
+        size_t                      _sizeGrid;
 
         cl_int                      _nbParticle;
         cl_int                      _gridSize[3];
@@ -56,6 +61,8 @@ class OpenCL {
         cl_int                      _maxParticlePerCell;
         TaskParticleInGrid          *_taskParticleInGrid = NULL;
         TaskApplyForces             *_taskApplyForces = NULL;
+        TaskAddConst                *_taskAddConst = NULL;
+        TaskInitBuffer              *_taskInitBuffer = NULL;
 
         size_t                      *_maxWorkItemSize;
 };

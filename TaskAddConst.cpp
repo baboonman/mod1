@@ -1,6 +1,6 @@
-#include "TaskApplyForces.hpp"
+#include "TaskAddConst.hpp"
 
-TaskApplyForces::TaskApplyForces(
+TaskAddConst::TaskAddConst(
         cl_context context,
         cl_device_id device,
         cl_int nbParticle)
@@ -10,10 +10,10 @@ TaskApplyForces::TaskApplyForces(
     this->_nbParticle = nbParticle;
 }
 
-void        TaskApplyForces::createKernel() {
-    this->_createKernel("kernel/applyForces.cl", "applyForces");
+void        TaskAddConst::createKernel() {
+    this->_createKernel("kernel/addConst.cl", "addConst");
 }
 
-cl_int  TaskApplyForces::getMaxGid() {
+cl_int  TaskAddConst::getMaxGid() {
     return this->_maxGid;
 }

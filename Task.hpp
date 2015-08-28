@@ -10,8 +10,8 @@ public:
     cl_kernel           getKernel();
     std::string         *getSrc(std::string filename) const;
     void                enqueueKernel(cl_command_queue queue);
-    virtual void        createKernel() = 0;
 protected:
+    void            _createKernel(std::string filename, std::string kernelName);
     cl_kernel       _kernel;
     cl_program      _program;
     cl_context      _context;
@@ -20,6 +20,8 @@ protected:
     size_t      _globalWorkSize;
     size_t      _nbWorkGroup;
     size_t      *_maxWorkItemSize;
+    cl_int      _nbParticle;
+    cl_int      _maxGid;
 };
 
 #endif

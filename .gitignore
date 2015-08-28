@@ -1,3 +1,4 @@
 *.o
 mod1
 :w
+mod1.dSYM

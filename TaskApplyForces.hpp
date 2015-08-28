@@ -9,7 +9,5 @@ public:
     void        createKernel();
     cl_int      getMaxGid();
 private:
-    cl_int      _nbParticle;
-    cl_int      _maxGid;
 };
 #endif

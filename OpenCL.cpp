@@ -3,7 +3,6 @@
 OpenCL::OpenCL(cl_int nbParticle, cl_float sizeGridCoef, cl_int maxParticlePerCell, cl_int gridX, cl_int gridY, cl_int gridZ) 
 : _nbParticle(nbParticle), _sizeGridCoef(sizeGridCoef), _maxParticlePerCell(maxParticlePerCell), _maxWorkItemSize(NULL)
 {
-    std::cout << "Nb particle: " << this->_nbParticle << std::endl;
     this->_gridSize[OpenCL::X] = gridX;
     this->_gridSize[OpenCL::Y] = gridY;
     this->_gridSize[OpenCL::Z] = gridZ;
@@ -11,12 +10,18 @@ OpenCL::OpenCL(cl_int nbParticle, cl_float sizeGridCoef, cl_int maxParticlePerCe
 }
 
 void    OpenCL::_initTask() {
-    cl_kernel       kernel;
-
     this->_taskParticleInGrid = new TaskParticleInGrid(this->_context, this->_device, this->_nbParticle);
     this->_taskParticleInGrid->createKernel();
+
     this->_taskApplyForces = new TaskApplyForces(this->_context, this->_device, this->_nbParticle);
     this->_taskApplyForces->createKernel();
+
+    this->_taskAddConst = new TaskAddConst(this->_context, this->_device, this->_nbParticle);
+    this->_taskAddConst->createKernel();
+
+
+    this->_taskInitBuffer = new TaskInitBuffer(this->_context, this->_device, this->_nbParticle);
+    this->_taskInitBuffer->createKernel(this->_sizeGrid);
 }
 
 void    OpenCL::initOpenCL() {
@@ -131,15 +136,39 @@ void    OpenCL::_setStdArg(cl_kernel kernel) {
             "clSetKernelArg");
 }
 
+void    OpenCL::_setKernelConstArg(cl_kernel kernel) {
+    cl_float   h;
+
+    h = 0.1f;
+    checkCLSuccess(clSetKernelArg(kernel, 10, sizeof(cl_float), &h),
+            "clSetKernelArg");
+}
+
 void    OpenCL::_setKernelArg() {
     cl_kernel       kernel;
 
     this->_setStdArg(this->_taskParticleInGrid->getKernel());
     this->_setStdArg(this->_taskApplyForces->getKernel());
+    this->_setStdArg(this->_taskAddConst->getKernel());
+    this->_setKernelConstArg(this->_taskAddConst->getKernel());
+
+    kernel = this->_taskInitBuffer->getKernel();
+
+    checkCLSuccess(clSetKernelArg(kernel, 0, sizeof(cl_mem), &this->_particleIdByCells),
+            "clSetKernelArg");
+    checkCLSuccess(clSetKernelArg(kernel, 1, sizeof(cl_int), &this->_sizeGrid),
+            "clSetKernelArg");
 }
 
 void    OpenCL::executeKernel() {
     //int     err;
+
+    struct timeval      timeVal1;
+    struct timeval      timeVal2;
+    unsigned long long int  start;
+    unsigned long long int  end;
+    double                  time;
+    unsigned long long int  time2;
 
 /*    err = clEnqueueAcquireGLObjects(
         this->_commandQueue,
@@ -150,9 +179,20 @@ void    OpenCL::executeKernel() {
         NULL),
     checkCLSuccess(err, "clEnqueueAcquireGLObjects");
     */
+
+    gettimeofday(&timeVal1, NULL);
+
+    this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
     this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
     this->_taskApplyForces->enqueueKernel(this->_commandQueue);
+    this->_taskAddConst->enqueueKernel(this->_commandQueue);
     clFinish(this->_commandQueue);
+    gettimeofday(&timeVal2, NULL);
+    start = 1000000 * timeVal1.tv_sec + (timeVal1.tv_usec);
+    end = 1000000 * timeVal2.tv_sec + (timeVal2.tv_usec);
+    time = ((double)(end - start)) / 1000000.0;
+    time2 = end - start;
+    printf("Execution time: %lf ms, %llu us\n", time * 1000.0f, time2);
     /*
     err = clEnqueueReleaseGLObjects(
             this->_commandQueue,
@@ -192,8 +232,9 @@ void    OpenCL::_bindBuffer() {
     this->_particle = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float) * 3, NULL, &err);
     checkCLSuccess(err, "clCreateBuffer particle position");
 
+    this->_sizeGrid = this->_gridSize[OpenCL::X] * this->_gridSize[OpenCL::Y] * this->_gridSize[OpenCL::Z] * (this->_maxParticlePerCell + 1);
     this->_particleIdByCells = clCreateBuffer(this->_context,
-            CL_MEM_READ_WRITE, this->_gridSize[OpenCL::X] * this->_gridSize[OpenCL::Y] * this->_gridSize[OpenCL::Z] * sizeof(cl_int) * this->_maxParticlePerCell + 1,
+            CL_MEM_READ_WRITE, this->_sizeGrid * sizeof(cl_int),
             NULL,
             &err);
     checkCLSuccess(err, "clCreateBuffer id by cell");
@@ -228,15 +269,15 @@ void    OpenCL::displayInformation( void ) {
 }
 
 OpenCL::~OpenCL( void ) {
-    if (this->_maxWorkItemSize) {
+    if (this->_maxWorkItemSize)
         delete[] this->_maxWorkItemSize;
-    }
 
-    if (this->_taskParticleInGrid) {
+    if (this->_taskParticleInGrid)
         delete this->_taskParticleInGrid;
-    }
 
-    if (this->_taskApplyForces) {
+    if (this->_taskApplyForces)
         delete this->_taskApplyForces;
-    }
+ 
+    if (this->_taskApplyForces)
+        delete this->_taskApplyForces;
 }
