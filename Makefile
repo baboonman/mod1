@@ -6,7 +6,6 @@ SRC= main.cpp \
 	 MapManager.cpp \
 	 MapMesh.cpp \
 	 Top.cpp \
-	 Vector.cpp \
 	 Platform.cpp \
 	 clUtil.cpp \
 	 OpenCL.cpp \

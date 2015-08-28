@@ -1,6 +1,6 @@
 *.o
 mod1
-resources
+resources/*
 VICTOR
 :w
 *.dSYM
