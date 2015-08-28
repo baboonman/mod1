@@ -65,7 +65,6 @@ class OpenCL {
         TaskAddConst                *_taskAddConst = NULL;
         TaskInitBuffer              *_taskInitBuffer = NULL;
         TaskInitParticle            *_taskInitParticle = NULL;
-
         size_t                      *_maxWorkItemSize;
 };
 

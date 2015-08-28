@@ -1,7 +1,7 @@
 #include "MapManager.hpp"
 
-MapManager::MapManager(std::string filename, MapMesh *mapMesh) {
-    this->_map = mapMesh;
+MapManager::MapManager(std::string filename, unsigned int sizeX, unsigned int sizeY, float step) 
+: _sizeX(sizeX), _sizeY(sizeY), _step(step) {
     this->_parseMap(filename);
 }
 
@@ -39,12 +39,12 @@ void	MapManager::_parsePoint( std::string const &line )
 		switch (i) {
 			case 0:
 				x = std::stoi(point);
-				if (x >= this->_map->getSizeX())
+				if (x >= this->_sizeX)
 					throw new std::exception();
 				break;
 			case 1:
 				y = std::stoi(point);
-				if (y >= this->_map->getSizeY())
+				if (y >= this->_sizeY)
 				{
 					std::cout << "y: " << y << std::endl;
 					throw new std::exception();
@@ -59,14 +59,17 @@ void	MapManager::_parsePoint( std::string const &line )
 	}
 }
 
-void        MapManager::generateMountain() {
-    for (unsigned int x = 0; x < this->_map->getSizeX(); x++) {
-        for (unsigned int y = 0; y < this->_map->getSizeY(); y++) {
-            (*this->_map)(x, y) = this->_calcHeightPoint(x, y);
+std::vector<GLfloat> MapManager::generateMountain() {
+	std::vector<GLfloat>	map;
+    for (unsigned int x = 0; x < this->_sizeX; x++) {
+        for (unsigned int y = 0; y < this->_sizeY; y++) {
+            map.push_back(this->_calcHeightPoint(x, y));
+//			map[x][y] = this->_calcHeightPoint(x, y);
         }
     }
-    this->_map->calcNormal();
+	return map;
 }
+
 GLfloat     MapManager::_calcHeightPoint(unsigned int x, unsigned int y)
 {
 	GLfloat res;
@@ -79,8 +82,8 @@ GLfloat     MapManager::_calcHeightPoint(unsigned int x, unsigned int y)
 
     xf = static_cast<GLfloat>(x);
     yf = static_cast<GLfloat>(y);
-    sizeXf = static_cast<GLfloat>(this->_map->getSizeX());
-    sizeYf = static_cast<GLfloat>(this->_map->getSizeY());
+    sizeXf = static_cast<GLfloat>(this->_sizeX);
+    sizeYf = static_cast<GLfloat>(this->_sizeY);
 	res = 0;
 	for (auto it = this->_lstTop.begin(); it < this->_lstTop.end(); it++)
 	{

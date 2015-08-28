@@ -1,0 +1,28 @@
+#version 330 core
+
+//uniform mat4 M;
+
+in vec3 fragVert;
+//in vec3 fragNormal;
+in vec3 normal;
+in vec3	fragColor;
+
+out vec4 finalColor;
+
+void main()
+{
+	vec3 light_position = vec3(4, 4, 4);
+	vec3 light_color = vec3(1, 1, 1);
+
+//    mat3 normalMatrix = transpose(inverse(mat3(M)));
+//    vec3 normal = normalize(normalMatrix * fragNormal);
+
+//	vec3 fragPosition = vec3(M * vec4(fragVert, 1));
+    
+    vec3 surfaceToLight = light_position - fragPosition;
+
+    float brightness = dot(normal, surfaceToLight) / (length(surfaceToLight) * length(normal));
+    brightness = clamp(brightness, 0, 1);
+
+    finalColor = vec4(brightness * light_color * fragColor, 1.0);
+}

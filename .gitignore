@@ -1,4 +1,7 @@
 *.o
 mod1
+resources
+VICTOR
 :w
-mod1.dSYM
+*.dSYM
+*.swp

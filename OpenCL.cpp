@@ -183,6 +183,7 @@ void    OpenCL::executeKernel() {
     unsigned long long int  time2;
 
 /*    err = clEnqueueAcquireGLObjects(
+        err = clEnqueueAcquireGLObjects(
         this->_commandQueue,
         1,
         &this->_waterBuffer,
@@ -206,6 +207,8 @@ void    OpenCL::executeKernel() {
     time = ((double)(end - start)) / 1000000.0;
     time2 = end - start;
     printf("Execution time: %lf ms, %llu us\n", time * 1000.0f, time2);
+
+
     /*
     err = clEnqueueReleaseGLObjects(
             this->_commandQueue,
@@ -220,17 +223,10 @@ void    OpenCL::executeKernel() {
 }
 
 void    OpenCL::release() {
+    int err;
+
     clFinish(this->_commandQueue);
     /*
-    err = clEnqueueReleaseGLObjects(
-            this->_commandQueue,
-            1,
-            &this->_waterBuffer,
-            0,
-            NULL,
-            NULL);
-
-    checkCLSuccess(err, "clEnqueueReleaseGLObjects");
     clReleaseMemObject(this->_waterBuffer);
     clReleaseProgram(this->_program);
     clReleaseKernel(this->_kernel);
@@ -259,6 +255,7 @@ void    OpenCL::_bindBuffer() {
     checkCLSuccess(err, "clCreateBuffer projection");
 }
 
+
 /*
 void    OpenCL::_bindVBO() {
     cl_int     err;
@@ -267,7 +264,6 @@ void    OpenCL::_bindVBO() {
     checkCLSuccess(err, "clCreateFromGLBuffer");
 }
 */
-
 void    OpenCL::_createCommandQueue( void ) {
     int     err;
 

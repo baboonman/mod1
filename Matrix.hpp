@@ -1,28 +1,40 @@
 #ifndef MATRIX_HPP
 # define MATRIX_HPP
 
-# include <glad/glad.h>
-# include <GLFW/glfw3.h>
 # include <iostream>
 # include <iomanip>
 
-class Matrix {
-    public:
-        Matrix(unsigned int sizeX, unsigned int sizeY);
-        Matrix(unsigned int sizeX, unsigned int sizeY, const GLfloat *src);
-        void            setMatrix(GLfloat *matrix);
-        const GLfloat   *toGLfloat(void) const;
-        friend std::ostream& operator<< (std::ostream &out, Matrix &matrix);
-        Matrix          operator* (const Matrix &m2);
-        GLfloat         &operator() (unsigned int x, unsigned int y) const;
-        GLfloat         &operator[] (const int n);
-        void            operator= (const Matrix &m);
-    private:
-        GLfloat         *_matrix;
-        const unsigned int    _sizeX;
-        const unsigned int    _sizeY;
-        const unsigned int    _size;
+/*
+ *
+ * 		m0		m4		m8		m12
+ * 		m1		m5		m9		m13
+ * 		m2		m6		m10		m14
+ * 		m3		m7		m11		m15
+ *
+ */
+
+class			Matrix
+{
+	public:
+						Matrix();
+						Matrix( float m00, float m04, float m08, float m12,
+							    float m01, float m05, float m09, float m13,
+							    float m02, float m06, float m10, float m14, 
+					  	 	    float m03, float m07, float m11, float m15 );
+
+		Matrix&			identity( void );
+		Matrix	 	    operator*( const Matrix& rhs ) const;
+		Matrix&		    operator*=(const Matrix& rhs);
+		float   	    operator[]( int index ) const;
+    	float&  	   	operator[]( int index );
+
+		float			*getMatrix( void );
+
+	private:
+		float			_matrix[16];
 };
 
+std::ostream&			operator<<( std::ostream& flux, Matrix const& a );
 
-#endif
+
+#endif	//	MATRIX_HPP
