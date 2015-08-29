@@ -1,38 +1,5 @@
 #include "OpenglManager.hpp"
-/*
-void	compute_proj_mat(GLuint prog, GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar)
-{
-	GLint			uloc_project;
-    float f;
 
-    uloc_project   = glGetUniformLocation(prog, "project");
-
-    f = 1.0f / tanf(fovy / 2.0f);
-    projection_matrix[0]  = f / aspect;
-    projection_matrix[5]  = f;
-    projection_matrix[10] = (zFar + zNear)/ (zNear - zFar);
-    projection_matrix[11] = -1.0f;
-    projection_matrix[14] = 2.0f * (zFar * zNear) / (zNear - zFar);
-    glUniformMatrix4fv(uloc_project, 1, GL_FALSE, projection_matrix);
-}
-
-void compute_movi_mat(GLuint prog, GLfloat x, GLfloat y, GLfloat z)
-{
-	GLint			uloc_modelview;
-
-    uloc_modelview = glGetUniformLocation(prog, "modelview");
-
-    modelview_matrix[5]  = cos(alpha);
-    modelview_matrix[6]  = sin(alpha);
-    modelview_matrix[9]  = -sin(alpha);
-    modelview_matrix[10]  = cos(alpha);
-
-    modelview_matrix[12]  = x;
-    modelview_matrix[13]  = y;
-    modelview_matrix[14]  = z;
-    glUniformMatrix4fv(uloc_modelview, 1, GL_FALSE, modelview_matrix);
-}
-*/
 OpenGlMatrix			OpenglManager::getModelViewMatrix(void)
 {
 	return _modelviewMatrix;
@@ -43,73 +10,26 @@ void					OpenglManager::createProjectionMatrix(void)
 	_clipInfo.aspect = _winInfo.width / _winInfo.height;
 	_projectionMatrix.computeProjectionMatrix(_clipInfo.fov, _clipInfo.aspect, _clipInfo.zNear, _clipInfo.zFar);
 }
-/*
-void					OpenglManager::addMatricesToProgram(void)
-{
-	GLint			uloc_project;
-	GLint			uloc_modelview;
 
-    uloc_project   = glGetUniformLocation(_shaderProgram, "project");
-    uloc_modelview = glGetUniformLocation(_shaderProgram, "modelview");
-    glUniformMatrix4fv(uloc_project, 1, GL_FALSE, _projectionMatrix.getMatrixArray());
-    glUniformMatrix4fv(uloc_modelview, 1, GL_FALSE, _modelviewMatrix.getMatrixArray());
-}
-
-void					OpenglManager::addMatricesToProgram(OpenGlMatrix matrix)
-{
-	GLint			uloc_project;
-	GLint			uloc_modelview;
-
-    uloc_project   = glGetUniformLocation(_shaderProgram, "project");
-    uloc_modelview = glGetUniformLocation(_shaderProgram, "modelview");
-    glUniformMatrix4fv(uloc_project, 1, GL_FALSE, _projectionMatrix.getMatrixArray());
-    glUniformMatrix4fv(uloc_modelview, 1, GL_FALSE, matrix.getMatrixArray());
-}
-
-void					OpenglManager::addMatricesToProgram(OpenGlMatrix model, OpenGlMatrix view)
-{
-//	GLint			uloc_MVP;
-	GLint			uloc_M;
-	GLint			uloc_V;
-	GLint			uloc_P;
-//	OpenGlMatrix	mat;
-
-//    uloc_MVP = glGetUniformLocation(_shaderProgram, "MVP");
-    uloc_M = glGetUniformLocation(_shaderProgram, "M");
-    uloc_V = glGetUniformLocation(_shaderProgram, "V");
-    uloc_P = glGetUniformLocation(_shaderProgram, "P");
-
-    glUniformMatrix4fv(uloc_M, 1, GL_FALSE, model.getMatrixArray());
-    glUniformMatrix4fv(uloc_V, 1, GL_FALSE, view.getMatrixArray());
-    glUniformMatrix4fv(uloc_P, 1, GL_FALSE, _projectionMatrix.getMatrixArray());
-//	mat.multMatrix(model.multMatrix(view.multMatrix(_projectionMatrix)));
-//    glUniformMatrix4fv(uloc_MVP, 1, GL_FALSE, mat.getMatrixArray());
-}
-*/
 void					OpenglManager::addMatricesToProgram(OpenGlMatrix model, OpenGlMatrix view, float an, float bn)
 {
-//	GLint			uloc_MVP;
 	GLint			uloc_M;
 	GLint			uloc_V;
 	GLint			uloc_P;
 	GLint			uloc_AN;
 	GLint			uloc_BN;
-//	OpenGlMatrix	mat;
 
-//    uloc_MVP = glGetUniformLocation(_shaderProgram, "MVP");
-    uloc_M = glGetUniformLocation(_shaderProgram, "M");
-    uloc_V = glGetUniformLocation(_shaderProgram, "V");
-    uloc_P = glGetUniformLocation(_shaderProgram, "P");
-    uloc_AN = glGetUniformLocation(_shaderProgram, "AN");
-    uloc_BN = glGetUniformLocation(_shaderProgram, "BN");
+    uloc_M = glGetUniformLocation(this->_shader.getProgram(), "M");
+    uloc_V = glGetUniformLocation(this->_shader.getProgram(), "V");
+    uloc_P = glGetUniformLocation(this->_shader.getProgram(), "P");
+    uloc_AN = glGetUniformLocation(this->_shader.getProgram(), "AN");
+    uloc_BN = glGetUniformLocation(this->_shader.getProgram(), "BN");
 
     glUniformMatrix4fv(uloc_M, 1, GL_FALSE, model.getMatrixArray());
     glUniformMatrix4fv(uloc_V, 1, GL_FALSE, view.getMatrixArray());
     glUniformMatrix4fv(uloc_P, 1, GL_FALSE, _projectionMatrix.getMatrixArray());
     glUniform1f(uloc_AN, an);
     glUniform1f(uloc_BN, bn);
-//	mat.multMatrix(model.multMatrix(view.multMatrix(_projectionMatrix)));
-//    glUniformMatrix4fv(uloc_MVP, 1, GL_FALSE, mat.getMatrixArray());
 }
 
 /*
@@ -260,6 +180,16 @@ void				OpenglManager::initOpenGl( void )
     glViewport(0, 0, _winInfo.width, _winInfo.height);
 }
 
+int					OpenglManager::initShader(std::string VSFile, std::string FSFile)
+{
+	this->_shader.addShader(GL_VERTEX_SHADER, VSFile);
+	this->_shader.addShader(GL_FRAGMENT_SHADER , FSFile);
+	if (! this->_shader.createProgram())
+		return (0);
+    glUseProgram(this->_shader.getProgram());
+	return (1);
+}
+
 OpenglManager::OpenglManager()
 {
 	_winInfo.width = 512;
@@ -304,101 +234,6 @@ OpenglManager::~OpenglManager()
     glfwTerminate();
 }
 
-char		*OpenglManager::filetobuf(const char *file)
-{
-    FILE *fptr;
-    long length;
-    char *buf;
-    
-    fptr = fopen(file, "rb");
-    if (!fptr)
-        return NULL;
-    fseek(fptr, 0, SEEK_END);
-    length = ftell(fptr);
-    buf = (char*)malloc(length+1);
-    fseek(fptr, 0, SEEK_SET);
-    fread(buf, length, 1, fptr);
-    fclose(fptr);
-    buf[length] = 0;
-   
-    return buf;
-}
-
-void			OpenglManager::deleteShader()
-{
-	for (auto i = _shaders.begin() ; i < _shaders.end() ; i++)
-	{
-		glDeleteShader(*i);
-	}
-}
-
-int				OpenglManager::addShader(GLenum type, std::string filename)
-{
-    GLuint shader;
-    GLint shader_ok;
-    GLsizei log_length;
-    char info_log[8192];
-	const char	*source;
-    
-	source = filetobuf(filename.c_str());
-    shader = glCreateShader(type);
-    if (shader != 0)
-    {
-        glShaderSource(shader, 1, &source, NULL);
-        glCompileShader(shader);
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &shader_ok);
-        if (shader_ok != GL_TRUE)
-        {
-            fprintf(stderr, "ERROR: Failed to compile %s shader\n", (type == GL_FRAGMENT_SHADER) ? "fragment" : "vertex" );
-            glGetShaderInfoLog(shader, 8192, &log_length,info_log);
-            fprintf(stderr, "ERROR: \n%s\n\n", info_log);
-            glDeleteShader(shader);
-            shader = 0;
-			return (0);
-        }
-    }
-	_shaders.push_back(shader);
-    return (1);
-}
-
-int				OpenglManager::createProgram()
-{
-    GLuint program = 0u;
-    GLint program_ok;
-    GLsizei log_length;
-    char info_log[8192];
-    
-    /* make the program that connect the two shader and link it */
-    program = glCreateProgram();
-    if (program != 0u)
-    {
-		/* attach both shader and link */
-		for (auto i = _shaders.begin() ; i < _shaders.end() ; i++)
-		{
-			glAttachShader(program, *i);
-		}
-		glLinkProgram(program);
-		glGetProgramiv(program, GL_LINK_STATUS, &program_ok);
-		if (program_ok != GL_TRUE)
-		{
-			fprintf(stderr, "ERROR, failed to link shader program\n");
-			glGetProgramInfoLog(program, 8192, &log_length, info_log);
-			fprintf(stderr, "ERROR: \n%s\n\n", info_log);
-			glDeleteProgram(program);
-			deleteShader();
-			program = 0u;
-			return (0);
-		}
-    }
-	_shaderProgram = program;
-    return (1);
-}
-
-GLuint			OpenglManager::getProgram()
-{
-	return (_shaderProgram);
-}
-
 int				OpenglManager::shouldClose()
 {
 	return (glfwWindowShouldClose(_window));
@@ -412,4 +247,58 @@ void				OpenglManager::swap()
 void				OpenglManager::setUserPtr(t_user_ptr s)
 {
 	glfwSetWindowUserPointer(_window, static_cast<void *>(&s));
+}
+
+GLuint				OpenglManager::getShaderProgram( void ) { return (this->_shader.getProgram()); }
+
+void				OpenglManager::run(Mesh mesh)
+{
+	float			an = 0.0f, bn = 0.0f;
+	double			before;
+	double			after;
+	double			an_mod;
+	double			fps = 0.0;
+	OpenCL			openCL(100, 2.0f, 40, 10, 10, 10);
+	OpenGlMatrix	modelMat;
+	t_user_ptr		userPtr;
+
+	openCL.initOpenCL(mesh.getVBO()[3]);
+
+	this->_modelviewMatrix.translate(0.0, 0.0, -5.0);
+	this->createProjectionMatrix();
+
+	modelMat = mesh.getModelMatrix();
+	userPtr.model = &modelMat;
+	userPtr.test = "IEEEE";
+	this->setUserPtr(userPtr);
+
+    while (!this->shouldClose())
+    {
+		before = glfwGetTime();
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		this->addMatricesToProgram(modelMat, this->_modelviewMatrix, an, bn);
+
+		mesh.drawMesh();
+		this->swap();
+
+		glfwPollEvents();
+
+		glFinish();
+        openCL.executeKernel();
+
+		if (before - an_mod > AN_INT) {
+			an += 1;
+			an_mod = glfwGetTime();
+		}
+		bn += 0.01f;
+
+		after = glfwGetTime();
+		before = 1 / ((after - before)) ;
+		if ((before - fps) > 1.0 || (before - fps) < -1.0) {
+			fps = before;
+		//	std::cerr << fps << std::endl;
+		}
+	}
 }

@@ -1,16 +1,20 @@
-#ifndef SHADER_HPP
-# define SHADER_HPP
+#ifndef OPENGLSHADER_HPP
+# define OPENGLSHADER_HPP
 
-# include <glad/glad.h>
+# define GLFW_INCLUDE_GLCOREARB
 # include <GLFW/glfw3.h>
 
+# include <stdio.h>
+# include <stdlib.h>
+# include <string>
+# include <vector>
 
-class					Shader
+class					OpenGLShader
 {
 	
 	public:
-								Shader();
-								~Shader();
+								OpenGLShader();
+								~OpenGLShader();
 		int						addShader( GLenum type, std::string filename );
 		int						createProgram( void );
 		GLuint					getProgram( void );

@@ -1,6 +1,6 @@
-#include "Shader.hpp"
+#include "OpenGLShader.hpp"
 
-char		*Shader::filetobuf(const char *file)
+char		*OpenGLShader::filetobuf(const char *file)
 {
     FILE *fptr;
     long length;
@@ -19,14 +19,24 @@ char		*Shader::filetobuf(const char *file)
    
     return buf;
 }
-void			Shader::deleteShader()
+
+OpenGLShader::OpenGLShader()
+{
+}
+
+OpenGLShader::~OpenGLShader()
+{
+}
+
+void			OpenGLShader::deleteShader()
 {
 	for (auto i = _shaders.begin() ; i < _shaders.end() ; i++)
 	{
 		glDeleteShader(*i);
 	}
 }
-int				Shader::addShader(GLenum type, std::string filename)
+
+int				OpenGLShader::addShader(GLenum type, std::string filename)
 {
     GLuint shader;
     GLint shader_ok;
@@ -54,7 +64,8 @@ int				Shader::addShader(GLenum type, std::string filename)
 	_shaders.push_back(shader);
     return (1);
 }
-int				Shader::createProgram()
+
+int				OpenGLShader::createProgram()
 {
     GLuint program = 0u;
     GLint program_ok;
@@ -87,7 +98,7 @@ int				Shader::createProgram()
     return (1);
 }
 
-GLuint			Shader::getProgram()
+GLuint			OpenGLShader::getProgram()
 {
 	return (_shaderProgram);
 }

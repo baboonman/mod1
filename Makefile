@@ -19,6 +19,7 @@ SRC= main.cpp \
 	 Matrix.cpp \
 	 Mesh.cpp \
 	 OpenGlMatrix.cpp \
+	 OpenGLShader.cpp \
 	 OpenglManager.cpp	\
 	 Vector.cpp 
 

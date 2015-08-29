@@ -5,8 +5,11 @@
 # include <sstream>
 # include <map>
 
-# include "OpenglManager.hpp"
+# define GLFW_INCLUDE_GLCOREARB
+# include <GLFW/glfw3.h>
+
 # include "MapManager.hpp"
+# include "OpenGlMatrix.hpp"
 
 typedef struct				s_vec
 {

@@ -83,9 +83,9 @@ Mesh::Mesh()
 	_mesh = bigCube;
 	_id = _i;
 	_i++;
-    this->_vertices = new std::vector<GLfloat>;
-    this->_indicesVert = new std::vector<GLuint>;
-    this->_normal = new std::vector<GLfloat>;
+//    this->_vertices = new std::vector<GLfloat>;
+//    this->_indicesVert = new std::vector<GLuint>;
+//    this->_normal = new std::vector<GLfloat>;
 }
 
 Mesh::Mesh(const GLfloat *mesh)
@@ -94,9 +94,9 @@ Mesh::Mesh(const GLfloat *mesh)
 	_id = _i;
 	_i++;
 	_curInd = 0;
-    this->_vertices = new std::vector<GLfloat>;
-    this->_indicesVert = new std::vector<GLuint>;
-    this->_normal = new std::vector<GLfloat>;
+//    this->_vertices = new std::vector<GLfloat>;
+//    this->_indicesVert = new std::vector<GLuint>;
+//    this->_normal = new std::vector<GLfloat>;
 }
 
 Mesh::Mesh(const std::string fileName)
@@ -105,9 +105,9 @@ Mesh::Mesh(const std::string fileName)
 	_id = _i;
 	_i++;
 	_curInd = 0;
-    this->_vertices = new std::vector<GLfloat>;
-    this->_indicesVert = new std::vector<GLuint>;
-    this->_normal = new std::vector<GLfloat>;
+//    this->_vertices = new std::vector<GLfloat>;
+//    this->_indicesVert = new std::vector<GLuint>;
+//    this->_normal = new std::vector<GLfloat>;
 }
 
 Mesh::Mesh(const GLfloat *mesh, GLfloat scale, GLfloat rotX, GLfloat rotY, GLfloat rotZ, GLfloat pos[3])
@@ -121,9 +121,9 @@ Mesh::Mesh(const GLfloat *mesh, GLfloat scale, GLfloat rotX, GLfloat rotY, GLflo
 	_modelMatrix.rotateZ( rotZ );
 	_modelMatrix.translate( pos[0], pos[1], pos[2] );
 	_i++;
-    this->_vertices = new std::vector<GLfloat>;
-    this->_indicesVert = new std::vector<GLuint>;
-    this->_normal = new std::vector<GLfloat>;
+//    this->_vertices = new std::vector<GLfloat>;
+//    this->_indicesVert = new std::vector<GLuint>;
+//    this->_normal = new std::vector<GLfloat>;
 }
 
 Mesh::Mesh(const std::string fileName, GLfloat scale, GLfloat rotX, GLfloat rotY, GLfloat rotZ, GLfloat pos[3])
@@ -137,15 +137,15 @@ Mesh::Mesh(const std::string fileName, GLfloat scale, GLfloat rotX, GLfloat rotY
 	_modelMatrix.rotateZ( rotZ );
 	_modelMatrix.translate( pos[0], pos[1], pos[2] );
 	_i++;
-    this->_vertices = new std::vector<GLfloat>;
-    this->_indicesVert = new std::vector<GLuint>;
-    this->_normal = new std::vector<GLfloat>;
+//    this->_vertices = new std::vector<GLfloat>;
+//    this->_indicesVert = new std::vector<GLuint>;
+//    this->_normal = new std::vector<GLfloat>;
 }
 
 Mesh::~Mesh() {
-    delete this->_vertices;
-    delete this->_indicesVert;
-    delete this->_normal;
+//    delete this->_vertices;
+//   delete this->_indicesVert;
+//    delete this->_normal;
 }
 
 void						Mesh::initMeshIndices(GLuint program)
