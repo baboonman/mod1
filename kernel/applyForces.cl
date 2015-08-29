@@ -12,9 +12,8 @@ __kernel void   applyForces(
 {
     int gid = get_global_id(0);
     if (gid > maxGID)
-        return;
-	gid *= 3.0f;
-    particlesProjection[gid] = particles[gid];
-    particlesVelocity[gid].y -= 0.001f;
-    particles[gid].y -= 0.01f; 
+        return ;
+    gid *= 3;
+    particlesVelocity[gid + 1] -= 0.0001f;
+    particles[gid + 1] += particlesVelocity[gid + 1];
 }
