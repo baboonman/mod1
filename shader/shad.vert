@@ -46,14 +46,12 @@ void main() {
     mat3 normalMatrix = transpose(inverse(mat3(M)));
     normal = normalize(normalMatrix * in_VertexN);
 
-//	fragVert = vertRepos(fragVert, instancePosition);
-//	fragVert.z = fragVert.z + 10 * coln;
 	fragVert  = vec3(M * vec4(in_Position, 1.0));
 
 	float n = wnoise(fragVert, normal, a, BN, AN);
 
 //	fragVert = waterRing(fragVert, normal, n);
-	vec3 trans = vec3(coln - 16, 0.0, 0.0);
+//	vec3 trans = vec3(coln - 16, 0.0, 0.0);
 	fragVert = instanceMove(fragVert, instancePosition);
 
 //	float coln = ( (n + a) / 2 ) / a;

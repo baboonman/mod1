@@ -69,7 +69,7 @@ __kernel void   addConst (
 
     float3 currentParticle = particlesProjection[gid];
 
-    c = 1.0f / (M_PI * pown(h, 3));
+    c = 1.0f / (3.14159f * pown(h, 3));
     for (int xGrid = -1; xGrid < 2; xGrid++) {
         for (int yGrid = -1; yGrid < 2; yGrid++) {
             for (int zGrid = -1; zGrid < 2; zGrid++) {

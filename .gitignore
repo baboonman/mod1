@@ -5,3 +5,4 @@ VICTOR
 :w
 *.dSYM
 *.swp
+.DS_Store

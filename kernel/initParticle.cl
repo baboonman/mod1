@@ -7,7 +7,7 @@ __kernel void   initParticle(__global float3 *particles,
     if (gid > maxGID) {
         return ;
     }
-    particles[gid].x = (float)(gid % 10) - 5.0f + 10.0f;
+    particles[gid].x = (float)(gid % 10) - 5.0f;
     particles[gid].y = (float)(gid / 10) - 5.0f;
     particles[gid].z = -10.0f;
     particlesVelocity[gid].x = 0.0f;
