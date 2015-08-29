@@ -18,6 +18,8 @@
 # include "TaskAddConst.hpp"
 # include "TaskInitBuffer.hpp"
 # include "TaskInitParticle.hpp"
+# include "TaskCalcLambda.hpp"
+# include "TaskEndSim.hpp"
 
 class OpenCL {
     public:
@@ -52,6 +54,7 @@ class OpenCL {
         cl_mem                      _particleIdByCells;
         cl_mem                      _particleVelocity;
         cl_mem                      _particleProjection;
+        cl_mem                      _particleLambda;
         size_t                      _sizeGrid;
 
         cl_int                      _nbParticle;
@@ -63,6 +66,8 @@ class OpenCL {
         TaskAddConst                *_taskAddConst = NULL;
         TaskInitBuffer              *_taskInitBuffer = NULL;
         TaskInitParticle            *_taskInitParticle = NULL;
+        TaskCalcLambda              *_taskCalcLambda = NULL;
+        TaskEndSim                  *_taskEndSim = NULL;
         size_t                      *_maxWorkItemSize;
 };
 

@@ -62,7 +62,7 @@ int					main(int ac, char **av)
 	double			an_mod;
 	double			fps = 0.0;
 	std::vector<t_vec>		position;
-	OpenCL			_openCL(100, 2.0f, 40, 10, 10, 10);
+	OpenCL			_openCL(100, 2.0f, 40, 20, 20, 20);
 
 	if (ac == 2)
 		filename = av[1];

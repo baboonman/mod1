@@ -1,17 +1,76 @@
+float   poly6Kernel(float3 currentParticle, float3 neighbor) {
+    float   H = 1.5f;// smoothing radius
 
-float3      calcDelta(__global float *particles, float3 currentParticle, int *neighbors, int nbNeighbors, float lambda) {
-    float3  delta;
+    float r = distance(currentParticle, neighbor);
+    float hrTerm = (H * H - r * r);
+    float div = 64.0f * M_PI * pown(H, 9);
+    return 315.0f / div * hrTerm * hrTerm * hrTerm;
+}
+
+float3   spikyGradientKernel(float3 currentParticle, float3 neighbor) {
+    float3  res;
+    float   length;
+    float   H = 1.5f;// smoothing radius
+
+    res = currentParticle - neighbor;
+    length = distance(currentParticle, neighbor);
+    float   hrTerm = H - length; 
+    float   gradientMagnitude = 45.0f / (M_PI * pown(H, 6)) * hrTerm * hrTerm;
+    float   div = length + 0.001f;
+    return gradientMagnitude * 1.0f / div * res;
+
+}
+
+float3  calcCiGradient(float3 currentParticle, float3 neighbor) {
+    float3  cI = -1.0f / 1000.0f * spikyGradientKernel(currentParticle, neighbor);
+    return cI;
+}
+
+float3  calcCiGradientATI(__global float *particles, float3 currentParticle, int *neighbors, int nbNeighbors) {
+    float3  accum = float3(0.0f);
     float3  neighbor;
-    float   sCorr = 0.0f;
 
     for (int i = 0; i < nbNeighbors; i++) {
         neighbor.x = particles[neighbors[i]];
         neighbor.y = particles[neighbors[i] + 1];
         neighbor.z = particles[neighbors[i] + 2];
-
-   //     delta += (lambda + neighbors)
+        accum += spikyGradientKernel(currentParticle, neighbor);
     }
-    return delta;
+    return 1.0f / 1000.0f * accum;
+}
+
+float   calcRo(__global float *particles, float3 currentParticle, int *neighbors, int nbNeighbors)
+{
+    float   ro = 0.0f;
+    float3  neighbor;
+
+    for (int i = 0; i < nbNeighbors; i++) {
+        neighbor.x = particles[neighbors[i]];
+        neighbor.y = particles[neighbors[i] + 1];
+        neighbor.z = particles[neighbors[i] + 2];
+       ro += poly6Kernel(currentParticle, neighbor);
+    }
+    return ro;
+}
+
+float   calcLambda(__global float *particles, float3 currentParticle, int *neighbors, int nbNeighbors)
+{
+    float   pI = calcRo(particles, currentParticle, neighbors, nbNeighbors);
+    float   cI =  (pI / 1000.0f) - 1.0f;
+    float   cIGradient, sumGradient = 0.0f;
+    float3  neighbor;
+
+    for (int i = 0; i < nbNeighbors; i++) {
+        neighbor.x = particles[neighbors[i]];
+        neighbor.y = particles[neighbors[i] + 1];
+        neighbor.z = particles[neighbors[i] + 2];
+        cIGradient = length(calcCiGradient(currentParticle, neighbor));
+        sumGradient += cIGradient * cIGradient;
+    }
+    cIGradient = length(calcCiGradientATI(particles, currentParticle, neighbors, nbNeighbors));
+    sumGradient += cIGradient * cIGradient;
+    sumGradient += 0.01f;
+    return -1.0f * (cI / sumGradient);
 }
 
 int     getCellId(int x, int y, int z, int nbParticlePerCell, int gridX, int sizePlane)
@@ -40,7 +99,7 @@ int    findNeighbors(__global int *gridParticles,//TODO Remove particle by dista
     return nbParticleInCell;
 }
 
-__kernel void   addConst (
+__kernel void   calcLambda (
         __global float     *particles,
         __global float     *particlesVelocity,
         __global float     *particlesProjection,
@@ -59,15 +118,11 @@ __kernel void   addConst (
         return;
 
     gid *= 3;
+
     int     x = particlesProjection[gid] / coef;
     int     y = particlesProjection[gid + 1] / coef;
     int     z = particlesProjection[gid + 2] / coef;
-    int     sizePlane = gridX * gridY;
     int     currentCell;
-    float   c;
-    float3  w;
-    int     nbParticleInCell;
-    int     workingId;
     float3  currentParticle;
     int     xGrid;
     int     yGrid;
@@ -111,4 +166,3 @@ __kernel void   addConst (
         calcDelta(particlesProjection, currentParticle, neighbors, nbNeighbors, 0.0f);
     }
 }
-

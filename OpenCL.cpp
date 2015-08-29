@@ -25,6 +25,12 @@ void    OpenCL::_initTask() {
 
     this->_taskInitParticle = new TaskInitParticle(this->_context, this->_device, this->_nbParticle);
     this->_taskInitParticle->createKernel();
+
+    this->_taskEndSim = new TaskEndSim(this->_context, this->_device, this->_nbParticle);
+    this->_taskEndSim->createKernel();
+
+    this->_taskCalcLambda = new TaskCalcLambda(this->_context, this->_device, this->_nbParticle);
+    this->_taskCalcLambda->createKernel();
 }
 
 void    OpenCL::initOpenCL(GLuint vbo) {
@@ -153,7 +159,6 @@ void    OpenCL::_setStdArg(cl_kernel kernel) {
             "clSetKernelArg");
     checkCLSuccess(clSetKernelArg(kernel, 7, sizeof(cl_int), &this->_gridSize[OpenCL::Z]),
             "clSetKernelArg");
-    std::cout << "max particle: " << this->_maxParticlePerCell<< std::endl;
     checkCLSuccess(clSetKernelArg(kernel, 8, sizeof(cl_int), &this->_maxParticlePerCell),
             "clSetKernelArg");
     checkCLSuccess(clSetKernelArg(kernel, 9, sizeof(cl_int), &this->_maxGid),
@@ -161,10 +166,7 @@ void    OpenCL::_setStdArg(cl_kernel kernel) {
 }
 
 void    OpenCL::_setKernelConstArg(cl_kernel kernel) {
-    cl_float   h;
-
-    h = 0.1f;
-    checkCLSuccess(clSetKernelArg(kernel, 10, sizeof(cl_float), &h),
+    checkCLSuccess(clSetKernelArg(kernel, 10, sizeof(cl_mem), &this->_particleLambda),
             "clSetKernelArg");
 }
 
@@ -174,7 +176,10 @@ void    OpenCL::_setKernelArg() {
     this->_setStdArg(this->_taskParticleInGrid->getKernel());
     this->_setStdArg(this->_taskApplyForces->getKernel());
     this->_setStdArg(this->_taskAddConst->getKernel());
+    this->_setStdArg(this->_taskEndSim->getKernel());
+//    this->_setStdArg(this->_taskCalcLambda->getKernel());
     this->_setKernelConstArg(this->_taskAddConst->getKernel());
+//    this->_setKernelConstArg(this->_taskCalcLambda->getKernel());
 
     kernel = this->_taskInitBuffer->getKernel();
 
@@ -214,10 +219,12 @@ void    OpenCL::executeKernel() {
 
     gettimeofday(&timeVal1, NULL);
 
- //   this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
-//    this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
+    this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
+    this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
     this->_taskApplyForces->enqueueKernel(this->_commandQueue);
-//    this->_taskAddConst->enqueueKernel(this->_commandQueue);
+  //  this->_taskCalcLambda->enqueueKernel(this->_commandQueue);
+    this->_taskAddConst->enqueueKernel(this->_commandQueue);
+    this->_taskEndSim->enqueueKernel(this->_commandQueue);
     clFinish(this->_commandQueue);
     gettimeofday(&timeVal2, NULL);
     start = 1000000 * timeVal1.tv_sec + (timeVal1.tv_usec);
@@ -256,6 +263,7 @@ void    OpenCL::_bindBuffer() {
     int     err;
 
     this->_sizeGrid = this->_gridSize[OpenCL::X] * this->_gridSize[OpenCL::Y] * this->_gridSize[OpenCL::Z] * (this->_maxParticlePerCell + 1);
+    std::cout << "size: " << this->_sizeGrid << std::endl;
     this->_particleIdByCells = clCreateBuffer(this->_context,
             CL_MEM_READ_WRITE, this->_sizeGrid * sizeof(cl_int),
             NULL,
@@ -266,6 +274,9 @@ void    OpenCL::_bindBuffer() {
     checkCLSuccess(err, "clCreateBuffer particle velocity");
 
     this->_particleProjection = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float) * 3, NULL, &err);
+    checkCLSuccess(err, "clCreateBuffer projection");
+
+    this->_particleLambda = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float), NULL, &err);
     checkCLSuccess(err, "clCreateBuffer projection");
 }
 

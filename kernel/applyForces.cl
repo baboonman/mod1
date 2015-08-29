@@ -15,5 +15,7 @@ __kernel void   applyForces(
         return ;
     gid *= 3;
     particlesVelocity[gid + 1] -= 0.0001f;
-    particles[gid + 1] += particlesVelocity[gid + 1];
+    particlesProjection[gid] = /*particlesVelocity[gid] + */particles[gid];
+    particlesProjection[gid + 1] = /*particlesVelocity[gid + 1] + */particles[gid + 1];
+    particlesProjection[gid + 2] = /*particlesVelocity[gid + 2] +*/ particles[gid + 2];
 }

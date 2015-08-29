@@ -14,19 +14,27 @@ __kernel void   particleInGrid(
 //    printf("max: %d\n", maxGID);
     if (gid > maxGID)
         return;
+ //   printf("max: %d, cur: %d\n", maxGID, gid);
     int pos = gid * 3;
     int x = particles[pos] / coef;
     int y = particles[pos + 1] / coef;
     int z = particles[pos + 2] / coef;
- /*   printf("%f, %f, %f ::: %d, %d, %d\n",
-           (float)(gid % 10) + 4.0f,
-           (float)(gid / 10),
-           5.0f,
+    x += gridX / 2;
+    y += gridY / 2;
+    z += gridZ / 2;
+    /*
+    printf("x: %d, %d, %d\n", x, y, z);
+    printf("%f, %f, %f ::: %d, %d, %d\n",
+           particles[pos],
+           particles[pos + 1],
+           particles[pos + 2],
            x,
            y,
-           z);*/
-    int id = (nbParticlePerCell + 1) * (x + y * gridX + z * gridX * gridZ);
+           z);
+*/
+    int id = (nbParticlePerCell + 1) * (x + y * gridX + z * gridX * gridY);
     int offset = atomic_inc(gridParticles + id) + 1;//Update particle counter for cell
+   // printf("id: %d\n", id);
     if (offset >= nbParticlePerCell) {
         printf("FAILED, offset(%d), %f, %f, %f :: %d, %d, %d\n",
            offset,
