@@ -13,14 +13,15 @@
 # include <string>
 
 # include "OpenCL.hpp"
-# include "OpenGlMatrix.hpp"
+# include "OpenGLMatrix.hpp"
 # include "OpenGLShader.hpp"
 # include "Mesh.hpp"
+# include "CameraControl.hpp"
 
-#define FROMFPS(X)		( 1 / X )
-#define TOFPS(X)		( 1 / X )
+#define FROMFPS(X)		( 1.0f / X )
+#define TOFPS(X)		( 1.0f / X )
 
-#define AN_INT			FROMFPS(3)
+#define AN_INT			FROMFPS(3.0f)
 
 typedef struct					s_window_info
 {
@@ -39,29 +40,28 @@ typedef struct					s_clipping_info
 
 typedef struct					s_user_ptr
 {
-//	t_window_info				*winInfo;
-	OpenGlMatrix				*model;
-	std::string					test;
+	t_window_info				*winInfo;
+	OpenGLMatrix				*model;
+	CameraControl				*camera;
 }								t_user_ptr;
 
-class							OpenglManager
+class							OpenGLManager
 {
 	public:
-								OpenglManager();
-								OpenglManager( GLfloat width, GLfloat height, std::string winName );
-								OpenglManager( GLfloat width, GLfloat height, std::string winName,
+								OpenGLManager();
+								OpenGLManager( GLfloat width, GLfloat height, std::string winName );
+								OpenGLManager( GLfloat width, GLfloat height, std::string winName,
 											   GLfloat fov, GLfloat aspect, 
 											   GLfloat zNear, GLfloat zFar );
-								~OpenglManager();
+								~OpenGLManager();
 		int						initShader(std::string VSFile, std::string FSFile);
 		GLuint					getShaderProgram( void );
 		int						shouldClose( void );
 		void					swap( void );
-		void					setUserPtr( t_user_ptr s );
+		void					setUserPtr( t_user_ptr *s );
 		void					createProjectionMatrix( void );
-		OpenGlMatrix			getModelViewMatrix( void );
-		void					addMatricesToProgram( OpenGlMatrix model, OpenGlMatrix view, float an, float bn );
-		void					run(Mesh mesh);
+		void					addMatricesToProgram( OpenGLMatrix model, OpenGLMatrix view, float an, float bn );
+		void					run(CameraControl *cam, Mesh mesh);
 
 	private:
 		void					initOpenGl( void );
@@ -69,8 +69,7 @@ class							OpenglManager
 	private:
     	GLFWwindow				*_window;
 		OpenGLShader			_shader;
-		OpenGlMatrix			_modelviewMatrix;
-		OpenGlMatrix			_projectionMatrix;
+		OpenGLMatrix			_projectionMatrix;
 		t_window_info			_winInfo;
 		t_clipping_info			_clipInfo;
 

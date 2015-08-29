@@ -1,18 +1,19 @@
-#include "OpenGlMatrix.hpp"
+#include "OpenGLMatrix.hpp"
 
-std::ostream&			operator<<(std::ostream& flux, OpenGlMatrix const& m)
+std::ostream&			operator<<(std::ostream& flux, OpenGLMatrix const& m)
 {
 	flux << m.getMatrix();
 	return flux;
 }
 
-OpenGlMatrix::OpenGlMatrix()
+OpenGLMatrix::OpenGLMatrix()
 {
 }
 
-Matrix					OpenGlMatrix::getMatrix( void ) const { return _matrix; }
+Matrix					OpenGLMatrix::getMatrix( void ) const { return _matrix; }
+void					OpenGLMatrix::setMatrix( Matrix matrix ) { this->_matrix = matrix; }
 
-void					OpenGlMatrix::scale( float  scale )
+void					OpenGLMatrix::scale( float  scale )
 {
 	Matrix				matrix;
 
@@ -20,7 +21,7 @@ void					OpenGlMatrix::scale( float  scale )
 	_matrix *= matrix;
 }
 
-void					OpenGlMatrix::rotateX( float alpha )
+void					OpenGLMatrix::rotateX( float alpha )
 {
 	Matrix				matrix;
 
@@ -28,7 +29,7 @@ void					OpenGlMatrix::rotateX( float alpha )
 	_matrix *= matrix;
 }
 
-void					OpenGlMatrix::rotateY( float alpha )
+void					OpenGLMatrix::rotateY( float alpha )
 {
 	Matrix				matrix;
 
@@ -36,7 +37,7 @@ void					OpenGlMatrix::rotateY( float alpha )
 	_matrix *= matrix;
 }
 
-void					OpenGlMatrix::rotateZ( float alpha )
+void					OpenGLMatrix::rotateZ( float alpha )
 {
 	Matrix				matrix;
 
@@ -44,7 +45,7 @@ void					OpenGlMatrix::rotateZ( float alpha )
 	_matrix *= matrix;
 }
 
-void					OpenGlMatrix::translate( float x, float y, float z )
+void					OpenGLMatrix::translate( float x, float y, float z )
 {
 	Matrix				matrix;
 
@@ -52,7 +53,7 @@ void					OpenGlMatrix::translate( float x, float y, float z )
 	_matrix *= matrix;
 }
 
-void					OpenGlMatrix::project( float fovy, float aspect, float near, float far )
+void					OpenGLMatrix::project( float fovy, float aspect, float near, float far )
 {
 	Matrix				matrix;
 
@@ -60,12 +61,12 @@ void					OpenGlMatrix::project( float fovy, float aspect, float near, float far 
 	_matrix *= matrix;
 }
 
-void					OpenGlMatrix::computeProjectionMatrix( float fovy, float aspect, float near, float far )
+void					OpenGLMatrix::computeProjectionMatrix( float fovy, float aspect, float near, float far )
 {
 	_matrix = createProjectionMatrix(fovy, aspect, near, far);
 }
 
-Matrix					OpenGlMatrix::createScaleMatrix( float scale ) const
+Matrix					OpenGLMatrix::createScaleMatrix( float scale ) const
 {
 	Matrix				matrix;
 
@@ -75,7 +76,7 @@ Matrix					OpenGlMatrix::createScaleMatrix( float scale ) const
 	return matrix;
 }
 
-Matrix					OpenGlMatrix::createRotXMatrix( float alpha ) const
+Matrix					OpenGLMatrix::createRotXMatrix( float alpha ) const
 {
 	Matrix				matrix;
 	float				cosA = cos(alpha);
@@ -88,7 +89,7 @@ Matrix					OpenGlMatrix::createRotXMatrix( float alpha ) const
 	return matrix;
 }
 
-Matrix					OpenGlMatrix::createRotYMatrix( float alpha ) const
+Matrix					OpenGLMatrix::createRotYMatrix( float alpha ) const
 {
 	Matrix				matrix;
 	float				cosA = cos(alpha);
@@ -101,7 +102,7 @@ Matrix					OpenGlMatrix::createRotYMatrix( float alpha ) const
 	return matrix;
 }
 
-Matrix					OpenGlMatrix::createRotZMatrix( float alpha ) const
+Matrix					OpenGLMatrix::createRotZMatrix( float alpha ) const
 {
 	Matrix				matrix;
 	float				cosA = cos(alpha);
@@ -114,7 +115,7 @@ Matrix					OpenGlMatrix::createRotZMatrix( float alpha ) const
 	return matrix;
 }
 
-Matrix					OpenGlMatrix::createTranslationMatrix( float x, float y, float z ) const
+Matrix					OpenGLMatrix::createTranslationMatrix( float x, float y, float z ) const
 {
 	Matrix				matrix;
 
@@ -124,7 +125,7 @@ Matrix					OpenGlMatrix::createTranslationMatrix( float x, float y, float z ) co
 	return matrix;
 }
 
-Matrix					OpenGlMatrix::createProjectionMatrix( float fovy, float aspect, float near, float far ) const
+Matrix					OpenGLMatrix::createProjectionMatrix( float fovy, float aspect, float near, float far ) const
 {
 	Matrix				matrix;
 	float				f;
@@ -139,17 +140,17 @@ Matrix					OpenGlMatrix::createProjectionMatrix( float fovy, float aspect, float
 	return matrix;
 }
 
-float				*OpenGlMatrix::getMatrixArray( void )
+float				*OpenGLMatrix::getMatrixArray( void )
 {
 	return _matrix.getMatrix();
 }
 
-void				OpenGlMatrix::resetMatrix( void )
+void				OpenGLMatrix::resetMatrix( void )
 {
 	_matrix.identity();
 }
 
-OpenGlMatrix&		OpenGlMatrix::multMatrix(const OpenGlMatrix& rhs)
+OpenGLMatrix&		OpenGLMatrix::multMatrix(const OpenGLMatrix& rhs)
 {
 	_matrix *= rhs.getMatrix();
 	return *this;

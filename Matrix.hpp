@@ -17,10 +17,10 @@ class			Matrix
 {
 	public:
 						Matrix();
-						Matrix( float m00, float m04, float m08, float m12,
-							    float m01, float m05, float m09, float m13,
-							    float m02, float m06, float m10, float m14, 
-					  	 	    float m03, float m07, float m11, float m15 );
+						Matrix( float m00, float m01, float m02, float m03,
+								float m04, float m05, float m06, float m07,
+								float m08, float m09, float m10, float m11, 
+								float m12, float m13, float m14, float m15 );
 
 		Matrix&			identity( void );
 		Matrix	 	    operator*( const Matrix& rhs ) const;

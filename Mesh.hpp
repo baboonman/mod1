@@ -8,8 +8,8 @@
 # define GLFW_INCLUDE_GLCOREARB
 # include <GLFW/glfw3.h>
 
-# include "MapManager.hpp"
-# include "OpenGlMatrix.hpp"
+# include "OpenGLMatrix.hpp"
+# include <vector>
 
 typedef struct				s_vec
 {
@@ -35,9 +35,8 @@ class						Mesh
 							~Mesh();
 		void				initMesh(GLuint program) const;
 		void				initMeshIndices(GLuint program);
-		void				initMeshIndicesMAP(GLuint program) const;
-		OpenGlMatrix		getModelMatrix( void ) const;
-		void				setModelMatrix( OpenGlMatrix newMatrix );
+		OpenGLMatrix		getModelMatrix( void ) const;
+		void				setModelMatrix( OpenGLMatrix newMatrix );
 		void				drawMesh( void ) const;
 void						sendPosition(unsigned int size, std::vector<t_vec> postion);
         GLuint              *getVBO( void );
@@ -51,7 +50,7 @@ void						sendPosition(unsigned int size, std::vector<t_vec> postion);
 		static int			_i;
 		int					_id;
 		const GLfloat		*_mesh;
-		OpenGlMatrix		_modelMatrix;
+		OpenGLMatrix		_modelMatrix;
 		std::vector< t_vec >	_vertex;
 		std::vector< t_vec >	_vertexN;
 		std::vector< t_vec2 >	_vertexT;
@@ -69,10 +68,6 @@ void						sendPosition(unsigned int size, std::vector<t_vec> postion);
 		GLuint					_vao;
 		GLuint					_vbo[4];
 
-	protected:
-        std::vector<GLfloat>    *_vertices;
-        std::vector<GLuint>     *_indicesVert;
-        std::vector<GLfloat>    *_normal;
 };
 
 

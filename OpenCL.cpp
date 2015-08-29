@@ -224,7 +224,7 @@ void    OpenCL::executeKernel() {
     end = 1000000 * timeVal2.tv_sec + (timeVal2.tv_usec);
     time = ((double)(end - start)) / 1000000.0;
     time2 = end - start;
-    printf("Execution time: %lf ms, %llu us\n", time * 1000.0f, time2);
+//    printf("Execution time: %lf ms, %llu us\n", time * 1000.0f, time2);
 
 
     err = clEnqueueReleaseGLObjects(

@@ -4,11 +4,12 @@
 # include "Matrix.hpp"
 # include <cmath>
 
-class					OpenGlMatrix
+class					OpenGLMatrix
 {
 	public:
-						OpenGlMatrix();
+						OpenGLMatrix();
 		Matrix			getMatrix( void ) const;
+		void			setMatrix(Matrix matrix);
 		void			scale( float scale );
 		void			rotateX( float alpha );
 		void			rotateY( float alpha );
@@ -18,7 +19,7 @@ class					OpenGlMatrix
 		void			computeProjectionMatrix( float fovy, float aspect, float near, float far );
 		float			*getMatrixArray( void );
 		void			resetMatrix( void );
-		OpenGlMatrix&	multMatrix(const OpenGlMatrix& rhs);
+		OpenGLMatrix&	multMatrix(const OpenGLMatrix& rhs);
 
 	private:
 		Matrix			createScaleMatrix( float scale ) const;
@@ -32,6 +33,6 @@ class					OpenGlMatrix
 		Matrix			_matrix;
 };
 
-std::ostream&			operator<<( std::ostream& flux,OpenGlMatrix const& a );
+std::ostream&			operator<<( std::ostream& flux,OpenGLMatrix const& a );
 
 #endif

@@ -3,8 +3,6 @@ FLAGS=-Wall -Wextra -Wno-deprecated-declarations -std=c++11 -I./includes/ -I./in
 NAME=mod1 
 
 SRC= main.cpp \
-	 MapManager.cpp \
-	 MapMesh.cpp \
 	 Top.cpp \
 	 Platform.cpp \
 	 clUtil.cpp \
@@ -18,9 +16,11 @@ SRC= main.cpp \
 	 TaskInitParticle.cpp \
 	 Matrix.cpp \
 	 Mesh.cpp \
-	 OpenGlMatrix.cpp \
+	 OpenGLMatrix.cpp \
 	 OpenGLShader.cpp \
-	 OpenglManager.cpp	\
+	 OpenGLManager.cpp	\
+	 FakeCamera.cpp \
+	 LookAtCamera.cpp \
 	 Vector.cpp 
 
 OBJ= $(SRC:.cpp=.o)
