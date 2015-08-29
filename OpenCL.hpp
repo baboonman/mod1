@@ -20,6 +20,7 @@
 # include "TaskInitParticle.hpp"
 # include "TaskCalcLambda.hpp"
 # include "TaskEndSim.hpp"
+# include "TaskFindNeighbors.hpp"
 
 class OpenCL {
     public:
@@ -55,6 +56,7 @@ class OpenCL {
         cl_mem                      _particleVelocity;
         cl_mem                      _particleProjection;
         cl_mem                      _particleLambda;
+        cl_mem                      _particleNeighbors;
         size_t                      _sizeGrid;
 
         cl_int                      _nbParticle;
@@ -67,6 +69,7 @@ class OpenCL {
         TaskInitBuffer              *_taskInitBuffer = NULL;
         TaskInitParticle            *_taskInitParticle = NULL;
         TaskCalcLambda              *_taskCalcLambda = NULL;
+        TaskFindNeighbors           *_taskFindNeighbors = NULL;
         TaskEndSim                  *_taskEndSim = NULL;
         size_t                      *_maxWorkItemSize;
 };

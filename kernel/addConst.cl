@@ -1,43 +1,31 @@
+float3   spikyGradientKernel(float3 currentParticle, float3 neighbor) {
+    float3  res;
+    float   length;
+    float   H = 1.5f;// smoothing radius
 
-float3      calcDelta(__global float *particles, float3 currentParticle, int *neighbors, int nbNeighbors, float lambda) {
+    res = currentParticle - neighbor;
+    length = distance(currentParticle, neighbor);
+    float   hrTerm = H - length; 
+    float   gradientMagnitude = 45.0f / (M_PI * pown(H, 6)) * hrTerm * hrTerm;
+    float   div = length + 0.001f;
+    return gradientMagnitude * 1.0f / div * res;
+
+}
+
+float3      calcDelta(__global float *particles, float3 currentParticle, __global int *neighbors, int nbNeighbors, __global float *lstLambda, float lambda) {
     float3  delta;
     float3  neighbor;
-    float   sCorr = 0.0f;
+    int     neighborId;
 
     for (int i = 0; i < nbNeighbors; i++) {
-        neighbor.x = particles[neighbors[i]];
-        neighbor.y = particles[neighbors[i] + 1];
-        neighbor.z = particles[neighbors[i] + 2];
+        neighborId = neighbors[i];
+        neighbor.x = particles[neighborId];
+        neighbor.y = particles[neighborId + 1];
+        neighbor.z = particles[neighborId + 2];
 
-   //     delta += (lambda + neighbors)
+        delta += (lambda + lstLambda[neighborId / 3]) * spikyGradientKernel(currentParticle, neighbor);
     }
-    return delta;
-}
-
-int     getCellId(int x, int y, int z, int nbParticlePerCell, int gridX, int sizePlane)
-{
-  //  printf("Here %d, %d, %d\n", x, y, z);
-    return (nbParticlePerCell + 1) * (x + y * gridX + z * sizePlane);
-}
-
-int    findNeighbors(__global int *gridParticles,//TODO Remove particle by distance
-                    int currentCell,
-                    int *neighbours,
-                    int nbNeighbours,
-                    int currentParticleId)
-{
-    int     workingId;
-
-    int nbParticleInCell = gridParticles[currentCell];
-    for (int i = 1; i <= nbParticleInCell; i++) {
-        workingId = gridParticles[currentCell + i];
-        if (workingId == currentParticleId)
-            continue ;
-        if (nbNeighbours > 255)
-            return i;
-        neighbours[nbNeighbours + i - 1] = workingId;
-    }
-    return nbParticleInCell;
+    return 1.0f / 10000.0f * delta;
 }
 
 __kernel void   addConst (
@@ -51,64 +39,22 @@ __kernel void   addConst (
         int                 gridZ,
         int                 nbParticlePerCell,
         int                 maxGID,
-        __global float      *lambda
+        __global float      *lambda,
+        __global int        *neighbors
         )
 {
     int gid = get_global_id(0);
     if (gid > maxGID)
         return;
 
-    gid *= 3;
-    int     x = particlesProjection[gid] / coef;
-    int     y = particlesProjection[gid + 1] / coef;
-    int     z = particlesProjection[gid + 2] / coef;
-    int     sizePlane = gridX * gridY;
-    int     currentCell;
-    float   c;
-    float3  w;
-    int     nbParticleInCell;
-    int     workingId;
+    int pos = gid * 3;
     float3  currentParticle;
-    int     xGrid;
-    int     yGrid;
-    int     zGrid;
-    int     xGridStop;
-    int     yGridStop;
-    int     zGridStop;
-    int     neighbors[256];
-    int     nbNeighbors = 0;
 
-    x += gridX / 2;
-    y += gridY / 2;
-    z += gridZ / 2;
-
-    currentParticle.x = particlesProjection[gid];
-    currentParticle.y = particlesProjection[gid + 1];
-    currentParticle.z = particlesProjection[gid + 2];
-    xGrid = max(x - 1, 0);
-    xGridStop = min(x + 1, gridX - 1);
-    yGridStop = min(y + 1, gridY - 1);
-    zGridStop = min(z + 1, gridZ - 1);
-    for (; xGrid < xGridStop; xGrid++) {
-        yGrid = max(y - 1, 0);
-        for (; yGrid < yGridStop; yGrid++) {
-            zGrid = max(z - 1, 0);
-            for (; zGrid < zGridStop; zGrid++) {
-                currentCell = getCellId(
-                                        xGrid,
-                                        yGrid,
-                                        zGrid,
-                                        nbParticlePerCell,
-                                        gridX,
-                                        sizePlane);
-                nbNeighbors += findNeighbors(gridParticles, currentCell, neighbors, nbNeighbors, gid);
-            }
-        }
-    }
-
-    for (int i = 0; i < 3; i++) {
-        calcLambda(particlesProjection, currentParticle, neighbors, nbNeighbors);
-        calcDelta(particlesProjection, currentParticle, neighbors, nbNeighbors, 0.0f);
-    }
+    currentParticle.x = particlesProjection[pos];
+    currentParticle.y = particlesProjection[pos + 1];
+    currentParticle.z = particlesProjection[pos + 2];
+    float3  delta = calcDelta(particlesProjection, currentParticle, neighbors + gid * 200, gid, lambda, lambda[gid / 3]);
+    particlesProjection[pos] += delta.x;
+    particlesProjection[pos + 1] += delta.y;
+    particlesProjection[pos + 2] += delta.z;
 }
-

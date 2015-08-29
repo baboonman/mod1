@@ -5,10 +5,10 @@
 #include <stddef.h>
 #include <unistd.h>
 
-#define FROMFPS(X)		( 1 / X )
-#define TOFPS(X)		( 1 / X )
+#define FROMFPS(X)		( 1.0f / X )
+#define TOFPS(X)		( 1.0f / X )
 
-#define AN_INT			FROMFPS(3)
+#define AN_INT		FROMFPS(25.0f)
 
 
 std::vector<t_vec>	everywhere(unsigned int size, float step)
@@ -62,7 +62,7 @@ int					main(int ac, char **av)
 	double			an_mod;
 	double			fps = 0.0;
 	std::vector<t_vec>		position;
-	OpenCL			_openCL(100, 2.0f, 40, 20, 20, 20);
+	OpenCL			_openCL(100, 2.0f, 400, 20, 20, 20);
 
 	if (ac == 2)
 		filename = av[1];
@@ -101,7 +101,7 @@ int					main(int ac, char **av)
 	modelMat = mesh.getModelMatrix();
 //	modelMat = map.getModelMatrix();
 
-	viewMat.translate(0.0, 0.0, -5.0);
+	viewMat.translate(0.0, 0.0, -20.0);
 //	oGlMan.addMatricesToProgram(modelMat, viewMat);
 
 
@@ -126,6 +126,8 @@ int					main(int ac, char **av)
 		if (before - an_mod > AN_INT) {
 			an += 1;
 			an_mod = glfwGetTime();
+            glFinish();
+            _openCL.executeKernel();
 		}
 	//	bn = giveMeB(100, 0.1f);
 //		bn += M_PI / 5;
@@ -137,8 +139,6 @@ int					main(int ac, char **av)
 			fps = before;
 		//	std::cerr << fps << std::endl;
 		}
-		glFinish();
-        _openCL.executeKernel();
 	}
 
 	return 0;
