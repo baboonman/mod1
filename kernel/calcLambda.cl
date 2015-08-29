@@ -94,7 +94,6 @@ __kernel void   calcLambda (
 
     int pos = gid * 3;
 
-    int     sizePlane = gridX * gridY;
     int     currentCell;
     float3  currentParticle;
 
