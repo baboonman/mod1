@@ -35,7 +35,27 @@ void    OpenCL::initOpenCL(GLuint vbo) {
     this->_initTask();
     this->_createCommandQueue();
     this->_setKernelArg();
+
+    int err;
+    err = clEnqueueAcquireGLObjects(
+        this->_commandQueue,
+        1,
+        &this->_particle,
+        0,
+        NULL,
+        NULL);
+    checkCLSuccess(err, "clEnqueueAcquireGLObjects");
     this->_taskInitParticle->enqueueKernel(this->_commandQueue);
+    err = clEnqueueReleaseGLObjects(
+            this->_commandQueue,
+            1,
+            &this->_particle,
+            0,
+            NULL,
+            NULL);
+    clFinish(this->_commandQueue);
+
+    checkCLSuccess(err, "clEnqueueReleaseGLObjects");
 }
 
 void    OpenCL::_createContext() {
@@ -271,12 +291,4 @@ void    OpenCL::displayInformation( void ) {
 }
 
 OpenCL::~OpenCL( void ) {
-    if (this->_maxWorkItemSize)
-        delete[] this->_maxWorkItemSize;
-
-    if (this->_taskParticleInGrid)
-        delete this->_taskParticleInGrid;
-
-    if (this->_taskApplyForces)
-        delete this->_taskApplyForces;
 }

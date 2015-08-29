@@ -1,4 +1,4 @@
-__kernel void   initParticle(__global float3 *particles,
+__kernel void   initParticle(__global float *particles,
                                __global float3 *particlesVelocity,
                                int maxGID)
 {

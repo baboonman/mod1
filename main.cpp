@@ -92,8 +92,6 @@ int					main(int ac, char **av)
 
 //	mesh.sendPosition(32, position);
 
-//    _openCL = new OpenCL(this->getWaterVBO(), this->meshManager->getSizeWaterVBO());
-
 	std::cout << "Vbo creating" << std::endl;
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -113,7 +111,6 @@ int					main(int ac, char **av)
 
     while (!oGlMan.shouldClose())
     {
-        _openCL.executeKernel();
 		before = glfwGetTime();
 		glClearColor(0.0, 0.0, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -138,10 +135,10 @@ int					main(int ac, char **av)
 		before = 1 / ((after - before)) ;
 		if ((before - fps) > 1.0 || (before - fps) < -1.0) {
 			fps = before;
-			std::cerr << fps << std::endl;
+		//	std::cerr << fps << std::endl;
 		}
 		glFinish();
-       // _openCL->executeKernel();
+        _openCL.executeKernel();
 	}
 
 	return 0;

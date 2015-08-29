@@ -1,7 +1,7 @@
 __kernel void   applyForces(
-        __global float3     *particles,
-        __global float3     *particlesVelocity,
-        __global float3     *particlesProjection,
+        __global float      *particles,
+        __global float      *particlesVelocity,
+        __global float      *particlesProjection,
         __global int        *gridParticles,
         float               coef,
         int                 gridX,
@@ -13,6 +13,7 @@ __kernel void   applyForces(
     int gid = get_global_id(0);
     if (gid > maxGID)
         return;
+	gid *= 3.0f;
     particlesProjection[gid] = particles[gid];
     particlesVelocity[gid].y -= 0.001f;
     particles[gid].y -= 0.01f; 
