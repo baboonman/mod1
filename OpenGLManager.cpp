@@ -27,7 +27,7 @@ void					OpenGLManager::addMatricesToProgram(OpenGLMatrix model, OpenGLMatrix vi
     glUniform1f(uloc_BN, bn);
 }
 
-
+				
 void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 {
 	t_user_ptr				*ptr;
