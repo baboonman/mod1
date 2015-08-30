@@ -16,14 +16,18 @@ __kernel void   particleInGrid(
         return;
  //   printf("max: %d, cur: %d\n", maxGID, gid);
     int pos = gid * 3;
-    particles[pos] = max(particles[pos], gridX * coef);
-    particles[pos] = min(0.0f, particles[pos]);
-    particles[pos + 1] = max(particles[pos + 1], gridY * coef);
-    particles[pos + 1] = min(0.0f, particles[pos + 1]);
-    particles[pos + 2] = max(particles[pos + 2], gridZ * coef);
-    particles[pos + 2] = min(0.0f, particles[pos + 2]);
 /*
+    float   maxX = (float)gridX * coef / 2.0f - 0.01f;
+    float   maxY = (float)gridY * coef / 2.0f - 0.01f;
+    float   maxZ = (float)gridZ * coef / 2.0f - 0.01f;
+    particles[pos] = min(particles[pos], maxX);
+    particles[pos] = max(-maxX, particles[pos]);
+    particles[pos + 1] = min(particles[pos + 1], maxY);
+    particles[pos + 1] = max(-maxY, particles[pos + 1]);
+    particles[pos + 2] = min(particles[pos + 2], maxZ);
+    particles[pos + 2] = max(-maxZ, particles[pos + 2]);
 */
+
     int x = particles[pos] / coef;
     int y = particles[pos + 1] / coef;
     int z = particles[pos + 2] / coef;
@@ -43,5 +47,5 @@ __kernel void   particleInGrid(
            z);
         return ;
     }
-  //  gridParticles[id + offset] = pos;
+    gridParticles[id + offset] = pos;
 }

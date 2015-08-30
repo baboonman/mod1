@@ -10,6 +10,7 @@ public:
     cl_kernel           getKernel();
     std::string         *getSrc(std::string filename) const;
     void                enqueueKernel(cl_command_queue queue);
+    void                releaseKernel();
 protected:
     void            _createKernel(std::string filename, std::string kernelName);
     cl_kernel       _kernel;

@@ -4,13 +4,17 @@ int     getCellId(int x, int y, int z, int nbParticlePerCell, int gridX, int siz
     return (nbParticlePerCell + 1) * (x + y * gridX + z * sizePlane);
 }
 
-int    findNeighborsPi(__global int *gridParticles,//TODO Remove particle by distance
+int    findNeighborsPi(__global int *gridParticles,
                     int currentCell,
                     __global int *neighbours,
+                    __global float *particles,
                     int nbNeighbours,
-                    int currentParticleId)
+                    int currentParticleId,
+                    float3 currentParticle)
 {
     int     workingId;
+    float3  neighbor;
+    float       dist;
 
     int nbParticleInCell = gridParticles[currentCell];
     for (int i = 1; i <= nbParticleInCell; i++) {
@@ -19,7 +23,14 @@ int    findNeighborsPi(__global int *gridParticles,//TODO Remove particle by dis
             continue ;
         if (nbNeighbours > 199)
             return i;
-        neighbours[nbNeighbours + i] = workingId;
+        neighbor.x = particles[workingId];
+        neighbor.y = particles[workingId + 1];
+        neighbor.z = particles[workingId + 2];
+        dist = distance(currentParticle, neighbor);
+        if (dist < 2.0f) {
+            neighbours[nbNeighbours + i] = workingId;
+        }
+        //printf("Dist: %f\n", dist);
     }
     return nbParticleInCell;
 }
@@ -81,7 +92,7 @@ __kernel void   findNeighbors(
                                         nbParticlePerCell,
                                         gridX,
                                         sizePlane);
-                nbNeighbors += findNeighborsPi(gridParticles, currentCell, neighbors + gid * 200, nbNeighbors, gid);
+                nbNeighbors += findNeighborsPi(gridParticles, currentCell, neighbors + gid * 200, particles, nbNeighbors, gid, currentParticle);
             }
         }
     }

@@ -268,7 +268,7 @@ OpenglManager::OpenglManager()
 	_clipInfo.fov = 45;
 	_clipInfo.aspect = 1;
 	_clipInfo.zNear = 0.1;
-	_clipInfo.zFar = 100;
+	_clipInfo.zFar = 10000;
 	initOpenGl();
 }
 

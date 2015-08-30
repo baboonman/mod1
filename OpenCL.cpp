@@ -203,6 +203,7 @@ void    OpenCL::_setKernelArg() {
             "clSetKernelArg");
     checkCLSuccess(clSetKernelArg(kernel, 2, sizeof(cl_int), &this->_maxGid),
             "clSetKernelArg");
+
 }
 
 void    OpenCL::executeKernel() {
@@ -226,29 +227,33 @@ void    OpenCL::executeKernel() {
 
     gettimeofday(&timeVal1, NULL);
 
+    std::cout << "start INI buffer" << std::endl << std::flush;
     this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
-    clFinish(this->_commandQueue);
-    std::cout << "INI buffer" << std::endl << std::flush;
+    //clFinish(this->_commandQueue);
+   // std::cout << "INI buffer" << std::endl << std::flush;
     this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
-    clFinish(this->_commandQueue);
-    std::cout << "INI particle grid" << std::endl << std::flush;
+    //clFinish(this->_commandQueue);
+    //std::cout << "INI particle grid" << std::endl << std::flush;
     this->_taskApplyForces->enqueueKernel(this->_commandQueue);
-    clFinish(this->_commandQueue);
-    std::cout << "Apply forces" << std::endl << std::flush;
+    //clFinish(this->_commandQueue);
+    //std::cout << "Apply forces" << std::endl << std::flush;
     this->_taskFindNeighbors->enqueueKernel(this->_commandQueue);
-    clFinish(this->_commandQueue);
-    std::cout << "Find neighbors" << std::endl << std::flush;
-    for (int i = 0; i < 3; i++) {
+    //clFinish(this->_commandQueue);
+    //std::cout << "Find neighbors" << std::endl << std::flush;
+    for (int i = 0; i < 1; i++) {
         this->_taskCalcLambda->enqueueKernel(this->_commandQueue);
-    clFinish(this->_commandQueue);
-    std::cout << "calc lambda" << std::endl << std::flush;
-        this->_taskAddConst->enqueueKernel(this->_commandQueue);
-    clFinish(this->_commandQueue);
-    std::cout << "calc delta" << std::endl << std::flush;
+  //      clFinish(this->_commandQueue);
+        std::cout << "calc lambda" << std::endl << std::flush;
+            this->_taskAddConst->enqueueKernel(this->_commandQueue);
+  //      clFinish(this->_commandQueue);
+        std::cout << "calc delta" << std::endl << std::flush;
     }
     this->_taskEndSim->enqueueKernel(this->_commandQueue);
     clFinish(this->_commandQueue);
     std::cout << "end sim" << std::endl << std::flush;
+    /*
+    */
+    clFinish(this->_commandQueue);
     gettimeofday(&timeVal2, NULL);
     start = 1000000 * timeVal1.tv_sec + (timeVal1.tv_usec);
     end = 1000000 * timeVal2.tv_sec + (timeVal2.tv_usec);
@@ -270,14 +275,27 @@ void    OpenCL::executeKernel() {
 }
 
 void    OpenCL::release() {
+    std::cout << "OpenCL ressources release" << std::endl;
     clFinish(this->_commandQueue);
-    /*
-    clReleaseMemObject(this->_waterBuffer);
-    clReleaseProgram(this->_program);
-    clReleaseKernel(this->_kernel);
+    clReleaseMemObject(this->_particle);
+    clReleaseMemObject(this->_particleIdByCells);
+    clReleaseMemObject(this->_particleVelocity);
+    clReleaseMemObject(this->_particleProjection);
+    clReleaseMemObject(this->_particleLambda);
+    clReleaseMemObject(this->_particleNeighbors);
+
+    this->_taskParticleInGrid->releaseKernel();
+    this->_taskApplyForces->releaseKernel();
+    this->_taskAddConst->releaseKernel();
+    this->_taskInitBuffer->releaseKernel();
+    this->_taskInitParticle->releaseKernel();
+    this->_taskCalcLambda->releaseKernel();
+    this->_taskFindNeighbors->releaseKernel();
+    this->_taskEndSim->releaseKernel();
+
     clReleaseCommandQueue(this->_commandQueue);
     clReleaseContext(this->_context);
-    */
+    std::cout << "DONE" << std::endl;
 }
 
 void    OpenCL::_bindBuffer() {

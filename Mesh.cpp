@@ -172,7 +172,7 @@ void						Mesh::initMeshIndices(GLuint program)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * _indicesOO.size(), &_indicesOO[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[3]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * 100, NULL, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * 1000, NULL, GL_STREAM_DRAW);
 	attrloc = glGetAttribLocation(program, "instancePosition");
 	glEnableVertexAttribArray(attrloc);
 	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -240,7 +240,7 @@ void					Mesh::drawMesh() const
 {
 	glBindVertexArray(this->_vao);
 //	glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT, 0);
-	glDrawElementsInstanced(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT, 0, 100);
+	glDrawElementsInstanced(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT, 0, 999);
 	glBindVertexArray(0);
 }
 

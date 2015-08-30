@@ -62,7 +62,7 @@ int					main(int ac, char **av)
 	double			an_mod;
 	double			fps = 0.0;
 	std::vector<t_vec>		position;
-	OpenCL			_openCL(100, 20.0f, 200, 50, 50, 50);
+	OpenCL			_openCL(999, 2.0f, 1000, 50, 50, 50);
 
 	if (ac == 2)
 		filename = av[1];
@@ -101,14 +101,17 @@ int					main(int ac, char **av)
 	modelMat = mesh.getModelMatrix();
 //	modelMat = map.getModelMatrix();
 
-	viewMat.translate(0.0, 0.0, -20.0);
+	viewMat.translate(0.0, 0.0, -50.0);
 //	oGlMan.addMatricesToProgram(modelMat, viewMat);
 
 
 	userPtr.model = &modelMat;
 	userPtr.test = "IEEEE";
 	oGlMan.setUserPtr(userPtr);
+            glFinish();
+            _openCL.executeKernel();
 
+ //       _openCL.executeKernel();
     while (!oGlMan.shouldClose())
     {
 		before = glfwGetTime();
@@ -126,8 +129,6 @@ int					main(int ac, char **av)
 		if (before - an_mod > AN_INT) {
 			an += 1;
 			an_mod = glfwGetTime();
-            glFinish();
-            _openCL.executeKernel();
 		}
 	//	bn = giveMeB(100, 0.1f);
 //		bn += M_PI / 5;
@@ -140,6 +141,7 @@ int					main(int ac, char **av)
 		//	std::cerr << fps << std::endl;
 		}
 	}
+	_openCL.release();
 
 	return 0;
 }

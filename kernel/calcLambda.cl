@@ -100,6 +100,7 @@ __kernel void   calcLambda (
     currentParticle.x = particlesProjection[pos];
     currentParticle.y = particlesProjection[pos + 1];
     currentParticle.z = particlesProjection[pos + 2];
+  //  printf("Init gid: %d, x: %f, y: %f, z: %f\n", gid, particles[pos], particles[pos + 1], particles[pos + 2]);
 
     lambda[gid / 3] = calcLambdaPi(
                                     particlesProjection,
