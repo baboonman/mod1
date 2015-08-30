@@ -13,6 +13,11 @@ std::string     *Task::getSrc(std::string filename) const {
     return content;
 }
 
+void            Task::releaseKernel() {
+    clReleaseKernel(this->_kernel);
+    clReleaseProgram(this->_program);
+}
+
 void            Task::enqueueKernel(cl_command_queue queue) {
     int     err;
 

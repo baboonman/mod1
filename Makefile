@@ -14,6 +14,9 @@ SRC= main.cpp \
 	 TaskAddConst.cpp \
 	 TaskInitBuffer.cpp \
 	 TaskInitParticle.cpp \
+	 TaskCalcLambda.cpp \
+	 TaskFindNeighbors.cpp \
+	 TaskEndSim.cpp \
 	 Matrix.cpp \
 	 Mesh.cpp \
 	 OpenGLMatrix.cpp \

@@ -21,16 +21,11 @@ int					main(int ac, char **av)
 	if (ac == 2)
 		filename = av[1];
 	Mesh			mesh(filename);
-
 	std::cout << "Parsing done" << std::endl;
-
 	oGlMan.initShader("shader/shad.vert", "shader/shad.frag");
 	std::cout << "Shader Program created." << std::endl;
-
 	mesh.initMeshIndices(oGlMan.getShaderProgram());
 	std::cout << "Vbo created." << std::endl;
-
 	oGlMan.run(camera3, mesh);
-
 	return 0;
 }
