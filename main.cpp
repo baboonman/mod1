@@ -1,6 +1,7 @@
 #include "OpenGLManager.hpp"
 #include "FakeCamera.hpp"
 #include "LookAtCamera.hpp"
+#include "FreeCamera.hpp"
 
 #include <stddef.h>
 #include <unistd.h>
@@ -13,8 +14,8 @@ int					main(int ac, char **av)
 	t_vecf			target = {0.0f, 0.0f, 10.0f};
 	t_vecf			up = {0.0f, 1.0f, 0.0f};
 	CameraControl	*camera = new FakeCamera(0.0f, 0.0f, -0.5f);
-	std::cout << camera->getViewMatrix() << std::endl;
 	CameraControl	*camera2 = new LookAtCamera(eye, target, up);
+	CameraControl	*camera3 = new FreeCamera(eye, 0.0f, 0.0f);
 	std::string		filename = "resources/Suzanne.obj";
 
 	if (ac == 2)
@@ -29,7 +30,7 @@ int					main(int ac, char **av)
 	mesh.initMeshIndices(oGlMan.getShaderProgram());
 	std::cout << "Vbo created." << std::endl;
 
-	oGlMan.run(camera2, mesh);
+	oGlMan.run(camera3, mesh);
 
 	return 0;
 }

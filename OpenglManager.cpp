@@ -1,10 +1,5 @@
 #include "OpenGLManager.hpp"
 
-//OpenGLMatrix			OpenGLManager::getModelViewMatrix(void)
-//{
-//	return _viewMatrix;
-//}
-
 void					OpenGLManager::createProjectionMatrix(void)
 {
 	_clipInfo.aspect = _winInfo.width / _winInfo.height;
@@ -73,7 +68,15 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 				ptr->model->rotateY(-alpha);
 		}
 	}
-	ptr->camera->control(key, action, mods);
+	ptr->camera->controlKey(key, action, mods);
+}
+
+static void cursor_position_callback(GLFWwindow* window, double xPos, double yPos)
+{
+	t_user_ptr				*ptr;
+	
+	ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
+	ptr->camera->controlMouse(xPos, yPos);
 }
 
 void error_callback(int error, const char* description)
@@ -107,9 +110,9 @@ void				OpenGLManager::initOpenGl( void )
     /* Register events callback */
     glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
     glfwSetKeyCallback(_window, key_callback);
-//    glfwSetCursorPosCallback(_window, cursor_position_callback);
+    glfwSetCursorPosCallback(_window, cursor_position_callback);
 //    glfwSetMouseButtonCallback(_window, mouse_button_callback);
-    
+   glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); 
     glfwMakeContextCurrent(_window);
     glfwSwapInterval(1);
   //  gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);

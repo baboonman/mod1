@@ -7,7 +7,8 @@ class				FakeCamera : public CameraControl
 {
 	public:
 					FakeCamera(float x, float y, float z);
-		void		control(int key, int action, int mods);
+		void		controlKey(int key, int action, int mods);
+		void		controlMouse(double xPos, double yPos);
 
 	protected:
 		float		_x;

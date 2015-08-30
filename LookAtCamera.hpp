@@ -3,18 +3,12 @@
 
 # include "CameraControl.hpp"
 
-typedef struct				s_vecf
-{
-	float					x;
-	float					y;
-	float					z;
-}							t_vecf;
-
 class				LookAtCamera : public CameraControl
 {
 	public:
 					LookAtCamera(t_vecf eyePos, t_vecf targetPos, t_vecf upVector);
-		void		control(int key, int action, int mods);
+		void		controlKey(int key, int action, int mods);
+		void		controlMouse(double xPos, double yPos);
 
 	private:
 		Matrix		calculateMatrix();

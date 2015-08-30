@@ -5,7 +5,7 @@ FakeCamera::FakeCamera(float x, float y, float z) : _x(x), _y(y), _z(z)
 	this->_viewMatrix.translate(this->_x, this->_y, this->_z);
 }
 
-void			FakeCamera::control(int key, int action, int mods)
+void			FakeCamera::controlKey(int key, int action, int mods)
 {
 	float		sens = 1.0f;
 
@@ -32,4 +32,10 @@ void			FakeCamera::control(int key, int action, int mods)
 	}
 	this->_viewMatrix.resetMatrix();
 	this->_viewMatrix.translate(this->_x, this->_y, this->_z);
+}
+
+void		FakeCamera::controlMouse(double xPos, double yPos)
+{
+	(void)xPos;
+	(void)yPos;
 }

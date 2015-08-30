@@ -21,7 +21,8 @@ SRC= main.cpp \
 	 OpenGLManager.cpp	\
 	 FakeCamera.cpp \
 	 LookAtCamera.cpp \
-	 Vector.cpp 
+	 FreeCamera.cpp \
+	 vector.cpp
 
 OBJ= $(SRC:.cpp=.o)
 
