@@ -27,15 +27,24 @@ __kernel void   particleInGrid(
     particles[pos + 2] = min(particles[pos + 2], maxZ);
     particles[pos + 2] = max(-maxZ, particles[pos + 2]);
 */
+ //   printf("Grid gid: %d, coef: %f, x: %f, y: %f, z: %f\n", gid, coef, particles[pos], particles[pos + 1], particles[pos + 2]);
 
-    int x = particles[pos] / coef;
-    int y = particles[pos + 1] / coef;
-    int z = particles[pos + 2] / coef;
-    x += gridX / 2;
-    y += gridY / 2;
-    z += gridZ / 2;
+    int x = (particles[pos] / coef) + (float)gridX / 2.0f;
+    int y = (particles[pos + 1] / coef) + (float)gridY / 2.0f;
+    int z = (particles[pos + 2] / coef) + (float)gridZ / 2.0f;
+    if (x >= gridX | x < 0 | y >= gridY | y < 0 | z >= gridZ | z < 0) {
+        //printf("gid: %d, %d, %d, %d\n", gid, x, y, z);
+        return;
+    }
     int id = (nbParticlePerCell + 1) * (x + y * gridX + z * gridX * gridY);
     int offset = atomic_inc(gridParticles + id) + 1;//Update particle counter for cell
+   /*     printf("gid: %d, offset(%d, %d), %d, %d, %d\n",
+           gid,
+           offset,
+           id,
+           x,
+           y,
+           z);*/
     if (offset >= nbParticlePerCell) {
         printf("FAILED, offset(%d), %f, %f, %f :: %d, %d, %d\n",
            offset,
@@ -47,5 +56,6 @@ __kernel void   particleInGrid(
            z);
         return ;
     }
+
     gridParticles[id + offset] = pos;
 }

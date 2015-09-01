@@ -15,9 +15,10 @@ __kernel void   endSim(
     if (gid > maxGID)
         return;
     gid *= 3;
-  //  particlesVelocity[gid] = particlesProjection[gid] - particles[gid];
-  //  particlesVelocity[gid + 1] = particlesProjection[gid + 1] - particles[gid + 1];
- //   particlesVelocity[gid + 2] = particlesProjection[gid + 2] - particles[gid + 2];
+    particlesVelocity[gid] += particlesProjection[gid] - particles[gid];
+    particlesVelocity[gid + 1] += particlesProjection[gid + 1] - particles[gid + 1];
+    particlesVelocity[gid + 2] += particlesProjection[gid + 2] - particles[gid + 2];
+
     particles[gid] += (particlesProjection[gid] - particles[gid]) * N;
     particles[gid + 1] += (particlesProjection[gid + 1] - particles[gid + 1])  * N;
     particles[gid + 2] += (particlesProjection[gid + 2] - particles[gid + 2])  * N;

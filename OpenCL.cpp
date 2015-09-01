@@ -227,39 +227,22 @@ void    OpenCL::executeKernel() {
 
     gettimeofday(&timeVal1, NULL);
 
-    std::cout << "start INI buffer" << std::endl << std::flush;
     this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
-    //clFinish(this->_commandQueue);
-   // std::cout << "INI buffer" << std::endl << std::flush;
     this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
-    //clFinish(this->_commandQueue);
-    //std::cout << "INI particle grid" << std::endl << std::flush;
     this->_taskApplyForces->enqueueKernel(this->_commandQueue);
-    //clFinish(this->_commandQueue);
-    //std::cout << "Apply forces" << std::endl << std::flush;
     this->_taskFindNeighbors->enqueueKernel(this->_commandQueue);
-    //clFinish(this->_commandQueue);
-    //std::cout << "Find neighbors" << std::endl << std::flush;
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 3; i++) {
         this->_taskCalcLambda->enqueueKernel(this->_commandQueue);
-  //      clFinish(this->_commandQueue);
-        std::cout << "calc lambda" << std::endl << std::flush;
-            this->_taskAddConst->enqueueKernel(this->_commandQueue);
-  //      clFinish(this->_commandQueue);
-        std::cout << "calc delta" << std::endl << std::flush;
+        this->_taskAddConst->enqueueKernel(this->_commandQueue);
     }
     this->_taskEndSim->enqueueKernel(this->_commandQueue);
-    clFinish(this->_commandQueue);
-    std::cout << "end sim" << std::endl << std::flush;
-    /*
-    */
     clFinish(this->_commandQueue);
     gettimeofday(&timeVal2, NULL);
     start = 1000000 * timeVal1.tv_sec + (timeVal1.tv_usec);
     end = 1000000 * timeVal2.tv_sec + (timeVal2.tv_usec);
     time = ((double)(end - start)) / 1000000.0;
     time2 = end - start;
-//    printf("Execution time: %lf ms, %llu us\n", time * 1000.0f, time2);
+    printf("Execution time: %lf ms, %llu us\n", time * 1000.0f, time2);
 
 
     err = clEnqueueReleaseGLObjects(

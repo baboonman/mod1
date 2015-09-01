@@ -9,11 +9,12 @@ __kernel void   initParticle(__global float *particles,
         return ;
     }
     int pos = gid * 3;
-    particles[pos] = (float)(gid % 10) * N - 5.134434f;
-    particles[pos + 1] = (float)((gid % 100) / 10.0f) * N + 1.0f;
-    particles[pos + 2] = (float)(gid / 100.0f) * N;
-    //printf("Init gid: %d, x: %f, y: %f, z: %f\n", pos, particles[pos], particles[pos + 1], particles[pos + 2]);
-    particlesVelocity[pos] = 2.0f;
+    int calc = gid;
+    particles[pos] = ((float)(calc % 20)) * N - 10.0f;
+    particles[pos + 1] = (((float)(calc % 200)) / 20.0f) * N;
+    particles[pos + 2] = ((float)(calc / 200.0f)) * N;
+ //   printf("Init gid: %d, x: %f, y: %f, z: %f\n", pos, particles[pos], particles[pos + 1], particles[pos + 2]);
+    particlesVelocity[pos] = 1.0f;
     particlesVelocity[pos + 1] = 0.0f;
     particlesVelocity[pos + 2] = 0.0f;
 }

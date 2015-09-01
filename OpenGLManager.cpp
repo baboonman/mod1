@@ -202,7 +202,7 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 	double			after;
 	double			an_mod;
 	double			fps = 0.0;
-	OpenCL			openCL(100, 2.0f, 40, 10, 10, 10);
+	OpenCL			openCL(this->_nbParticles, 1.0f, 100, 30, 30, 30);
 	OpenGLMatrix	modelMat;
 	t_user_ptr		*userPtr = new t_user_ptr;
 
@@ -217,6 +217,8 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 	userPtr->camera = cam;
 	this->setUserPtr(userPtr);
 
+		glFinish();
+     //   openCL.executeKernel();
     while (!this->shouldClose())
     {
 		before = glfwGetTime();
@@ -230,8 +232,6 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 
 		glfwPollEvents();
 
-		glFinish();
-  //      openCL.executeKernel();
 
 		if (before - an_mod > AN_INT) {
 			an += 1;
@@ -245,5 +245,12 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 			fps = before;
 		//	std::cerr << fps << std::endl;
 		}
+		glFinish();
+        openCL.executeKernel();
 	}
+	openCL.release();
+}
+
+void                    OpenGLManager::setNbParticles( int n ) {
+    this->_nbParticles = n;
 }

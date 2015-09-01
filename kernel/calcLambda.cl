@@ -2,6 +2,7 @@ float   poly6Kernel(float3 currentParticle, float3 neighbor) {
     float   H = 1.5f;// smoothing radius
 
     float r = distance(currentParticle, neighbor);
+    //printf("r: %f\n", r);
     float hrTerm = (H * H - r * r);
     float div = 64.0f * M_PI * pown(H, 9);
     return 315.0f / div * hrTerm * hrTerm * hrTerm;
@@ -48,19 +49,23 @@ float   calcRo(__global float *particles, float3 currentParticle, __global int *
         neighbor.x = particles[neighbors[i]];
         neighbor.y = particles[neighbors[i] + 1];
         neighbor.z = particles[neighbors[i] + 2];
-       ro += poly6Kernel(currentParticle, neighbor);
+  //      printf("neighbor: %f, %f, %f\n", neighbor.x, neighbor.y, neighbor.z);
+        ro += poly6Kernel(currentParticle, neighbor);
+       // printf("ro: %f\n", ro);
     }
     return ro;
 }
 
-float   calcLambdaPi(__global float *particles, float3 currentParticle, __global int *neighbors, int nbNeighbors)
+float   calcLambdaPi(__global float *particles, float3 currentParticle, __global int *neighbors, int nbNeighbors, int gid)
 {
+//    printf("nb neighbors: %d\n", nbNeighbors);
     float   pI = calcRo(particles, currentParticle, neighbors, nbNeighbors);
     float   cI =  (pI / 10000.0f) - 1.0f;
     float   cIGradient, sumGradient = 0.0f;
     float3  neighbor;
 
     for (int i = 0; i < nbNeighbors; i++) {
+ //       printf("gid: %d :: id: %d\n", gid, neighbors[i] / 3);
         neighbor.x = particles[neighbors[i]];
         neighbor.y = particles[neighbors[i] + 1];
         neighbor.z = particles[neighbors[i] + 2];
@@ -100,11 +105,13 @@ __kernel void   calcLambda (
     currentParticle.x = particlesProjection[pos];
     currentParticle.y = particlesProjection[pos + 1];
     currentParticle.z = particlesProjection[pos + 2];
-  //  printf("Init gid: %d, x: %f, y: %f, z: %f\n", gid, particles[pos], particles[pos + 1], particles[pos + 2]);
+  //  printf("Init swwwwwwwid: %d, x: %f, y: %f, z: %f\n", gid, particles[pos], particles[pos + 1], particles[pos + 2]);
 
-    lambda[gid / 3] = calcLambdaPi(
+    lambda[gid] = calcLambdaPi(
                                     particlesProjection,
                                     currentParticle,
                                     neighbors + gid * 200 + 1,
-                                    neighbors[gid * 200]);
+                                    neighbors[gid * 200],
+                                    gid);
+  //  printf("gid: %d :: lambda: %f\n", gid, lambda[gid]);
 }

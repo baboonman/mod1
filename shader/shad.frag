@@ -17,7 +17,7 @@ void main()
     float brightness = dot(normal, lightRay) / (length(lightRay) * length(normal));
     brightness = clamp(brightness, 0, 1);
 
-    if (brightness < 0.5f)
-        brightness = 0.5f;
+    if (brightness < 0.1f)
+        brightness = 0.1f;
     finalColor = vec4(brightness * light_color * fragColor, 1.0);
 }
