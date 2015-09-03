@@ -1,17 +1,25 @@
+#define BOX_SIZE2 BOX_SIZE * BOX_SIZE
+#define BOX_HALF_SIZE (((float)BOX_SIZE) / 2.0f)
+
 __kernel void   initParticle(__global float *particles,
-                               __global float3 *particlesVelocity,
+                               __global float *particlesVelocity,
                                int maxGID)
 {
     int gid = get_global_id(0);
-
     if (gid > maxGID) {
         return ;
     }
-    particles[gid * 3] = (float)(gid % 10) - 5.0f;
-    particles[gid * 3 + 1] = (float)(gid / 10) - 5.0f;
-    particles[gid * 3 + 2] = -10.0f;
-//    printf("Init gid: %d, x: %f, y: %f, z: %f\n", gid, particles[gid].x, particles[gid].y, particles[gid].z);
-    particlesVelocity[gid].x = 0.0f;
-    particlesVelocity[gid].y = 0.0f;
-    particlesVelocity[gid].z = 0.0f;
+    int pos = gid * 3;
+    int calc = gid;
+
+    particles[pos] = ((float)(calc % BOX_SIZE))
+        - BOX_HALF_SIZE;
+    particles[pos + 1] = ((float)((calc % (BOX_SIZE2)) / BOX_SIZE))
+        - BOX_HALF_SIZE;
+    particles[pos + 2] = ((float)((calc / (BOX_SIZE2))))
+        - BOX_HALF_SIZE;
+
+    particlesVelocity[pos] = 0.0f;
+    particlesVelocity[pos + 1] = 0.0f;
+    particlesVelocity[pos + 2] = 0.0f;
 }

@@ -12,12 +12,16 @@
 # include <OpenCL/cl_gl_ext.h>
 # include <OpenGL/OpenGL.h>
 # include <fstream>
+# include <cmath>
 # include "Platform.hpp"
 # include "TaskParticleInGrid.hpp"
 # include "TaskApplyForces.hpp"
 # include "TaskAddConst.hpp"
 # include "TaskInitBuffer.hpp"
 # include "TaskInitParticle.hpp"
+# include "TaskCalcLambda.hpp"
+# include "TaskEndSim.hpp"
+# include "TaskFindNeighbors.hpp"
 
 class OpenCL {
     public:
@@ -52,6 +56,8 @@ class OpenCL {
         cl_mem                      _particleIdByCells;
         cl_mem                      _particleVelocity;
         cl_mem                      _particleProjection;
+        cl_mem                      _particleLambda;
+        cl_mem                      _particleNeighbors;
         size_t                      _sizeGrid;
 
         cl_int                      _nbParticle;
@@ -63,6 +69,9 @@ class OpenCL {
         TaskAddConst                *_taskAddConst = NULL;
         TaskInitBuffer              *_taskInitBuffer = NULL;
         TaskInitParticle            *_taskInitParticle = NULL;
+        TaskCalcLambda              *_taskCalcLambda = NULL;
+        TaskFindNeighbors           *_taskFindNeighbors = NULL;
+        TaskEndSim                  *_taskEndSim = NULL;
         size_t                      *_maxWorkItemSize;
 };
 

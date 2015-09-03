@@ -142,7 +142,7 @@ OpenGLManager::OpenGLManager()
 	_clipInfo.fov = 45;
 	_clipInfo.aspect = 1;
 	_clipInfo.zNear = 0.1;
-	_clipInfo.zFar = 100;
+	_clipInfo.zFar = 10000;
 	initOpenGl();
 }
 
@@ -202,7 +202,7 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 	double			after;
 	double			an_mod;
 	double			fps = 0.0;
-	OpenCL			openCL(100, 2.0f, 40, 10, 10, 10);
+	OpenCL			openCL(this->_nbParticles, 2.0f, 4000, 30, 30, 30);
 	OpenGLMatrix	modelMat;
 	t_user_ptr		*userPtr = new t_user_ptr;
 
@@ -230,8 +230,6 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 
 		glfwPollEvents();
 
-		glFinish();
-  //      openCL.executeKernel();
 
 		if (before - an_mod > AN_INT) {
 			an += 1;
@@ -243,7 +241,14 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 		before = 1 / ((after - before)) ;
 		if ((before - fps) > 1.0 || (before - fps) < -1.0) {
 			fps = before;
-		//	std::cerr << fps << std::endl;
+//			std::cerr << fps << std::endl;
 		}
+		glFinish();
+        openCL.executeKernel();
 	}
+	openCL.release();
+}
+
+void                    OpenGLManager::setNbParticles( int n ) {
+    this->_nbParticles = n;
 }

@@ -40,6 +40,7 @@ class						Mesh
 		void				drawMesh( void ) const;
 void						sendPosition(unsigned int size, std::vector<t_vec> postion);
         GLuint              *getVBO( void );
+        void                setNbParticles( int n );
 
 	private:
 		void				getFace(std::string face);
@@ -67,6 +68,8 @@ void						sendPosition(unsigned int size, std::vector<t_vec> postion);
 	
 		GLuint					_vao;
 		GLuint					_vbo[4];
+
+		int                     _nbParticles;
 
 };
 

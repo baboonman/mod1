@@ -62,6 +62,7 @@ class							OpenGLManager
 		void					createProjectionMatrix( void );
 		void					addMatricesToProgram( OpenGLMatrix model, OpenGLMatrix view, float an, float bn );
 		void					run(CameraControl *cam, Mesh mesh);
+        void                    setNbParticles( int n );
 
 	private:
 		void					initOpenGl( void );
@@ -72,6 +73,7 @@ class							OpenGLManager
 		OpenGLMatrix			_projectionMatrix;
 		t_window_info			_winInfo;
 		t_clipping_info			_clipInfo;
+		int                     _nbParticles;
 
 };
 
