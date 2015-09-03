@@ -215,6 +215,13 @@ void    OpenCL::executeKernel() {
     unsigned long long int  end;
     double                  time;
     unsigned long long int  time2;
+    static cl_float         wallStep = 1000.0f;
+    static cl_float         step = 20.0f;
+    cl_kernel               kernel;
+
+    kernel = this->_taskAddConst->getKernel();
+    checkCLSuccess(clSetKernelArg(kernel, 12, sizeof(cl_float), &wallStep),
+            "clSetKernelArg");
 
     err = clEnqueueAcquireGLObjects(
         this->_commandQueue,
@@ -255,6 +262,17 @@ void    OpenCL::executeKernel() {
     clFinish(this->_commandQueue);
 
     checkCLSuccess(err, "clEnqueueReleaseGLObjects");
+    wallStep += step;
+    if (wallStep > 2000.0f) {
+        if (step > 0.0f) {
+            step = -100.0f;
+        }
+    }
+    if (wallStep < std::fabs(step)) {
+        if (step < 0.0f) {
+            step = 10.0f;
+        }
+    }
 }
 
 void    OpenCL::release() {

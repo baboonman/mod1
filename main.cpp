@@ -9,7 +9,7 @@
 int					main(int ac, char **av)
 {
 	OpenGLManager	oGlMan(800,800, "Biatch");
-//	OpenGLManager	oGlMan(1920,1050, "Biatch");
+//	OpenGLManager	oGlMan(1920,1050, "Biatch toi meme");
 	t_vecf			eye = {0.0f, 0.0f, -50.0f};
 	t_vecf			target = {0.0f, 0.0f, 10.0f};
 	t_vecf			up = {0.0f, 1.0f, 0.0f};
@@ -17,7 +17,7 @@ int					main(int ac, char **av)
 	CameraControl	*camera2 = new LookAtCamera(eye, target, up);
 	CameraControl	*camera3 = new FreeCamera(eye, 0.0f, 0.0f);
 	std::string		filename = "resources/Suzanne.obj";
-	int             nbParticles = 1000;
+	int             nbParticles = 30000;
 
 	if (ac == 2)
 		filename = av[1];

@@ -12,6 +12,7 @@
 # include <OpenCL/cl_gl_ext.h>
 # include <OpenGL/OpenGL.h>
 # include <fstream>
+# include <cmath>
 # include "Platform.hpp"
 # include "TaskParticleInGrid.hpp"
 # include "TaskApplyForces.hpp"

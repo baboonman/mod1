@@ -11,7 +11,9 @@ __kernel void   endSim(
         int                 maxGID)
 {
     int gid = get_global_id(0);
-    float   N = 1.0f;
+    float   scaleX = 1.0f;
+    float   scaleY = 1.0f;
+    float   scaleZ = 1.0f;
     if (gid > maxGID)
         return;
     gid *= 3;
@@ -19,8 +21,8 @@ __kernel void   endSim(
     particlesVelocity[gid + 1] += particlesProjection[gid + 1] - particles[gid + 1];
     particlesVelocity[gid + 2] += particlesProjection[gid + 2] - particles[gid + 2];
 
-    particles[gid] += (particlesProjection[gid] - particles[gid]) * N;
-    particles[gid + 1] += (particlesProjection[gid + 1] - particles[gid + 1])  * N;
-    particles[gid + 2] += (particlesProjection[gid + 2] - particles[gid + 2])  * N;
-//    printf("%f, %f, %f\n", particles[gid], particles[gid + 1], particles[gid + 2]);
+    particles[gid] += (particlesProjection[gid] - particles[gid]) * scaleX;
+    particles[gid + 1] += (particlesProjection[gid + 1] - particles[gid + 1])  * scaleY;
+    particles[gid + 2] += (particlesProjection[gid + 2] - particles[gid + 2])  * scaleZ;
+ //   printf("LALALA gid: %d :: %f, %f, %f    %f, %f, %f\n", gid / 3, particles[gid], particles[gid + 1], particles[gid + 2], particlesProjection[gid], particlesProjection[gid + 1], particlesProjection[gid + 2]);
 }

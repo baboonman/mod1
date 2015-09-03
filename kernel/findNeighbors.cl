@@ -19,7 +19,6 @@ int    findNeighborsPi(__global int *gridParticles,
     int     workingId;
     float3  neighbor;
     float       dist;
-    float       H = 1.5f;
 
     int nbParticleInCell = gridParticles[currentCell];
     if (display) {
@@ -40,7 +39,7 @@ int    findNeighborsPi(__global int *gridParticles,
         neighbor.z = particles[workingId + 2];
         dist = distance(currentParticle, neighbor);
         //printf("Dist: %f\n", dist);
-        if (dist > H)
+        if (dist > RANGE)
             continue ;
         neighbours[nbNeighbors + 1] = workingId;
         nbNeighbors++;

@@ -32,28 +32,43 @@ __kernel void   particleInGrid(
     int x = (particles[pos] / coef) + (float)gridX / 2.0f;
     int y = (particles[pos + 1] / coef) + (float)gridY / 2.0f;
     int z = (particles[pos + 2] / coef) + (float)gridZ / 2.0f;
-    if (x >= gridX | x < 0 | y >= gridY | y < 0 | z >= gridZ | z < 0) {
-        //printf("gid: %d, %d, %d, %d\n", gid, x, y, z);
+  /*  if (particles[pos + 1] > 50.0f)
+    {
+        printf("Shit gid: %d :: %f, %f, %f\n", gid, particles[pos], particles[pos + 1], particles[pos + 2]);
+     }*/
+    if (x >= gridX | x < 0 | y >= gridY | y < 0 | z >= gridZ | z < 0 
+          | particles[pos] != particles[pos]) {
+  //      printf("gid: %d, %d, %d, %d\n", gid, x, y, z);
+        printf("gid: %d :: %f, %f, %f\n", gid, particles[pos], particles[pos + 1], particles[pos + 2]);
+        particles[pos] = 0.0f;
+        particles[pos + 1] = 10.0f;
+        particles[pos + 2] = 0.0f;
+        particles[pos] = 0.0f;
+        particles[pos + 1] = -1.0f;
+        particles[pos + 2] = 0.0f;
         return;
     }
     int id = (nbParticlePerCell + 1) * (x + y * gridX + z * gridX * gridY);
     int offset = atomic_inc(gridParticles + id) + 1;//Update particle counter for cell
-   /*     printf("gid: %d, offset(%d, %d), %d, %d, %d\n",
+//    if (particles[pos] != particles[pos]) {
+     //   printf("gid: %d pos : %f\n", gid, particles[pos]);
+ //   }
+    if (offset >= nbParticlePerCell) {
+        printf("gid: %d, FAILED offset(%d, %d) :: %d, %d, %d\n \
+               %f, %f, %f :: %f, %f, %f\n",
            gid,
            offset,
            id,
            x,
            y,
-           z);*/
-    if (offset >= nbParticlePerCell) {
-        printf("FAILED, offset(%d), %f, %f, %f :: %d, %d, %d\n",
-           offset,
-           (float)(gid % 10) + 4.0f,
-           (float)(gid / 10),
-           5.0f,
-           x,
-           y,
-           z);
+           z,
+           particles[pos],
+           particles[pos + 1],
+           particles[pos + 2],
+           particlesVelocity[pos],
+           particlesVelocity[pos + 1],
+           particlesVelocity[pos + 2]
+           );
         return ;
     }
 

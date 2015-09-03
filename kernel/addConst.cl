@@ -1,29 +1,29 @@
 float3   spikyGradientKernel(float3 currentParticle, float3 neighbor) {
     float3  res;
     float   length;
-    float   H = 1.5f;// smoothing radius
 
     res = currentParticle - neighbor;
     length = distance(currentParticle, neighbor);
   //  printf("delta: %f.%f.%f  %f %f %f, dist: %f\n", currentParticle.x, currentParticle.y, currentParticle.z, neighbor.x, neighbor.y, neighbor.z, length);
-    float   hrTerm = H - length; 
-    float   gradientMagnitude = 45.0f / (M_PI * pown(H, 6)) * hrTerm * hrTerm;
+    float   hrTerm = RANGE - length; 
+    float   gradientMagnitude = 45.0f / (M_PI * pown(RANGE, 6)) * hrTerm * hrTerm;
     float   div = length + 0.001f;
     return gradientMagnitude * 1.0f / div * res;
 
 }
 
-float   poly6Kernel(float3 currentParticle, float3 neighbor) {
-    float   H = 1.5f;// smoothing radius
-
+float   poly6Kernel(float3 currentParticle, float3 neighbor, int gid) {
     float r = distance(currentParticle, neighbor);
-    float hrTerm = (H * H - r * r);
-    float div = 64.0f * M_PI * pown(H, 9);
-    return 315.0f / div * hrTerm * hrTerm * hrTerm;
+    float hrTerm = (RANGE * RANGE - r * r);
+    float div = 64.0f * M_PI * pown(RANGE, 9);
+    float res = 315.0f / div * hrTerm * hrTerm * hrTerm;
+    if (res != res) {
+        printf("FAILddd gid: %d :: %f, %f, %f, r: %f (%f, %f, %f :: %f, %f, %f)\n", gid, div, hrTerm, res, r, currentParticle.x, currentParticle.y, currentParticle.z, neighbor.x, neighbor.y, neighbor.z);
+    }
+    return res;
 }
-#define DELTA_Q (float)(0.1*H)
 #define PRESSURE_K 0.1
-#define PRESSURE_N 6
+#define PRESSURE_N 1
 
 float3      calcDelta(__global float *particles,
                       float3 currentParticle,
@@ -37,29 +37,23 @@ float3      calcDelta(__global float *particles,
     float3  dQ;
     int     neighborId;
     float   kTerm;
-    float   h = 1.5f;
     float   sCorr = 0.0f;
 
     delta.x = 1.0f;
     delta.y = 1.0f;
     delta.z = 1.0f;
-    dQ = (0.1f * h) * delta + currentParticle;
+    dQ = (0.1f * RANGE) * delta + currentParticle;
 
- //   printf("gid: %d dQ: %f, %f, %f\n", gid, dQ.x, dQ.y, dQ.z);
-  //  printf("nbNeighbors: %d\n", nbNeighbors);
     delta.x = 0.0f;
     delta.y = 0.0f;
     delta.z = 0.0f;
     for (int i = 0; i < nbNeighbors; i++) {
         neighborId = neighbors[i];
-   //     printf("gid: %d, neighbor: %d\n", gid, neighbor / 3);
         neighbor.x = particles[neighborId];
         neighbor.y = particles[neighborId + 1];
         neighbor.z = particles[neighborId + 2];
-   //     printf("neighbor: %f, %f, %f\n", neighbor.x, neighbor.y, neighbor.z);
 
-        float poly6PDQ = poly6Kernel(currentParticle, dQ);
-    //    printf("gid: %d :: poly: %f\n", gid, poly6PDQ);
+        float poly6PDQ = poly6Kernel(currentParticle, dQ, gid);
         if (poly6PDQ < 0.0001f)
         {
             kTerm = 0.0f;
@@ -67,29 +61,26 @@ float3      calcDelta(__global float *particles,
         }
         else
         {
-            kTerm = poly6Kernel(currentParticle, neighbor) / poly6PDQ;
-         //   printf("kTerm: %f\n", kTerm);
-            sCorr = -1.0f * 0.1f * pown(kTerm, 6);
+            kTerm = poly6Kernel(currentParticle, neighbor, gid) / poly6PDQ;
+            sCorr = -1.0f * PRESSURE_K * pown(kTerm, PRESSURE_N);
         }
 
-      //  printf("sCorr: %f\n", sCorr);
         float3 result = spikyGradientKernel(currentParticle, neighbor);
-//        printf("l: %f, ll: %f, grad: %f, %f, %f\n", lambda, lstLambda[neighborId / 3], result.x, result.y, result.z);
         delta += (lambda + lstLambda[neighborId / 3] + sCorr) * result;
-//        printf("delta: %f, %f, %f    %d\n",
-        //    delta.x, delta.y, delta.z, i);
     }
-    return 1.0f / 10000.0f * delta;
+    float3 res = 1.0f / REST_DENSITY * delta;
+    return res;
 }
 
-void        boxCollision(__global float *particle, float3 currentParticle, __global float *particleVelocity) {
+void        boxCollision(__global float *particle, float3 currentParticle, __global float *particleVelocity, float step) {
     float4      normal = 0.0f;
     float4      tmp = 0.0f;
     float4      vel = 0.0f;
     float       N = 1.0f;
-    float       max = 15.0f;
-    float       min = -15.0f;
+    float       max = MAX;
+    float       min = MIN;
     float       offset = 0.001f;
+    float       maxX = step / 100.0f + 1.0f;
 
     vel.x = particleVelocity[0];
     vel.y = particleVelocity[1];
@@ -97,16 +88,32 @@ void        boxCollision(__global float *particle, float3 currentParticle, __glo
     particleVelocity[0] = 0.0f;
     particleVelocity[1] = 0.0f;
     particleVelocity[2] = 0.0f;
+
+    if (particle[0] < min) {
+        particle[0] = min + offset;
+        normal.x = 1.0f;
+        normal.y = 0.0f;
+        normal.z = 0.0f;
+        tmp = vel - 2.0f * (normal * dot(vel, normal));
+        particleVelocity[0] = tmp.x;
+    }
+
+    if (particle[0] > max) {
+        particle[0] = max - offset;
+        normal.x = -1.0f;
+        normal.y = 0.0f;
+        normal.z = 0.0f;
+        tmp = vel - 2.0f * (normal * dot(vel, normal));
+        particleVelocity[0] = tmp.x;
+    }
+
     if (particle[1] < min) {
         particle[1] = min + offset;
         normal.x = 0.0f;
         normal.y = 1.0f;
         normal.z = 0.0f;
-        tmp = dot(vel, normal);
-        tmp *= normal * 2.0f;
-        tmp -= vel * N;
+        tmp = vel - 2.0f * (normal * dot(vel, normal));
         particleVelocity[1] = tmp.y;
-    //    printf("vel: %f\n", particleVelocity[1]);
     }
 
     if (particle[1] > max) {
@@ -114,9 +121,7 @@ void        boxCollision(__global float *particle, float3 currentParticle, __glo
         normal.x = 0.0f;
         normal.y = -1.0f;
         normal.z = 0.0f;
-        tmp = dot(vel, normal);
-        tmp *= normal * 2.0f;
-        tmp -= vel * N;
+        tmp = vel - 2.0f * (normal * dot(vel, normal));
         particleVelocity[1] = tmp.y;
     }
 
@@ -125,9 +130,7 @@ void        boxCollision(__global float *particle, float3 currentParticle, __glo
         normal.x = 0.0f;
         normal.y = 0.0f;
         normal.z = 1.0f;
-        tmp = dot(vel, normal);
-        tmp *= normal * 2.0f;
-        tmp -= vel * N;
+        tmp = vel - 2.0f * (normal * dot(vel, normal));
         particleVelocity[2] = tmp.z;
     }
 
@@ -136,32 +139,10 @@ void        boxCollision(__global float *particle, float3 currentParticle, __glo
         normal.x = 0.0f;
         normal.y = 0.0f;
         normal.z = -1.0f;
-        tmp = dot(vel, normal);
-        tmp *= normal * 2.0f;
-        tmp -= vel * N;
+        tmp = vel - 2.0f * (normal * dot(vel, normal));
         particleVelocity[2] = tmp.z;
     }
 
-    if (particle[0] < min) {
-        particle[0] = min + offset;
-        normal.x = 1.0f;
-        normal.y = 0.0f;
-        normal.z = 0.0f;
-        tmp = dot(vel, normal);
-        tmp *= normal * 2.0f;
-        tmp -= vel * N;
-        particleVelocity[0] = tmp.x;
-    }
-    if (particle[0] > max) {
-        particle[0] = max - offset;
-        normal.x = 0.0f;
-        normal.y = 0.0f;
-        normal.z = -1.0f;
-        tmp = dot(vel, normal);
-        tmp *= normal * 2.0f;
-        tmp -= vel * N;
-        particleVelocity[0] = tmp.x;
-    }
 }
 
 __kernel void   addConst (
@@ -176,7 +157,8 @@ __kernel void   addConst (
         int                 nbParticlePerCell,
         int                 maxGID,
         __global float      *lambda,
-        __global int        *neighbors
+        __global int        *neighbors,
+        float               wallStep
         )
 {
     int gid = get_global_id(0);
@@ -190,19 +172,22 @@ __kernel void   addConst (
     currentParticle.y = particlesProjection[pos + 1];
     currentParticle.z = particlesProjection[pos + 2];
 
- //   printf("current: %f.%f.%f\n", particlesProjection[pos], particlesProjection[pos + 1], particlesProjection[pos + 2]);
-   // printf("lambda[%d]: %f\n", gid, lambda[gid]);
     float3  delta = calcDelta(particlesProjection, currentParticle, neighbors + gid * 200 + 1, neighbors[gid * 200], lambda, lambda[gid], gid);
-    //printf("gid: %d :: pos: %f, %f, %f\n\
-delta: %f, %f, %f \n", gid, particlesProjection[pos], particlesProjection[pos + 1], particlesProjection[pos + 2], \
-         delta.x, delta.y, delta.z);
+
+    if (particlesProjection[pos] != particlesProjection[pos] || delta.x != delta.x)
+    {
+        printf("gid: %d FAIL :: pos: %f, %f, %f delta: %f, %f, %f neighbors: %d \n",
+            gid,
+            particlesProjection[pos],
+            particlesProjection[pos + 1],
+            particlesProjection[pos + 2],
+            delta.x, delta.y, delta.z,
+            neighbors[gid * 200]);
+    }
+
     particlesProjection[pos] += delta.x;
     particlesProjection[pos + 1] += delta.y;
     particlesProjection[pos + 2] += delta.z;
 
- //   printf("gid: %d :: pos: %f, %f, %f\n\
-delta: %f, %f, %f \n", gid, particlesProjection[pos], particlesProjection[pos + 1], particlesProjection[pos + 2],
-  //         delta.x, delta.y, delta.z);
-
-    boxCollision(particlesProjection + pos, currentParticle, particlesVelocity + pos);
+    boxCollision(particlesProjection + pos, currentParticle, particlesVelocity + pos, wallStep);
 }
