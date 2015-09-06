@@ -14,6 +14,7 @@ class				FreeCamera : public CameraControl
 		Matrix		calculateMatrix( void );
 		void		calcViewDir( void );
 		t_vecf		mergeKeyPress( float sens );
+		void		initKeyPress( void );
 
 	protected:
 		t_vecf		_eyePos;

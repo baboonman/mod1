@@ -9,6 +9,10 @@ out vec4 finalColor;
 
 void main()
 {
+//	vec3 	fragVert = fragVertT;
+//	vec3 	normal = normalT;
+//	vec3	fragColor = fragColorT;
+
 	vec3 light_position = vec3(4.0, 4.0, 4.0);
 	vec3 light_color = vec3(1.0, 1.0, 1.0);
 

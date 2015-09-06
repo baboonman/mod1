@@ -17,7 +17,7 @@ int					main(int ac, char **av)
 	CameraControl	*camera2 = new LookAtCamera(eye, target, up);
 	CameraControl	*camera3 = new FreeCamera(eye, 0.0f, 0.0f);
 	std::string		filename = "resources/Suzanne.obj";
-	int             nbParticles = 30000;
+	int             nbParticles = 10000;
 
 	if (ac == 2)
 		filename = av[1];
@@ -25,6 +25,7 @@ int					main(int ac, char **av)
 	mesh.setNbParticles(nbParticles);
 	oGlMan.setNbParticles(nbParticles);
 	std::cout << "Parsing done" << std::endl;
+//	oGlMan.initShader("shader/shad.vert", "shader/shad.gs", "shader/shad.frag");
 	oGlMan.initShader("shader/shad.vert", "shader/shad.frag");
 	std::cout << "Shader Program created." << std::endl;
 	mesh.initMeshIndices(oGlMan.getShaderProgram());

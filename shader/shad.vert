@@ -58,10 +58,11 @@ void main() {
 //	fragColor = vec3( (0.027 + coln) / 2 , (0.651 + coln) / 2 , (0.859 + coln) / 2 );
 //float cr = ( sin( (coln / 32) * 2 * M_PI ) + 1 ) / 2;
 //float cg = ( cos( (coln / 32) * 2 * M_PI ) + 1 ) / 2;
+//	fragColor = vec3(cr, 0.5, cg);
 
-	float cr = (coln % 1600) / 40;
-	float cg = (coln % 1600) % 40;
-	float cb = coln / 1600;
+	float cr = float(((gl_InstanceID % 1600) % 40)) / 40.0 + 0.2;
+	float cb = float(((gl_InstanceID % 1600) / 40)) / 40.0 + 0.2;
+	float cg = float((gl_InstanceID / 1600)) / 40.0 + 0.2;
 	fragColor = vec3(cr, cg, cb);
 	gl_Position = P * V * vec4(fragVert, 1.0);
 }

@@ -3,38 +3,11 @@
 FreeCamera::FreeCamera(t_vecf eyePos, float pitch, float yaw)
 	: _eyePos(eyePos), _pitch(pitch), _yaw(yaw), _oldX(0), _oldY(0)
 {
+	this->initKeyPress();
 	this->calcViewDir();
 	this->_viewMatrix.setMatrix(calculateMatrix());
 }
-/*
-void			FreeCamera::controlKey(int key, int action , int mods)
-{
-	float		sens = 0.5f;
 
-	if (action == ACTION_PRESS)
-	{
-		if (mods == MOD_SHIFT)
-		{
-			if (key == 32) // KEY_SPACE
-				this->_eyePos.y -= sens;
-		}
-		else
-		{
-			if (key == 32) // KEY_SPACE
-				this->_eyePos.y += sens;
-			else if (key == (int)'W')
-				this->_eyePos.z += sens;
-			else if (key == (int)'S')
-				this->_eyePos.z -= sens;
-			else if (key == (int)'D')
-				this->_eyePos.x += sens;
-			else if (key == (int)'A')
-				this->_eyePos.x -= sens;
-		}
-	}
-	this->_viewMatrix.setMatrix(calculateMatrix());
-}
-*/
 void			FreeCamera::controlKey(int key, int action , int mods)
 {
 	float		sens = 0.5f;
@@ -74,6 +47,14 @@ void			FreeCamera::controlKey(int key, int action , int mods)
 	}
 	this->_eyePos = translate(this->_eyePos, this->mergeKeyPress(sens));
 	this->_viewMatrix.setMatrix(calculateMatrix());
+}
+
+void			FreeCamera::initKeyPress()
+{
+	t_vecf		zero = {0.0f, 0.0f, 0.0f};
+	this->_keyPress[0] = zero;
+	this->_keyPress[1] = zero;
+	this->_keyPress[2] = zero;
 }
 
 t_vecf			FreeCamera::mergeKeyPress(float sens)

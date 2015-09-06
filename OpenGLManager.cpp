@@ -124,9 +124,11 @@ void				OpenGLManager::initOpenGl( void )
     glViewport(0, 0, _winInfo.width, _winInfo.height);
 }
 
+//int					OpenGLManager::initShader(std::string VSFile, std::string GSFile, std::string FSFile)
 int					OpenGLManager::initShader(std::string VSFile, std::string FSFile)
 {
 	this->_shader.addShader(GL_VERTEX_SHADER, VSFile);
+//	this->_shader.addShader(GL_GEOMETRY_SHADER, GSFile);
 	this->_shader.addShader(GL_FRAGMENT_SHADER , FSFile);
 	if (! this->_shader.createProgram())
 		return (0);

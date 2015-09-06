@@ -54,6 +54,7 @@ class							OpenGLManager
 											   GLfloat fov, GLfloat aspect, 
 											   GLfloat zNear, GLfloat zFar );
 								~OpenGLManager();
+//		int						initShader(std::string VSFile, std::string GSFile, std::string FSFile);
 		int						initShader(std::string VSFile, std::string FSFile);
 		GLuint					getShaderProgram( void );
 		int						shouldClose( void );
