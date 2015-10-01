@@ -2,8 +2,8 @@
 
 void					OpenGLManager::createProjectionMatrix(void)
 {
-	_clipInfo.aspect = _winInfo.width / _winInfo.height;
-	_projectionMatrix.computeProjectionMatrix(_clipInfo.fov, _clipInfo.aspect, _clipInfo.zNear, _clipInfo.zFar);
+	this->_clipInfo.aspect = this->_winInfo.width / this->_winInfo.height;
+	this->_projectionMatrix.computeProjectionMatrix(this->_clipInfo.fov, this->_clipInfo.aspect, this->_clipInfo.zNear, this->_clipInfo.zFar);
 }
 
 void					OpenGLManager::addMatricesToProgram(OpenGLMatrix model, OpenGLMatrix view, float an, float bn)
@@ -22,7 +22,7 @@ void					OpenGLManager::addMatricesToProgram(OpenGLMatrix model, OpenGLMatrix vi
 
     glUniformMatrix4fv(uloc_M, 1, GL_FALSE, model.getMatrixArray());
     glUniformMatrix4fv(uloc_V, 1, GL_FALSE, view.getMatrixArray());
-    glUniformMatrix4fv(uloc_P, 1, GL_FALSE, _projectionMatrix.getMatrixArray());
+    glUniformMatrix4fv(uloc_P, 1, GL_FALSE, this->_projectionMatrix.getMatrixArray());
     glUniform1f(uloc_AN, an);
     glUniform1f(uloc_BN, bn);
 }
@@ -47,6 +47,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	ptr = reinterpret_cast<t_user_ptr *>(glfwGetWindowUserPointer(window));
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+	if (key == GLFW_KEY_TAB && action == GLFW_PRESS)
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	else if (action == GLFW_PRESS)
 	{
 		if (mods == GLFW_MOD_SHIFT)
@@ -100,28 +102,24 @@ void				OpenGLManager::initOpenGl( void )
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    _window = glfwCreateWindow(_winInfo.width, _winInfo.height, _winInfo.winName.c_str(), NULL, NULL);
-    if (! _window )
+    this->_window = glfwCreateWindow(this->_winInfo.width, this->_winInfo.height, this->_winInfo.winName.c_str(), NULL, NULL);
+    if (! this->_window )
     {
         glfwTerminate();
         exit(0);
     }
     
-    /* Register events callback */
-    glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
-    glfwSetKeyCallback(_window, key_callback);
-    glfwSetCursorPosCallback(_window, cursor_position_callback);
-//    glfwSetMouseButtonCallback(_window, mouse_button_callback);
-   glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); 
-    glfwMakeContextCurrent(_window);
+    glfwSetFramebufferSizeCallback(this->_window, framebuffer_size_callback);
+    glfwSetKeyCallback(this->_window, key_callback);
+    glfwSetCursorPosCallback(this->_window, cursor_position_callback);
+	glfwSetInputMode(this->_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); 
+    glfwMakeContextCurrent(this->_window);
     glfwSwapInterval(1);
   //  gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
 
-	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
-	// // Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
-    glViewport(0, 0, _winInfo.width, _winInfo.height);
+    glViewport(0, 0, this->_winInfo.width, this->_winInfo.height);
 }
 
 //int					OpenGLManager::initShader(std::string VSFile, std::string GSFile, std::string FSFile)
@@ -154,9 +152,9 @@ OpenGLManager::OpenGLManager( GLfloat width, GLfloat height, std::string winName
 	_winInfo.height = height;
 	_winInfo.winName = winName;
 	_clipInfo.fov = 45;
-	_clipInfo.aspect = 1;
-	_clipInfo.zNear = 1;
-	_clipInfo.zFar = 100;
+	_clipInfo.aspect = width / height;
+	_clipInfo.zNear = 0.1;
+	_clipInfo.zFar = 1000;
 	initOpenGl();
 }
 
@@ -199,16 +197,16 @@ GLuint				OpenGLManager::getShaderProgram( void ) { return (this->_shader.getPro
 
 void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 {
-	float			an = 0.0f, bn = 0.0f;
+	float			an = 50.0f, bn = 0.0f, t = 0.f;
 	double			before;
 	double			after;
 	double			an_mod;
 	double			fps = 0.0;
-	OpenCL			openCL(this->_nbParticles, 2.0f, 4000, 30, 30, 30);
+//	OpenCL			openCL(this->_nbParticles, 2.0f, 4000, 30, 30, 30);
 	OpenGLMatrix	modelMat;
 	t_user_ptr		*userPtr = new t_user_ptr;
 
-	openCL.initOpenCL(mesh.getVBO()[3]);
+//	openCL.initOpenCL(mesh.getVBO()[3]);
 
 //	this->_modelviewMatrix.translate(0.0, 0.0, -5.0);
 	this->createProjectionMatrix();
@@ -227,28 +225,55 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 
 		this->addMatricesToProgram(modelMat, cam->getViewMatrix(), an, bn);
 
+
+		mesh.updateTerrain(t);
 		mesh.drawMesh();
 		this->swap();
 
 		glfwPollEvents();
 
 
-		if (before - an_mod > AN_INT) {
-			an += 1;
-			an_mod = glfwGetTime();
-		}
-		bn += 0.01f;
-
 		after = glfwGetTime();
-		before = 1 / ((after - before)) ;
-		if ((before - fps) > 1.0 || (before - fps) < -1.0) {
-			fps = before;
-//			std::cerr << fps << std::endl;
-		}
+
+		t += .2f;
+		if (t > 1024.f)
+			t = 0.f;
+
 		glFinish();
-        openCL.executeKernel();
+    //    openCL.executeKernel();
 	}
-	openCL.release();
+//	openCL.release();
+}
+
+void				OpenGLManager::run(CameraControl *cam, OpenGLScene *scene)
+{
+	float			t = 0.f;
+	double			fps = 0.0;
+	OpenGLMatrix	modelMat;
+	t_user_ptr		*userPtr = new t_user_ptr;
+
+	this->createProjectionMatrix();
+
+	userPtr->winInfo = &this->_winInfo;
+	userPtr->model = &modelMat;
+	userPtr->camera = cam;
+	this->setUserPtr(userPtr);
+
+    while (!this->shouldClose())
+    {
+		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		scene->drawScene(cam->getViewMatrix(), this->_projectionMatrix, t);
+
+		t += .2f;
+		if (t > 1024.f)
+			t = 0.f;
+
+		this->swap();
+		glfwPollEvents();
+		glFinish();
+	}
 }
 
 void                    OpenGLManager::setNbParticles( int n ) {

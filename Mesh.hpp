@@ -4,12 +4,18 @@
 # include <fstream>
 # include <sstream>
 # include <map>
+# include <vector>
 
 # define GLFW_INCLUDE_GLCOREARB
 # include <GLFW/glfw3.h>
 
 # include "OpenGLMatrix.hpp"
-# include <vector>
+# include "vector.hpp"
+# include "Noise.hpp"
+
+# define SIDE			100
+# define THRESHOLD		(SIDE / 4.0f)
+# define HEIGHT			(SIDE / 2.0f)
 
 typedef struct				s_vec
 {
@@ -42,10 +48,21 @@ void						sendPosition(unsigned int size, std::vector<t_vec> postion);
         GLuint              *getVBO( void );
         void                setNbParticles( int n );
 
+		void				updateTerrain(float t);
+
+		std::vector< t_vec >	getPosition() const;
 	private:
 		void				getFace(std::string face);
 		void				loadOBJ(const std::string fileName);
 		void				rearrange();
+
+void				computeIndices();
+void				computeNorm(float map[SIDE][SIDE]);
+void				computeVert(float map[SIDE][SIDE]);
+void				createTerrain();
+void				createMap(float map[SIDE][SIDE], std::vector<t_vec> tops, float t);
+float				calcUp(int i, int j, t_vec top);
+t_vec				getNorm(GLuint center, GLuint first, GLuint second);
 
 	private:
 		static int			_i;
@@ -73,5 +90,6 @@ void						sendPosition(unsigned int size, std::vector<t_vec> postion);
 
 };
 
+std::ostream&				operator<<(std::ostream& flux, Mesh const& m);
 
 #endif

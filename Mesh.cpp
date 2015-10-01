@@ -38,10 +38,11 @@
 		-1.0f, 1.0f, 1.0f,
 		 1.0f,-1.0f, 1.0f
 	};
-
+   
 int			Mesh::_i = 0;
 Mesh::Mesh()
 {
+	createTerrain();
 	_mesh = bigCube;
 	_id = _i;
 	_i++;
@@ -114,18 +115,19 @@ void						Mesh::initMeshIndices(GLuint program)
 {
 	GLuint	attrloc;
 
+	std::cout << "init mesh indices program: " << program << std::endl; 
 	glGenVertexArrays(1, &this->_vao);
 	glBindVertexArray(this->_vao);
-	glGenBuffers(4, this->_vbo);
+	glGenBuffers(3, this->_vbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexOO.size(), &_vertexOO[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexOO.size(), &_vertexOO[0], GL_DYNAMIC_DRAW);
 	attrloc = glGetAttribLocation(program, "in_Position");
 	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(attrloc);
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexNOO.size(), &_vertexNOO[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexNOO.size(), &_vertexNOO[0], GL_DYNAMIC_DRAW);
 	attrloc = glGetAttribLocation(program, "in_VertexN");
 	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(attrloc);
@@ -133,93 +135,27 @@ void						Mesh::initMeshIndices(GLuint program)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_vbo[2]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * _indicesOO.size(), &_indicesOO[0], GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[3]);
+/*	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[3]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * this->_nbParticles, NULL, GL_STREAM_DRAW);
 	attrloc = glGetAttribLocation(program, "instancePosition");
 	glEnableVertexAttribArray(attrloc);
 	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glVertexAttribDivisor(attrloc, 1);
-
+*/
 	glBindVertexArray(0);
 }
-
-void						Mesh::sendPosition(unsigned int size, std::vector<t_vec> position)
-{
-	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[3]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * size, &position[0], GL_DYNAMIC_DRAW);
-	
-}
-/*
-void						Mesh::initMeshIndicesMAP(GLuint program) const
-{
-	GLuint vao, vbo[3];
-	GLuint	attrloc;
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glGenBuffers(4, vbo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _vertices->size(), &_vertices[0], GL_STATIC_DRAW);
-	attrloc = glGetAttribLocation(program, "in_Position");
-	glEnableVertexAttribArray(attrloc);
-	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * _normal->size(), &_normal[0], GL_STATIC_DRAW);
-	attrloc = glGetAttribLocation(program, "in_VertexN");
-	glEnableVertexAttribArray(attrloc);
-	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[2]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * _indicesVert->size(), &_indicesVert[0], GL_STATIC_DRAW);
-
-}
-
-void						Mesh::initMesh(GLuint program) const
-{
-	GLuint vao, vbo[2];
-	GLuint	attrloc;
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	glGenBuffers(2, vbo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(bigCube), _mesh, GL_STATIC_DRAW);
-	attrloc = glGetAttribLocation(program, "in_Position");
-	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(attrloc);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-	attrloc = glGetAttribLocation(program, "in_Color");
-	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(attrloc);
-}
-*/
 
 void					Mesh::drawMesh() const
 {
 	glBindVertexArray(this->_vao);
-//	glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT, 0);
-	glDrawElementsInstanced(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT, 0, this->_nbParticles);
+	glDrawElements(GL_TRIANGLES, this->_indicesOO.size(), GL_UNSIGNED_INT, 0);
+//	glDrawElementsInstanced(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT, 0, this->_nbParticles);
 	glBindVertexArray(0);
 }
 
 OpenGLMatrix		Mesh::getModelMatrix( void ) const { return _modelMatrix; }
 void				Mesh::setModelMatrix( OpenGLMatrix newMatrix ) { _modelMatrix = newMatrix; }
 
-/*
-    ex_FragColor = vec4(out_color);
-	ex_FragColor = vec4(n * 0.8, n * 0.2, n, 1.0);
-	ex_FragColor = vec4((out_color.x + 1) / 2 , (out_color.y + 1) / 2 , (out_color.z + 1) / 2 , 1.0);
-	ex_FragColor = vec4(((out_color.x ) / 2 + n) / 2 , ((out_color.y + 1) / 2 + n) / 2 , ((out_color.z + 1) / 2 + n) / 2 , 1.0);
-
-	out_color = vec4(in_Position.x * , in_Position.y, in_Position.z, 1.0);
-	out_color = vec4((cos(in_Position.y) + 1) / 2, (sin(in_Position.y) + 1) / 2, (tan(in_Position.z) + 1 ) / 2, 1.0);
-	out_color = vec4((cos(in_Position.y) + 1) / 2, (sin(in_Position.y) + 1) / 2, (tan(in_Position.z) + 1 ) / 2, 1.0);
-*/
 /*
 void				Mesh::getFace(std::string face)
 {
@@ -322,9 +258,9 @@ t_vec				normalize(t_vec v)
 
 	len = v.x * v.x + v.y * v.y + v.z * v.z;
 	len = sqrt(len);
-	v2.x /= len;
-	v2.y /= len;
-	v2.z /= len;
+	v2.x = v.x / len;
+	v2.y = v.y / len;
+	v2.z = v.z / len;
 	return v2;
 }
 
@@ -448,4 +384,265 @@ GLuint         *Mesh::getVBO( void ) {
 
 void                    Mesh::setNbParticles( int n ) {
     this->_nbParticles = n;
+}
+
+float					Mesh::calcUp(int i, int j, t_vec top)
+{
+	float		n;
+
+	n = sqrt(pow(static_cast<float>(i) - top.x, 2.0) + pow(static_cast<float>(j) - top.y, 2.0));
+	n = n / THRESHOLD;
+	if (n > 1.0f)
+		n = 1.0f;
+	n = 1 - n;
+//	printf("n: %f\n=================\n", n);
+	return (n);
+}
+void					Mesh::createMap(float map[SIDE][SIDE], std::vector<t_vec> tops, float t)
+{
+	int					octaves	= 6;
+	float				n = 0, m, b;
+	float				nCoef = 0.f;
+
+	for (int i = 0 ; i < SIDE ; i++)
+	{
+		for (int j = 0 ; j < SIDE ; j++)
+		{
+			n = 0.0f;
+			for (size_t it = 0 ; it < tops.size() ; it++) {
+				m = calcUp(i, j, tops[it]);
+				if (m < 0.1)
+					m = 0.1;
+				nCoef = m + 0.5;
+				b = Noise::sound3D(i, j, t, octaves, 0.5);
+//				b = Noise::sound3D(i, m * HEIGHT, j, octaves, 0.5);
+				m = b * nCoef + sin(m * M_PI_2) * sin(m * M_PI_2);
+				n = fmax(n, m);
+			}
+			if (tops.size() == 0)
+				map[i][j] = Noise::sound3D(i, j, t, octaves, 0.5);
+			else
+				map[i][j] = n;
+		}
+	}
+}
+
+void					Mesh::updateTerrain(float t)
+{
+	std::vector<t_vec>	tops;
+	float				map[SIDE][SIDE];
+
+	createMap(map, tops, t);
+	this->_vertexOO.clear();
+	this->_vertexNOO.clear();
+	computeVert(map);
+	computeNorm(map);
+
+	glBindVertexArray(this->_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(t_vec) * _vertexOO.size(), &_vertexOO[0]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[1]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(t_vec) * _vertexNOO.size(), &_vertexNOO[0]);
+	glBindVertexArray(0);
+}
+
+void					Mesh::createTerrain()
+{
+	std::vector<t_vec>	tops;
+	float				map[SIDE][SIDE];
+	t_vec				t1 = {25, 25, 25};
+	t_vec				t2 = {50, 50, 50};
+	t_vec				t3 = {75, 75, 75};
+
+//	tops.push_back(t1);
+//	tops.push_back(t2);
+//	tops.push_back(t3);
+	
+	createMap(map, tops, 0.7f);
+	computeVert(map);
+	computeNorm(map);
+	computeIndices();
+}
+
+void					Mesh::computeVert(float map[SIDE][SIDE])
+{
+	for (int i = 0 ; i < SIDE ; i++)
+	{
+		for (int j = 0 ; j < SIDE ; j++)
+		{
+			t_vec v = {static_cast<GLfloat>(j - SIDE/2), map[i][j] * HEIGHT, static_cast<GLfloat>(SIDE/2 - i)};
+//			printf("id: %d\tx: %f\ty: %f\tz: %f\n", i * SIDE + j, v.x, v.y, v.z); 
+			this->_vertexOO.push_back(v);
+		}
+	}
+//	printV(this->_vertexOO);
+}
+/*
+void					Mesh::computeNorm(float map[SIDE][SIDE])
+{
+	for (int i = 0 ; i < SIDE ; i++)
+	{
+		for (int j = 0 ; j < SIDE ; j++)
+		{
+			t_vec v = {static_cast<GLfloat>(j - SIDE/2), map[i][j] * HEIGHT, static_cast<GLfloat>(SIDE/2 - i)};
+			this->_vertexNOO.push_back(v);
+		}
+	}
+}
+*/
+void					Mesh::computeIndices()
+{
+	for (int i = 0 ; i < SIDE - 1 ; i++)
+	{
+		for (int j = 0 ; j < SIDE - 1 ; j++)
+		{
+			this->_indicesOO.push_back(i * SIDE + j);
+			this->_indicesOO.push_back(i * SIDE + j + 1);
+			this->_indicesOO.push_back((i + 1) * SIDE + j);
+			this->_indicesOO.push_back((i + 1) * SIDE + j);
+			this->_indicesOO.push_back((i + 1) * SIDE + j + 1);
+			this->_indicesOO.push_back(i * SIDE + j + 1);
+		}
+	}
+}
+
+t_vec				cross(t_vec v1, t_vec v2)
+{
+	t_vec			res;
+
+	res.x = v1.y * v2.z - v1.z * v2.y;
+	res.y = v1.z * v2.x - v1.x * v2.z;
+	res.z = v1.x * v2.y - v1.y * v2.x;
+	return res;
+}
+
+t_vec				add(t_vec v1, t_vec v2)
+{
+	t_vec			res;
+
+	res.x = v1.x + v2.x;
+	res.y = v1.y + v2.y;
+	res.z = v1.z + v2.z;
+	return res;
+}
+
+t_vec				sub(t_vec v1, t_vec v2)
+{
+	t_vec			res;
+
+	res.x = v1.x - v2.x;
+	res.y = v1.y - v2.y;
+	res.z = v1.z - v2.z;
+	return res;
+}
+
+t_vec					Mesh::getNorm(GLuint center, GLuint first, GLuint second)
+{
+	t_vec				v1;
+	t_vec				v2;
+	t_vec				vres;
+
+	v1 = sub(this->_vertexOO[first], this->_vertexOO[center]);
+	v2 = sub(this->_vertexOO[second], this->_vertexOO[center]);
+	vres = normalize(cross(v1, v2));
+	return vres;
+}
+
+void					Mesh::computeNorm(float map[SIDE][SIDE])
+{
+	for (int i = 0 ; i < SIDE ; i++)
+	{
+		for (int j = 0 ; j < SIDE ; j++)
+		{
+//			t_vec d_r = normalize(cross(sub(map[i][j+1], map[i][j]), sub(map[i+1][j], map[i][j])));
+//			t_vec d_l = normalize(cross(sub(map[i+1][j], map[i][j]), sub(map[i][j-1], map[i][j])));
+//			t_vec u_l = normalize(cross(sub(map[i][j-1], map[i][j]), sub(map[i-1][j], map[i][j])));
+//			t_vec u_r = normalize(cross(sub(map[i-1][j], map[i][j]), sub(map[i][j+1], map[i][j])));
+			if (i > 0 && i < SIDE - 1 && j > 0 && j < SIDE - 1)
+			{
+				t_vec d_r = getNorm(i * SIDE + j, i * SIDE + j + 1, (i + 1) * SIDE + j);
+				t_vec u_l = getNorm(i * SIDE + j, i * SIDE + j - 1, (i - 1) * SIDE + j);
+				this->_vertexNOO.push_back(normalize(add(d_r, u_l)));
+			}
+
+			else if (i == 0)
+			{
+				if (j == 0)
+				{
+					t_vec d_r = getNorm(i * SIDE + j, i * SIDE + j + 1, (i + 1) * SIDE + j);
+					this->_vertexNOO.push_back(normalize(d_r));
+				}
+				else if (j == SIDE - 1)
+				{
+					t_vec d_l = getNorm(i * SIDE + j, (i + 1) * SIDE + j, i * SIDE + j - 1);
+					this->_vertexNOO.push_back(normalize(d_l));
+				}
+				else
+				{
+					t_vec d_r = getNorm(i * SIDE + j, i * SIDE + j + 1, (i + 1) * SIDE + j);
+					t_vec d_l = getNorm(i * SIDE + j, (i + 1) * SIDE + j, i * SIDE + j - 1);
+					this->_vertexNOO.push_back(normalize(add(d_r, d_l)));
+				}
+			}
+
+			else if (i == SIDE -1)
+			{
+				if (j == 0)
+				{
+					t_vec u_r = getNorm(i * SIDE + j, (i - 1) * SIDE + j, i * SIDE + j + 1);
+					this->_vertexNOO.push_back(normalize(u_r));
+				}
+				else if (j == SIDE - 1)
+				{
+					t_vec u_l = getNorm(i * SIDE + j, i * SIDE + j - 1, (i - 1) * SIDE + j);
+					this->_vertexNOO.push_back(normalize(u_l));
+				}
+				else
+				{
+					t_vec u_l = getNorm(i * SIDE + j, i * SIDE + j - 1, (i - 1) * SIDE + j);
+					t_vec u_r = getNorm(i * SIDE + j, (i - 1) * SIDE + j, i * SIDE + j + 1);
+					this->_vertexNOO.push_back(normalize(add(u_l, u_r)));
+				}
+			}
+
+			else if (i > 0 && i < SIDE - 1)
+			{
+				if (j == 0)
+				{
+					t_vec d_r = getNorm(i * SIDE + j, i * SIDE + j + 1, (i + 1) * SIDE + j);
+					t_vec u_r = getNorm(i * SIDE + j, (i - 1) * SIDE + j, i * SIDE + j + 1);
+					this->_vertexNOO.push_back(normalize(add(u_r, d_r)));
+				}
+				else if (j == SIDE - 1)
+				{
+					t_vec d_l = getNorm(i * SIDE + j, (i + 1) * SIDE + j, i * SIDE + j - 1);
+					t_vec u_l = getNorm(i * SIDE + j, i * SIDE + j - 1, (i - 1) * SIDE + j);
+					this->_vertexNOO.push_back(normalize(add(d_l, u_l)));
+				}
+			}
+
+
+		}
+	}
+//			printV(this->_vertexNOO);
+}
+
+std::vector< t_vec >		Mesh::getPosition() const
+{
+	return this->_vertexOO;
+}
+
+std::ostream&				operator<<(std::ostream& flux, Mesh const& m)
+{
+	std::vector< t_vec >	v = m.getPosition();
+
+	flux << std::fixed << std::setprecision(5);
+	flux << "Mesh Position:" << std::endl;
+	for (const auto& it : v)
+	{
+		flux << std::setw(10) << it.x << " " << std::setw(10) << it.y << std::setw(10) << it.z << " ";
+	}
+	flux << std::endl << std::resetiosflags(std::ios_base::fixed | std::ios_base::floatfield);
+	return flux;
 }

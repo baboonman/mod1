@@ -20,14 +20,6 @@ char		*OpenGLShader::filetobuf(const char *file)
     return buf;
 }
 
-OpenGLShader::OpenGLShader()
-{
-}
-
-OpenGLShader::~OpenGLShader()
-{
-}
-
 void			OpenGLShader::deleteShader()
 {
 	for (auto i = _shaders.begin() ; i < _shaders.end() ; i++)

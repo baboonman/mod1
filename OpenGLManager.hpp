@@ -15,6 +15,7 @@
 # include "OpenCL.hpp"
 # include "OpenGLMatrix.hpp"
 # include "OpenGLShader.hpp"
+# include "OpenGLScene.hpp"
 # include "Mesh.hpp"
 # include "CameraControl.hpp"
 
@@ -63,6 +64,7 @@ class							OpenGLManager
 		void					createProjectionMatrix( void );
 		void					addMatricesToProgram( OpenGLMatrix model, OpenGLMatrix view, float an, float bn );
 		void					run(CameraControl *cam, Mesh mesh);
+		void					run(CameraControl *cam, OpenGLScene *scene);
         void                    setNbParticles( int n );
 
 	private:

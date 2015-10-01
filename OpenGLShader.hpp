@@ -13,8 +13,6 @@ class					OpenGLShader
 {
 	
 	public:
-								OpenGLShader();
-								~OpenGLShader();
 		int						addShader( GLenum type, std::string filename );
 		int						createProgram( void );
 		GLuint					getProgram( void );

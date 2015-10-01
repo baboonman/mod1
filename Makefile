@@ -21,10 +21,12 @@ SRC= main.cpp \
 	 Mesh.cpp \
 	 OpenGLMatrix.cpp \
 	 OpenGLShader.cpp \
-	 OpenGLManager.cpp	\
+	 OpenGLManager.cpp \
+	 OpenGLScene.cpp \
 	 FakeCamera.cpp \
 	 LookAtCamera.cpp \
 	 FreeCamera.cpp \
+	 Noise.cpp \
 	 vector.cpp
 
 OBJ= $(SRC:.cpp=.o)
