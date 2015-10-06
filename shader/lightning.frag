@@ -26,7 +26,7 @@ float	specular(vec3 N, vec3 L, vec3 V, float Ks, float alpha)
 
 void main()
 {
-	vec3 light_position = vec3(0.0, 60.0, -80.0);
+	vec3 light_position = vec3(0.0, 60.0, 120.0);
 	vec3 light_color = vec3(1.0, 1.0, 1.0);
 
 	light_position = vec3(M * vec4(light_position, 1.0));

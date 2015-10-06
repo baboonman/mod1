@@ -3,6 +3,7 @@
 
 # include <map>
 # include <vector>
+# include "OpenCL.hpp"
 # include "OpenGLShader.hpp"
 # include "Mesh.hpp"
 
@@ -15,6 +16,7 @@ class						OpenGLScene
 {
 	public:
 							OpenGLScene();
+							~OpenGLScene();
 		int					addShaderProg(std::string VSFile, std::string FSFile);
 		int					addMesh(int type, int progID);
 		int					addMesh(int type, std::string filename, int progID);
@@ -24,11 +26,14 @@ class						OpenGLScene
 
 		int					drawScene(OpenGLMatrix view, OpenGLMatrix project, float t);
 		void				addMatricesToProgram(GLuint progID, OpenGLMatrix model, OpenGLMatrix view, OpenGLMatrix project, float h);
+OpenGLMatrix*		getModelMatrix();
 
 	private:
 		int										_progID;
 		std::vector< OpenGLShader* >			_progs;
 		std::map< int, std::vector< Mesh* > >	_meshes;
+		OpenCL									*_openCL;
+		bool									_isOpenCL;
 };
 
 

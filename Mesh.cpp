@@ -1,133 +1,59 @@
 #include "Mesh.hpp"
 
-	const GLfloat bigCube[] = { 
-		-1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		 1.0f, 1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f,-1.0f,
-		 1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f,-1.0f,
-		 1.0f,-1.0f,-1.0f,
-		 1.0f, 1.0f,-1.0f,
-		 1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f,-1.0f,
-		 1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f,-1.0f, 1.0f,
-		 1.0f,-1.0f, 1.0f,
-		 1.0f, 1.0f, 1.0f,
-		 1.0f,-1.0f,-1.0f,
-		 1.0f, 1.0f,-1.0f,
-		 1.0f,-1.0f,-1.0f,
-		 1.0f, 1.0f, 1.0f,
-		 1.0f,-1.0f, 1.0f,
-		 1.0f, 1.0f, 1.0f,
-		 1.0f, 1.0f,-1.0f,
-		-1.0f, 1.0f,-1.0f,
-		 1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		 1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		 1.0f,-1.0f, 1.0f
-	};
-   
-int			Mesh::_i = 0;
-Mesh::Mesh()
+Mesh::Mesh() : _dynamic(false)
 {
-	createTerrain();
-	_mesh = bigCube;
-	_id = _i;
-	_i++;
-//    this->_vertices = new std::vector<GLfloat>;
-//    this->_indicesVert = new std::vector<GLuint>;
-//    this->_normal = new std::vector<GLfloat>;
+	this->_gridSize = 100;
+	this->_maxHeight = 50.f;
+	createTerrain(true);
 }
 
-Mesh::Mesh(const GLfloat *mesh)
+Mesh::Mesh(bool dynamic) : _dynamic(dynamic)
 {
-	_mesh = mesh;
-	_id = _i;
-	_i++;
-	_curInd = 0;
-//    this->_vertices = new std::vector<GLfloat>;
-//    this->_indicesVert = new std::vector<GLuint>;
-//    this->_normal = new std::vector<GLfloat>;
+	this->_gridSize = 100;
+	this->_maxHeight = 50.f;
+	createTerrain(false);
 }
 
 Mesh::Mesh(const std::string fileName)
 {
+	this->_curInd = 0;
+	this->_dynamic = false;
 	loadOBJ(fileName);
-	_id = _i;
-	_i++;
-	_curInd = 0;
-//    this->_vertices = new std::vector<GLfloat>;
-//    this->_indicesVert = new std::vector<GLuint>;
-//    this->_normal = new std::vector<GLfloat>;
-}
-
-Mesh::Mesh(const GLfloat *mesh, GLfloat scale, GLfloat rotX, GLfloat rotY, GLfloat rotZ, GLfloat pos[3])
-{
-	_curInd = 0;
-	_mesh = mesh;
-	_id = _i;
-	_modelMatrix.scale( scale );
-	_modelMatrix.rotateX( rotX );
-	_modelMatrix.rotateY( rotY );
-	_modelMatrix.rotateZ( rotZ );
-	_modelMatrix.translate( pos[0], pos[1], pos[2] );
-	_i++;
-//    this->_vertices = new std::vector<GLfloat>;
-//    this->_indicesVert = new std::vector<GLuint>;
-//    this->_normal = new std::vector<GLfloat>;
 }
 
 Mesh::Mesh(const std::string fileName, GLfloat scale, GLfloat rotX, GLfloat rotY, GLfloat rotZ, GLfloat pos[3])
 {
-	_curInd = 0;
+	this->_curInd = 0;
+	this->_dynamic = false;
 	loadOBJ(fileName);
-	_id = _i;
-	_modelMatrix.scale( scale );
-	_modelMatrix.rotateX( rotX );
-	_modelMatrix.rotateY( rotY );
-	_modelMatrix.rotateZ( rotZ );
-	_modelMatrix.translate( pos[0], pos[1], pos[2] );
-	_i++;
-//    this->_vertices = new std::vector<GLfloat>;
-//    this->_indicesVert = new std::vector<GLuint>;
-//    this->_normal = new std::vector<GLfloat>;
+	this->_modelMatrix.scale( scale );
+	this->_modelMatrix.rotateX( rotX );
+	this->_modelMatrix.rotateY( rotY );
+	this->_modelMatrix.rotateZ( rotZ );
+	this->_modelMatrix.translate( pos[0], pos[1], pos[2] );
 }
 
-Mesh::~Mesh() {
-//    delete this->_vertices;
-//   delete this->_indicesVert;
-//    delete this->_normal;
-}
-
-void						Mesh::initMeshIndices(GLuint program)
+void							Mesh::bindVBO(GLuint program)
 {
-	GLuint	attrloc;
+	GLuint						attrloc;
+	GLenum						usage = GL_STATIC_DRAW;
 
-	std::cout << "init mesh indices program: " << program << std::endl; 
+	if (this->_dynamic)
+		usage = GL_DYNAMIC_DRAW;
+
+	std::cout << "binding vbo to program: " << program << std::endl; 
 	glGenVertexArrays(1, &this->_vao);
 	glBindVertexArray(this->_vao);
 	glGenBuffers(3, this->_vbo);
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexOO.size(), &_vertexOO[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexOO.size(), &_vertexOO[0], usage);
 	attrloc = glGetAttribLocation(program, "in_Position");
 	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(attrloc);
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexNOO.size(), &_vertexNOO[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexNOO.size(), &_vertexNOO[0], usage);
 	attrloc = glGetAttribLocation(program, "in_VertexN");
 	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(attrloc);
@@ -135,26 +61,131 @@ void						Mesh::initMeshIndices(GLuint program)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_vbo[2]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * _indicesOO.size(), &_indicesOO[0], GL_STATIC_DRAW);
 
-/*	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[3]);
+	glBindVertexArray(0);
+}
+
+void							Mesh::bindVBOInstance(GLuint program)
+{
+	GLuint						attrloc;
+
+	std::cout << "binding vbo to program: " << program << std::endl; 
+	glGenVertexArrays(1, &this->_vao);
+	glBindVertexArray(this->_vao);
+	glGenBuffers(4, this->_vbo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexOO.size(), &_vertexOO[0], GL_STATIC_DRAW);
+	attrloc = glGetAttribLocation(program, "in_Position");
+	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(attrloc);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * _vertexNOO.size(), &_vertexNOO[0], GL_STATIC_DRAW);
+	attrloc = glGetAttribLocation(program, "in_VertexN");
+	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(attrloc);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->_vbo[2]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * _indicesOO.size(), &_indicesOO[0], GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[3]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(t_vec) * this->_nbParticles, NULL, GL_STREAM_DRAW);
 	attrloc = glGetAttribLocation(program, "instancePosition");
 	glEnableVertexAttribArray(attrloc);
 	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glVertexAttribDivisor(attrloc, 1);
-*/
+
 	glBindVertexArray(0);
 }
 
-void					Mesh::drawMesh() const
+void							Mesh::drawMesh() const
 {
 	glBindVertexArray(this->_vao);
 	glDrawElements(GL_TRIANGLES, this->_indicesOO.size(), GL_UNSIGNED_INT, 0);
-//	glDrawElementsInstanced(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_INT, 0, this->_nbParticles);
 	glBindVertexArray(0);
 }
 
-OpenGLMatrix		Mesh::getModelMatrix( void ) const { return _modelMatrix; }
-void				Mesh::setModelMatrix( OpenGLMatrix newMatrix ) { _modelMatrix = newMatrix; }
+void							Mesh::drawMeshInstanced() const
+{
+	glBindVertexArray(this->_vao);
+	glDrawElementsInstanced(GL_TRIANGLES, this->_indicesOO.size(), GL_UNSIGNED_INT, 0, this->_nbParticles);
+	glBindVertexArray(0);
+}
+
+void							Mesh::updateMesh(float t)
+{
+	std::vector<t_vec>			tops;
+	GRID						map(this->_gridSize, std::vector<float>(this->_gridSize));
+
+	if (!this->_dynamic)
+		return ;
+
+	createMap(map, this->_gridSize, this->_maxHeight, tops, t);
+	this->_vertexOO.clear();
+	this->_vertexNOO.clear();
+	computeVert(map, this->_gridSize);
+	computeNorm();
+
+	glBindVertexArray(this->_vao);
+	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(t_vec) * this->_vertexOO.size(), &this->_vertexOO[0]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[1]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(t_vec) * this->_vertexNOO.size(), &this->_vertexNOO[0]);
+	glBindVertexArray(0);
+}
+ 
+void							Mesh::createTerrain(bool top)
+{
+	std::vector<t_vec>			tops;
+	GRID						map(this->_gridSize, std::vector<float>(this->_gridSize));
+	t_vec						t1 = {25, 25, 25};
+	t_vec						t2 = {50, 50, 50};
+	t_vec						t3 = {75, 75, 75};
+	ProcMap						pMap(this->_gridSize);
+
+	if (top)
+	{
+		tops.push_back(t1);
+		tops.push_back(t2);
+		tops.push_back(t3);
+	}
+	
+//	createMap(map, this->_gridSize, this->_maxHeight, tops, 0.7f);
+	pMap.createMap();
+	pMap.scaleMap(this->_maxHeight);
+	map = pMap.getMap();
+	computeVert(map, this->_gridSize);
+	computeNorm();
+	computeIndices();
+}
+
+OpenGLMatrix*					Mesh::getModelMatrix( void ) { return &(this->_modelMatrix); }
+void							Mesh::setModelMatrix( OpenGLMatrix newMatrix ) { this->_modelMatrix = newMatrix; }
+std::vector< t_vec >			Mesh::getPosition() const { return this->_vertexOO; }
+GLuint       					*Mesh::getVBO( void ) { return this->_vbo; }
+void                   			Mesh::setNbParticles( int n ) { this->_nbParticles = n; }
+
+std::ostream&					operator<<(std::ostream& flux, Mesh const& m)
+{
+	std::vector< t_vec >		v = m.getPosition();
+
+	flux << std::fixed << std::setprecision(5);
+	flux << "Mesh Position:" << std::endl;
+	for (const auto& it : v)
+	{
+		flux << std::setw(10) << it.x << " " << std::setw(10) << it.y << std::setw(10) << it.z << " ";
+	}
+	flux << std::endl << std::resetiosflags(std::ios_base::fixed | std::ios_base::floatfield);
+	return flux;
+}
+
+/*	******************************
+ *	******************************
+ * 		  PARSING OBJ FILE
+ *	******************************
+ *	******************************
+ */
 
 /*
 void				Mesh::getFace(std::string face)
@@ -378,13 +409,19 @@ void				Mesh::rearrange()
 	
 }
 
-GLuint         *Mesh::getVBO( void ) {
-    return this->_vbo;
-}
+/*	******************************
+ *	******************************
+ * 		END PARSING OBJ FILE
+ *	******************************
+ *	******************************
+ */
 
-void                    Mesh::setNbParticles( int n ) {
-    this->_nbParticles = n;
-}
+/*	******************************
+ *	******************************
+ *	      GENERATE GEOMETRY
+ *	******************************
+ *	******************************
+ */
 
 float					Mesh::calcUp(int i, int j, t_vec top)
 {
@@ -398,111 +435,61 @@ float					Mesh::calcUp(int i, int j, t_vec top)
 //	printf("n: %f\n=================\n", n);
 	return (n);
 }
-void					Mesh::createMap(float map[SIDE][SIDE], std::vector<t_vec> tops, float t)
+
+void					Mesh::createMap(GRID &map, int gridSize, float height, std::vector<t_vec> tops, float t)
 {
 	int					octaves	= 6;
 	float				n = 0, m, b;
 	float				nCoef = 0.f;
 
-	for (int i = 0 ; i < SIDE ; i++)
+	for (int i = 0 ; i < gridSize ; i++)
 	{
-		for (int j = 0 ; j < SIDE ; j++)
+		for (int j = 0 ; j < gridSize ; j++)
 		{
 			n = 0.0f;
 			for (size_t it = 0 ; it < tops.size() ; it++) {
 				m = calcUp(i, j, tops[it]);
+				nCoef = m * 0.5f;
 				if (m < 0.1)
 					m = 0.1;
-				nCoef = m + 0.5;
+//				nCoef = m + 0.5;
 				b = Noise::sound3D(i, j, t, octaves, 0.5);
-//				b = Noise::sound3D(i, m * HEIGHT, j, octaves, 0.5);
-				m = b * nCoef + sin(m * M_PI_2) * sin(m * M_PI_2);
+//				m = b * nCoef + sin(m * M_PI_2) * sin(m * M_PI_2);
+				m = b + nCoef;
 				n = fmax(n, m);
 			}
 			if (tops.size() == 0)
-				map[i][j] = Noise::sound3D(i, j, t, octaves, 0.5);
+				map[i][j] = Noise::sound3D(i, j, t, octaves, 0.5) * height;
 			else
-				map[i][j] = n;
+				map[i][j] = n * height;
 		}
 	}
 }
-
-void					Mesh::updateTerrain(float t)
+ 
+void					Mesh::computeVert(GRID &map, int gridSize)
 {
-	std::vector<t_vec>	tops;
-	float				map[SIDE][SIDE];
-
-	createMap(map, tops, t);
-	this->_vertexOO.clear();
-	this->_vertexNOO.clear();
-	computeVert(map);
-	computeNorm(map);
-
-	glBindVertexArray(this->_vao);
-	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[0]);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(t_vec) * _vertexOO.size(), &_vertexOO[0]);
-
-	glBindBuffer(GL_ARRAY_BUFFER, this->_vbo[1]);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(t_vec) * _vertexNOO.size(), &_vertexNOO[0]);
-	glBindVertexArray(0);
-}
-
-void					Mesh::createTerrain()
-{
-	std::vector<t_vec>	tops;
-	float				map[SIDE][SIDE];
-	t_vec				t1 = {25, 25, 25};
-	t_vec				t2 = {50, 50, 50};
-	t_vec				t3 = {75, 75, 75};
-
-//	tops.push_back(t1);
-//	tops.push_back(t2);
-//	tops.push_back(t3);
-	
-	createMap(map, tops, 0.7f);
-	computeVert(map);
-	computeNorm(map);
-	computeIndices();
-}
-
-void					Mesh::computeVert(float map[SIDE][SIDE])
-{
-	for (int i = 0 ; i < SIDE ; i++)
+	for (int i = 0 ; i < gridSize ; i++)
 	{
-		for (int j = 0 ; j < SIDE ; j++)
+		for (int j = 0 ; j < gridSize ; j++)
 		{
-			t_vec v = {static_cast<GLfloat>(j - SIDE/2), map[i][j] * HEIGHT, static_cast<GLfloat>(SIDE/2 - i)};
-//			printf("id: %d\tx: %f\ty: %f\tz: %f\n", i * SIDE + j, v.x, v.y, v.z); 
+			t_vec v = {static_cast<GLfloat>(j - gridSize/2), map[i][j], static_cast<GLfloat>(gridSize/2 - i)};
 			this->_vertexOO.push_back(v);
 		}
 	}
-//	printV(this->_vertexOO);
 }
-/*
-void					Mesh::computeNorm(float map[SIDE][SIDE])
-{
-	for (int i = 0 ; i < SIDE ; i++)
-	{
-		for (int j = 0 ; j < SIDE ; j++)
-		{
-			t_vec v = {static_cast<GLfloat>(j - SIDE/2), map[i][j] * HEIGHT, static_cast<GLfloat>(SIDE/2 - i)};
-			this->_vertexNOO.push_back(v);
-		}
-	}
-}
-*/
+
 void					Mesh::computeIndices()
 {
-	for (int i = 0 ; i < SIDE - 1 ; i++)
+	for (int i = 0 ; i < this->_gridSize - 1 ; i++)
 	{
-		for (int j = 0 ; j < SIDE - 1 ; j++)
+		for (int j = 0 ; j < this->_gridSize - 1 ; j++)
 		{
-			this->_indicesOO.push_back(i * SIDE + j);
-			this->_indicesOO.push_back(i * SIDE + j + 1);
-			this->_indicesOO.push_back((i + 1) * SIDE + j);
-			this->_indicesOO.push_back((i + 1) * SIDE + j);
-			this->_indicesOO.push_back((i + 1) * SIDE + j + 1);
-			this->_indicesOO.push_back(i * SIDE + j + 1);
+			this->_indicesOO.push_back(i * this->_gridSize + j);
+			this->_indicesOO.push_back(i * this->_gridSize + j + 1);
+			this->_indicesOO.push_back((i + 1) * this->_gridSize + j);
+			this->_indicesOO.push_back((i + 1) * this->_gridSize + j);
+			this->_indicesOO.push_back((i + 1) * this->_gridSize + j + 1);
+			this->_indicesOO.push_back(i * this->_gridSize + j + 1);
 		}
 	}
 }
@@ -549,20 +536,20 @@ t_vec					Mesh::getNorm(GLuint center, GLuint first, GLuint second)
 	return vres;
 }
 
-void					Mesh::computeNorm(float map[SIDE][SIDE])
+void					Mesh::computeNorm()
 {
-	for (int i = 0 ; i < SIDE ; i++)
+	for (int i = 0 ; i < this->_gridSize ; i++)
 	{
-		for (int j = 0 ; j < SIDE ; j++)
+		for (int j = 0 ; j < this->_gridSize ; j++)
 		{
 //			t_vec d_r = normalize(cross(sub(map[i][j+1], map[i][j]), sub(map[i+1][j], map[i][j])));
 //			t_vec d_l = normalize(cross(sub(map[i+1][j], map[i][j]), sub(map[i][j-1], map[i][j])));
 //			t_vec u_l = normalize(cross(sub(map[i][j-1], map[i][j]), sub(map[i-1][j], map[i][j])));
 //			t_vec u_r = normalize(cross(sub(map[i-1][j], map[i][j]), sub(map[i][j+1], map[i][j])));
-			if (i > 0 && i < SIDE - 1 && j > 0 && j < SIDE - 1)
+			if (i > 0 && i < this->_gridSize - 1 && j > 0 && j < this->_gridSize - 1)
 			{
-				t_vec d_r = getNorm(i * SIDE + j, i * SIDE + j + 1, (i + 1) * SIDE + j);
-				t_vec u_l = getNorm(i * SIDE + j, i * SIDE + j - 1, (i - 1) * SIDE + j);
+				t_vec d_r = getNorm(i * this->_gridSize + j, i * this->_gridSize + j + 1, (i + 1) * this->_gridSize + j);
+				t_vec u_l = getNorm(i * this->_gridSize + j, i * this->_gridSize + j - 1, (i - 1) * this->_gridSize + j);
 				this->_vertexNOO.push_back(normalize(add(d_r, u_l)));
 			}
 
@@ -570,54 +557,54 @@ void					Mesh::computeNorm(float map[SIDE][SIDE])
 			{
 				if (j == 0)
 				{
-					t_vec d_r = getNorm(i * SIDE + j, i * SIDE + j + 1, (i + 1) * SIDE + j);
+					t_vec d_r = getNorm(i * this->_gridSize + j, i * this->_gridSize + j + 1, (i + 1) * this->_gridSize + j);
 					this->_vertexNOO.push_back(normalize(d_r));
 				}
-				else if (j == SIDE - 1)
+				else if (j == this->_gridSize - 1)
 				{
-					t_vec d_l = getNorm(i * SIDE + j, (i + 1) * SIDE + j, i * SIDE + j - 1);
+					t_vec d_l = getNorm(i * this->_gridSize + j, (i + 1) * this->_gridSize + j, i * this->_gridSize + j - 1);
 					this->_vertexNOO.push_back(normalize(d_l));
 				}
 				else
 				{
-					t_vec d_r = getNorm(i * SIDE + j, i * SIDE + j + 1, (i + 1) * SIDE + j);
-					t_vec d_l = getNorm(i * SIDE + j, (i + 1) * SIDE + j, i * SIDE + j - 1);
+					t_vec d_r = getNorm(i * this->_gridSize + j, i * this->_gridSize + j + 1, (i + 1) * this->_gridSize + j);
+					t_vec d_l = getNorm(i * this->_gridSize + j, (i + 1) * this->_gridSize + j, i * this->_gridSize + j - 1);
 					this->_vertexNOO.push_back(normalize(add(d_r, d_l)));
 				}
 			}
 
-			else if (i == SIDE -1)
+			else if (i == this->_gridSize - 1)
 			{
 				if (j == 0)
 				{
-					t_vec u_r = getNorm(i * SIDE + j, (i - 1) * SIDE + j, i * SIDE + j + 1);
+					t_vec u_r = getNorm(i * this->_gridSize + j, (i - 1) * this->_gridSize + j, i * this->_gridSize + j + 1);
 					this->_vertexNOO.push_back(normalize(u_r));
 				}
-				else if (j == SIDE - 1)
+				else if (j == this->_gridSize - 1)
 				{
-					t_vec u_l = getNorm(i * SIDE + j, i * SIDE + j - 1, (i - 1) * SIDE + j);
+					t_vec u_l = getNorm(i * this->_gridSize + j, i * this->_gridSize + j - 1, (i - 1) * this->_gridSize + j);
 					this->_vertexNOO.push_back(normalize(u_l));
 				}
 				else
 				{
-					t_vec u_l = getNorm(i * SIDE + j, i * SIDE + j - 1, (i - 1) * SIDE + j);
-					t_vec u_r = getNorm(i * SIDE + j, (i - 1) * SIDE + j, i * SIDE + j + 1);
+					t_vec u_l = getNorm(i * this->_gridSize + j, i * this->_gridSize + j - 1, (i - 1) * this->_gridSize + j);
+					t_vec u_r = getNorm(i * this->_gridSize + j, (i - 1) * this->_gridSize + j, i * this->_gridSize + j + 1);
 					this->_vertexNOO.push_back(normalize(add(u_l, u_r)));
 				}
 			}
 
-			else if (i > 0 && i < SIDE - 1)
+			else if (i > 0 && i < this->_gridSize - 1)
 			{
 				if (j == 0)
 				{
-					t_vec d_r = getNorm(i * SIDE + j, i * SIDE + j + 1, (i + 1) * SIDE + j);
-					t_vec u_r = getNorm(i * SIDE + j, (i - 1) * SIDE + j, i * SIDE + j + 1);
+					t_vec d_r = getNorm(i * this->_gridSize + j, i * this->_gridSize + j + 1, (i + 1) * this->_gridSize + j);
+					t_vec u_r = getNorm(i * this->_gridSize + j, (i - 1) * this->_gridSize + j, i * this->_gridSize + j + 1);
 					this->_vertexNOO.push_back(normalize(add(u_r, d_r)));
 				}
-				else if (j == SIDE - 1)
+				else if (j == this->_gridSize - 1)
 				{
-					t_vec d_l = getNorm(i * SIDE + j, (i + 1) * SIDE + j, i * SIDE + j - 1);
-					t_vec u_l = getNorm(i * SIDE + j, i * SIDE + j - 1, (i - 1) * SIDE + j);
+					t_vec d_l = getNorm(i * this->_gridSize + j, (i + 1) * this->_gridSize + j, i * this->_gridSize + j - 1);
+					t_vec u_l = getNorm(i * this->_gridSize + j, i * this->_gridSize + j - 1, (i - 1) * this->_gridSize + j);
 					this->_vertexNOO.push_back(normalize(add(d_l, u_l)));
 				}
 			}
@@ -628,21 +615,10 @@ void					Mesh::computeNorm(float map[SIDE][SIDE])
 //			printV(this->_vertexNOO);
 }
 
-std::vector< t_vec >		Mesh::getPosition() const
-{
-	return this->_vertexOO;
-}
+/*	******************************
+ *	******************************
+ *	   END GENERATE GEOMETRY
+ *	******************************
+ *	******************************
+ */
 
-std::ostream&				operator<<(std::ostream& flux, Mesh const& m)
-{
-	std::vector< t_vec >	v = m.getPosition();
-
-	flux << std::fixed << std::setprecision(5);
-	flux << "Mesh Position:" << std::endl;
-	for (const auto& it : v)
-	{
-		flux << std::setw(10) << it.x << " " << std::setw(10) << it.y << std::setw(10) << it.z << " ";
-	}
-	flux << std::endl << std::resetiosflags(std::ios_base::fixed | std::ios_base::floatfield);
-	return flux;
-}

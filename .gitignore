@@ -1,8 +1,6 @@
 *.o
 mod1
 resources/*
-2DMap
-VICTOR
 :w
 *.dSYM
 *.swp

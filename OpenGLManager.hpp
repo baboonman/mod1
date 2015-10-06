@@ -12,11 +12,9 @@
 # include <vector>
 # include <string>
 
-# include "OpenCL.hpp"
 # include "OpenGLMatrix.hpp"
 # include "OpenGLShader.hpp"
 # include "OpenGLScene.hpp"
-# include "Mesh.hpp"
 # include "CameraControl.hpp"
 
 #define FROMFPS(X)		( 1.0f / X )

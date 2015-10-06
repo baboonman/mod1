@@ -27,6 +27,7 @@ SRC= main.cpp \
 	 LookAtCamera.cpp \
 	 FreeCamera.cpp \
 	 Noise.cpp \
+	 ProcMap.cpp \
 	 vector.cpp
 
 OBJ= $(SRC:.cpp=.o)

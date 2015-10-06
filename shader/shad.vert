@@ -73,7 +73,7 @@ vec3	makeColor(float h)
 void main() {
 	float a = 2.0;
 	float coln = gl_InstanceID;
-	float height = H + AN;
+	float height = H * 2.5;
 //	float height = AN;
     mat3 normalMatrix = transpose(inverse(mat3(M)));
     normal = normalize(normalMatrix * in_VertexN);
