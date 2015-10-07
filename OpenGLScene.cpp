@@ -51,11 +51,8 @@ int					OpenGLScene::addMesh(int type, std::string filename, int progID)
 	if (type == MESH_OBJ)
 	{
 		mesh = new Mesh(filename);
-		mesh->setNbParticles(10000);
-//		mesh->bindVBO(this->_progs[progID]->getProgram());
-	    mesh->bindVBOInstance(this->_progs[progID]->getProgram());
+		mesh->bindVBO(this->_progs[progID]->getProgram());
 		this->_meshes[progID].push_back(mesh);
-		glUseProgram(progID);
 		return (progID);
 	}
 	return (-1);
@@ -77,6 +74,7 @@ int					OpenGLScene::addParticleSystem(int type, std::string filename, int nb, i
 	this->_meshes[progID].push_back(mesh);
 
 	this->_openCL = new OpenCL(nb, 2.0f, 4000, 30, 30, 30);
+	std::cout << "vbo to bind: " << mesh->getVBO()[3] << std::endl;
 	this->_openCL->initOpenCL(mesh->getVBO()[3]);
 	(void)type;
 	return (1);
