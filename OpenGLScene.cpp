@@ -60,6 +60,7 @@ int					OpenGLScene::addMesh(int type, std::string filename, int progID)
 
 int					OpenGLScene::addLight(int type)
 {
+	(void)type;
     return 0;
 }
 

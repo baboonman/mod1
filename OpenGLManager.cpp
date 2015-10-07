@@ -6,28 +6,6 @@ void					OpenGLManager::createProjectionMatrix(void)
 	this->_projectionMatrix.computeProjectionMatrix(this->_clipInfo.fov, this->_clipInfo.aspect, this->_clipInfo.zNear, this->_clipInfo.zFar);
 }
 
-void					OpenGLManager::addMatricesToProgram(OpenGLMatrix model, OpenGLMatrix view, float an, float bn)
-{
-	GLint			uloc_M;
-	GLint			uloc_V;
-	GLint			uloc_P;
-	GLint			uloc_AN;
-	GLint			uloc_BN;
-
-    uloc_M = glGetUniformLocation(this->_shader.getProgram(), "M");
-    uloc_V = glGetUniformLocation(this->_shader.getProgram(), "V");
-    uloc_P = glGetUniformLocation(this->_shader.getProgram(), "P");
-    uloc_AN = glGetUniformLocation(this->_shader.getProgram(), "AN");
-    uloc_BN = glGetUniformLocation(this->_shader.getProgram(), "BN");
-
-    glUniformMatrix4fv(uloc_M, 1, GL_FALSE, model.getMatrixArray());
-    glUniformMatrix4fv(uloc_V, 1, GL_FALSE, view.getMatrixArray());
-    glUniformMatrix4fv(uloc_P, 1, GL_FALSE, this->_projectionMatrix.getMatrixArray());
-    glUniform1f(uloc_AN, an);
-    glUniform1f(uloc_BN, bn);
-}
-
-				
 void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 {
 	t_user_ptr				*ptr;
@@ -122,18 +100,6 @@ void				OpenGLManager::initOpenGl( void )
     glViewport(0, 0, this->_winInfo.width, this->_winInfo.height);
 }
 
-//int					OpenGLManager::initShader(std::string VSFile, std::string GSFile, std::string FSFile)
-int					OpenGLManager::initShader(std::string VSFile, std::string FSFile)
-{
-	this->_shader.addShader(GL_VERTEX_SHADER, VSFile);
-//	this->_shader.addShader(GL_GEOMETRY_SHADER, GSFile);
-	this->_shader.addShader(GL_FRAGMENT_SHADER , FSFile);
-	if (! this->_shader.createProgram())
-		return (0);
-    glUseProgram(this->_shader.getProgram());
-	return (1);
-}
-
 OpenGLManager::OpenGLManager()
 {
 	_winInfo.width = 512;
@@ -193,63 +159,9 @@ void				OpenGLManager::setUserPtr(t_user_ptr *s)
 	glfwSetWindowUserPointer(_window, static_cast<void *>(s));
 }
 
-GLuint				OpenGLManager::getShaderProgram( void ) { return (this->_shader.getProgram()); }
-
-void				OpenGLManager::run(CameraControl *cam, Mesh *mesh)
-{
-	float			an = 50.0f, bn = 0.0f, t = 0.f;
-	double			before;
-	double			after;
-	double			an_mod;
-	double			fps = 0.0;
-	OpenCL			openCL(this->_nbParticles, 2.0f, 4000, 30, 30, 30);
-	OpenGLMatrix	*modelMat;
-	t_user_ptr		*userPtr = new t_user_ptr;
-
-
-    openCL.initOpenCL(mesh->getVBO()[3]);
-
-//	this->_modelviewMatrix.translate(0.0, 0.0, -5.0);
-	this->createProjectionMatrix();
-
-	userPtr->winInfo = &this->_winInfo;
-	modelMat = mesh->getModelMatrix();
-	userPtr->model = modelMat;
-	userPtr->camera = cam;
-	this->setUserPtr(userPtr);
-
-    while (!this->shouldClose())
-    {
-		before = glfwGetTime();
-		glClearColor(0.0, 0.0, 0.0, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		this->addMatricesToProgram(*modelMat, cam->getViewMatrix(), an, bn);
-
-
-		mesh->updateMesh(t);
-		mesh->drawMeshInstanced();
-		this->swap();
-
-		glfwPollEvents();
-
-
-		after = glfwGetTime();
-
-		t += .2f;
-		if (t > 1024.f)
-			t = 0.f;
-
-		glFinish();
-        openCL.executeKernel();
-	}
-	openCL.release();
-}
-
 void				OpenGLManager::run(CameraControl *cam, OpenGLScene *scene)
 {
 	float			t = 0.f;
-	double			fps = 0.0;
 	OpenGLMatrix	modelMat;
 	t_user_ptr		*userPtr = new t_user_ptr;
 
@@ -274,8 +186,4 @@ void				OpenGLManager::run(CameraControl *cam, OpenGLScene *scene)
 		this->swap();
 		glfwPollEvents();
 	}
-}
-
-void                    OpenGLManager::setNbParticles( int n ) {
-    this->_nbParticles = n;
 }

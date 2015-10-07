@@ -32,7 +32,6 @@ int					main(int ac, char **av)
 	CameraControl	*camera3 = new FreeCamera(eye, 0.4f, 0.0f);
 	std::string		filename = "resources/Suzanne.obj";
 	OpenGLScene		*scene = new OpenGLScene;
-	oGlMan.setNbParticles(10000);
 
 	if (ac == 2)
 		filename = av[1];

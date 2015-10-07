@@ -1,13 +1,12 @@
 #ifndef OPENGLSHADER_HPP
 # define OPENGLSHADER_HPP
 
-# define GLFW_INCLUDE_GLCOREARB
-# include <GLFW/glfw3.h>
-
 # include <stdio.h>
 # include <stdlib.h>
 # include <string>
 # include <vector>
+
+# include "OpenGLInc.hpp"
 
 class					OpenGLShader
 {

@@ -6,17 +6,12 @@
 # include <map>
 # include <vector>
 
-# define GLFW_INCLUDE_GLCOREARB
-# include <GLFW/glfw3.h>
-
+# include "OpenGLInc.hpp"
 # include "OpenGLMatrix.hpp"
 # include "vector.hpp"
-//# include "Noise.hpp"
 # include "ProcMap.hpp"
 
-//# define SIDE					100
 # define THRESHOLD				(100 / 4.0f)
-//# define HEIGHT					(SIDE / 2.0f)
 # define GRID					std::vector< std::vector<float> >
 
 typedef struct					s_vec
