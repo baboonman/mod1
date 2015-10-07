@@ -28,10 +28,10 @@ class						OpenGLScene
 		void				addMatricesToProgram(GLuint progID, OpenGLMatrix model, OpenGLMatrix view, OpenGLMatrix project, float h);
 OpenGLMatrix*		getModelMatrix();
 
+		std::map< int, std::vector< Mesh* > >	_meshes;
 	private:
 		int										_progID;
 		std::vector< OpenGLShader* >			_progs;
-		std::map< int, std::vector< Mesh* > >	_meshes;
 		OpenCL									*_openCL;
 		bool									_isOpenCL;
 };

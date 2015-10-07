@@ -1,4 +1,5 @@
 #include "OpenGLShader.hpp"
+#include <iostream>
 
 char		*OpenGLShader::filetobuf(const char *file)
 {

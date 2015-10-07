@@ -39,7 +39,7 @@ void        Task::_createKernel(std::string filename, std::string kernelName)
     std::string     *source;
     const char      *char_source;
     int             err;
-    std::string     options = "-D RANGE=1.5f -D REST_DENSITY=7000.0f -D BOX_SIZE=40 -D MAX=29.0f -D MIN=-29.0f -D EPSILON=0.0001f -D M_PI=3.14159f";
+    std::string     options = "-cl-mad-enable -cl-fast-relaxed-math -D RANGE=1.5f -D REST_DENSITY=7000.0f -D BOX_SIZE=25 -D MAX=15.0f -D MIN=-15.0f -D EPSILON=0.0001f";
 
     source = this->getSrc(filename);
     char_source = source->c_str();
@@ -55,7 +55,7 @@ void        Task::_createKernel(std::string filename, std::string kernelName)
     if (err != CL_SUCCESS) {
         char    buildlog[16384];
         clGetProgramBuildInfo(this->_program, this->_device, CL_PROGRAM_BUILD_LOG, sizeof(buildlog), buildlog, NULL);
-        std::cerr << "Error on compilation: " << std::endl;
+        std::cerr << "Error on compilation(" << filename << "):" << std::endl;
         std::cerr << buildlog << std::endl;
         throw new OpenCLException();
     }

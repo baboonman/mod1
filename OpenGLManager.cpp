@@ -195,25 +195,25 @@ void				OpenGLManager::setUserPtr(t_user_ptr *s)
 
 GLuint				OpenGLManager::getShaderProgram( void ) { return (this->_shader.getProgram()); }
 
-void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
+void				OpenGLManager::run(CameraControl *cam, Mesh *mesh)
 {
 	float			an = 50.0f, bn = 0.0f, t = 0.f;
 	double			before;
 	double			after;
 	double			an_mod;
 	double			fps = 0.0;
-//	OpenCL			openCL(this->_nbParticles, 2.0f, 4000, 30, 30, 30);
+	OpenCL			openCL(this->_nbParticles, 2.0f, 4000, 30, 30, 30);
 	OpenGLMatrix	*modelMat;
 	t_user_ptr		*userPtr = new t_user_ptr;
 
 
-//	openCL.initOpenCL(mesh.getVBO()[3]);
+    openCL.initOpenCL(mesh->getVBO()[3]);
 
 //	this->_modelviewMatrix.translate(0.0, 0.0, -5.0);
 	this->createProjectionMatrix();
 
 	userPtr->winInfo = &this->_winInfo;
-	modelMat = mesh.getModelMatrix();
+	modelMat = mesh->getModelMatrix();
 	userPtr->model = modelMat;
 	userPtr->camera = cam;
 	this->setUserPtr(userPtr);
@@ -227,8 +227,8 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 		this->addMatricesToProgram(*modelMat, cam->getViewMatrix(), an, bn);
 
 
-		mesh.updateMesh(t);
-		mesh.drawMesh();
+		mesh->updateMesh(t);
+		mesh->drawMeshInstanced();
 		this->swap();
 
 		glfwPollEvents();
@@ -241,9 +241,9 @@ void				OpenGLManager::run(CameraControl *cam, Mesh mesh)
 			t = 0.f;
 
 		glFinish();
-    //    openCL.executeKernel();
+        openCL.executeKernel();
 	}
-//	openCL.release();
+	openCL.release();
 }
 
 void				OpenGLManager::run(CameraControl *cam, OpenGLScene *scene)

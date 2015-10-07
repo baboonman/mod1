@@ -10,13 +10,16 @@ int					createScene(OpenGLScene *scene, std::string filename)
 {
 //	int				wID;
 	int				mID;
+	int				pID;
+	int				oID;
 
 //	wID = scene->addShaderProg("shader/water.vert", "shader/lightning.frag");
-	mID = scene->addShaderProg("shader/elevation.vert", "shader/lightning.frag");
-	if (mID == -1 /* || wID == -1 */)
+//	mID = scene->addShaderProg("shader/elevation.vert", "shader/lightning.frag");
+//	pID = scene->addShaderProg("shader/particles.vert", "shader/lightning.frag");
+	oID = scene->addShaderProg("shader/particles.vert", "shader/lightning.frag");
+	if (oID == -1 /* || wID == -1 */)
 		return (-1);
-//	scene->addMesh(MESH_WATER, wID);
-	scene->addMesh(MESH_MOUNT, mID);
+	scene->addMesh(MESH_OBJ, filename, oID);
 	return (1);
 }
 
@@ -28,13 +31,17 @@ int					main(int ac, char **av)
 	CameraControl	*camera3 = new FreeCamera(eye, 0.4f, 0.0f);
 	std::string		filename = "resources/Suzanne.obj";
 	OpenGLScene		*scene = new OpenGLScene;
+	oGlMan.setNbParticles(10000);
 
 	if (ac == 2)
 		filename = av[1];
 
 	if (createScene(scene, filename))
+	    oGlMan.run(camera3, scene->_meshes[0][0]);
+/*
+	if (createScene(scene, filename))
 		oGlMan.run(camera3, scene);
 	else
-		std::cout << "Scene wasn't set, error occured." << std::endl;
+		std::cout << "Scene wasn't set, error occured." << std::endl;*/
 	return 0;
 }

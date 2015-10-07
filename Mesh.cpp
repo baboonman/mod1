@@ -94,6 +94,7 @@ void							Mesh::bindVBOInstance(GLuint program)
 	glEnableVertexAttribArray(attrloc);
 	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glVertexAttribDivisor(attrloc, 1);
+    std::cout << "vbo: " << this->_vbo[3] << std::endl;
 
 	glBindVertexArray(0);
 }

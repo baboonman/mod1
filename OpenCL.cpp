@@ -1,38 +1,39 @@
 #include "OpenCL.hpp"
+#define NB_TRY 1
 
-OpenCL::OpenCL(cl_int nbParticle, cl_float sizeGridCoef, cl_int maxParticlePerCell, cl_int gridX, cl_int gridY, cl_int gridZ) 
-: _nbParticle(nbParticle), _sizeGridCoef(sizeGridCoef), _maxParticlePerCell(maxParticlePerCell), _maxWorkItemSize(NULL)
+OpenCL::OpenCL(cl_int nbParticles, cl_float sizeGridCoef, cl_int maxParticlesPerCell, cl_int gridX, cl_int gridY, cl_int gridZ) 
+: _nbParticles(nbParticles), _sizeGridCoef(sizeGridCoef), _maxParticlesPerCell(maxParticlesPerCell), _maxWorkItemSize(NULL)
 {
     this->_gridSize[OpenCL::X] = gridX;
     this->_gridSize[OpenCL::Y] = gridY;
     this->_gridSize[OpenCL::Z] = gridZ;
-    this->_maxGid = this->_nbParticle - 1;
+    this->_maxGid = this->_nbParticles - 1;
 }
 
 void    OpenCL::_initTask() {
-    this->_taskParticleInGrid = new TaskParticleInGrid(this->_context, this->_device, this->_nbParticle);
-    this->_taskParticleInGrid->createKernel();
+    this->_taskParticlesInGrid = new TaskParticleInGrid(this->_context, this->_device, this->_nbParticles);
+    this->_taskParticlesInGrid->createKernel();
 
-    this->_taskApplyForces = new TaskApplyForces(this->_context, this->_device, this->_nbParticle);
+    this->_taskApplyForces = new TaskApplyForces(this->_context, this->_device, this->_nbParticles);
     this->_taskApplyForces->createKernel();
 
-    this->_taskAddConst = new TaskAddConst(this->_context, this->_device, this->_nbParticle);
+    this->_taskAddConst = new TaskAddConst(this->_context, this->_device, this->_nbParticles);
     this->_taskAddConst->createKernel();
 
 
-    this->_taskInitBuffer = new TaskInitBuffer(this->_context, this->_device, this->_nbParticle);
+    this->_taskInitBuffer = new TaskInitBuffer(this->_context, this->_device, this->_nbParticles);
     this->_taskInitBuffer->createKernel(this->_sizeGrid);
 
-    this->_taskInitParticle = new TaskInitParticle(this->_context, this->_device, this->_nbParticle);
-    this->_taskInitParticle->createKernel();
+    this->_taskInitParticles = new TaskInitParticle(this->_context, this->_device, this->_nbParticles);
+    this->_taskInitParticles->createKernel();
 
-    this->_taskEndSim = new TaskEndSim(this->_context, this->_device, this->_nbParticle);
+    this->_taskEndSim = new TaskEndSim(this->_context, this->_device, this->_nbParticles);
     this->_taskEndSim->createKernel();
 
-    this->_taskCalcLambda = new TaskCalcLambda(this->_context, this->_device, this->_nbParticle);
+    this->_taskCalcLambda = new TaskCalcLambda(this->_context, this->_device, this->_nbParticles);
     this->_taskCalcLambda->createKernel();
 
-    this->_taskFindNeighbors= new TaskFindNeighbors(this->_context, this->_device, this->_nbParticle);
+    this->_taskFindNeighbors= new TaskFindNeighbors(this->_context, this->_device, this->_nbParticles);
     this->_taskFindNeighbors->createKernel();
 }
 
@@ -44,27 +45,8 @@ void    OpenCL::initOpenCL(GLuint vbo) {
     this->_initTask();
     this->_createCommandQueue();
     this->_setKernelArg();
-
-    int err;
-    err = clEnqueueAcquireGLObjects(
-        this->_commandQueue,
-        1,
-        &this->_particle,
-        0,
-        NULL,
-        NULL);
-    checkCLSuccess(err, "clEnqueueAcquireGLObjects");
-    this->_taskInitParticle->enqueueKernel(this->_commandQueue);
-    err = clEnqueueReleaseGLObjects(
-            this->_commandQueue,
-            1,
-            &this->_particle,
-            0,
-            NULL,
-            NULL);
+    this->_taskInitParticles->enqueueKernel(this->_commandQueue);
     clFinish(this->_commandQueue);
-
-    checkCLSuccess(err, "clEnqueueReleaseGLObjects");
 }
 
 void    OpenCL::_createContext() {
@@ -146,13 +128,13 @@ void    OpenCL::_getDeviceInfo() {
 }
 
 void    OpenCL::_setStdArg(cl_kernel kernel) {
-    checkCLSuccess(clSetKernelArg(kernel, 0, sizeof(cl_mem), &this->_particle),
+    checkCLSuccess(clSetKernelArg(kernel, 0, sizeof(cl_mem), &this->_particles),
             "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(kernel, 1, sizeof(cl_mem), &this->_particleVelocity),
+    checkCLSuccess(clSetKernelArg(kernel, 1, sizeof(cl_mem), &this->_particlesVelocity),
             "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(kernel, 2, sizeof(cl_mem), &this->_particleProjection),
+    checkCLSuccess(clSetKernelArg(kernel, 2, sizeof(cl_mem), &this->_particlesProjection),
             "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(kernel, 3, sizeof(cl_mem), &this->_particleIdByCells),
+    checkCLSuccess(clSetKernelArg(kernel, 3, sizeof(cl_mem), &this->_particlesIdByCells),
             "clSetKernelArg");
     checkCLSuccess(clSetKernelArg(kernel, 4, sizeof(cl_float), &this->_sizeGridCoef),
             "clSetKernelArg");
@@ -162,23 +144,23 @@ void    OpenCL::_setStdArg(cl_kernel kernel) {
             "clSetKernelArg");
     checkCLSuccess(clSetKernelArg(kernel, 7, sizeof(cl_int), &this->_gridSize[OpenCL::Z]),
             "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(kernel, 8, sizeof(cl_int), &this->_maxParticlePerCell),
+    checkCLSuccess(clSetKernelArg(kernel, 8, sizeof(cl_int), &this->_maxParticlesPerCell),
             "clSetKernelArg");
     checkCLSuccess(clSetKernelArg(kernel, 9, sizeof(cl_int), &this->_maxGid),
             "clSetKernelArg");
 }
 
 void    OpenCL::_setKernelConstArg(cl_kernel kernel) {
-    checkCLSuccess(clSetKernelArg(kernel, 10, sizeof(cl_mem), &this->_particleLambda),
+    checkCLSuccess(clSetKernelArg(kernel, 10, sizeof(cl_mem), &this->_particlesLambda),
             "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(kernel, 11, sizeof(cl_mem), &this->_particleNeighbors),
+    checkCLSuccess(clSetKernelArg(kernel, 11, sizeof(cl_mem), &this->_particlesNeighbors),
             "clSetKernelArg");
 }
 
 void    OpenCL::_setKernelArg() {
     cl_kernel       kernel;
 
-    this->_setStdArg(this->_taskParticleInGrid->getKernel());
+    this->_setStdArg(this->_taskParticlesInGrid->getKernel());
     this->_setStdArg(this->_taskApplyForces->getKernel());
     this->_setStdArg(this->_taskAddConst->getKernel());
     this->_setStdArg(this->_taskEndSim->getKernel());
@@ -190,18 +172,22 @@ void    OpenCL::_setKernelArg() {
 
     kernel = this->_taskInitBuffer->getKernel();
 
-    checkCLSuccess(clSetKernelArg(kernel, 0, sizeof(cl_mem), &this->_particleIdByCells),
+    checkCLSuccess(clSetKernelArg(kernel, 0, sizeof(cl_mem), &this->_particlesIdByCells),
             "clSetKernelArg");
     checkCLSuccess(clSetKernelArg(kernel, 1, sizeof(cl_int), &this->_sizeGrid),
             "clSetKernelArg");
 
-    kernel = this->_taskInitParticle->getKernel();
+    kernel = this->_taskInitParticles->getKernel();
 
-    checkCLSuccess(clSetKernelArg(kernel, 0, sizeof(cl_mem), &this->_particle),
+    checkCLSuccess(clSetKernelArg(kernel, 0, sizeof(cl_mem), &this->_particles),
             "clSetKernelArg");
-    checkCLSuccess(clSetKernelArg(kernel, 1, sizeof(cl_mem), &this->_particleVelocity),
+    checkCLSuccess(clSetKernelArg(kernel, 1, sizeof(cl_mem), &this->_particlesVelocity),
             "clSetKernelArg");
     checkCLSuccess(clSetKernelArg(kernel, 2, sizeof(cl_int), &this->_maxGid),
+            "clSetKernelArg");
+
+    kernel = this->_taskEndSim->getKernel();
+    checkCLSuccess(clSetKernelArg(kernel, 10, sizeof(cl_mem), &this->_particlesVBO),
             "clSetKernelArg");
 
 }
@@ -226,7 +212,7 @@ void    OpenCL::executeKernel() {
     err = clEnqueueAcquireGLObjects(
         this->_commandQueue,
         1,
-        &this->_particle,
+        &this->_particlesVBO,
         0,
         NULL,
         NULL);
@@ -234,28 +220,30 @@ void    OpenCL::executeKernel() {
 
     gettimeofday(&timeVal1, NULL);
 
-    this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
-    this->_taskParticleInGrid->enqueueKernel(this->_commandQueue);
-    this->_taskApplyForces->enqueueKernel(this->_commandQueue);
-    this->_taskFindNeighbors->enqueueKernel(this->_commandQueue);
-    for (int i = 0; i < 3; i++) {
-        this->_taskCalcLambda->enqueueKernel(this->_commandQueue);
-        this->_taskAddConst->enqueueKernel(this->_commandQueue);
+    for ( int j = 0; j < NB_TRY; j++) {
+        this->_taskInitBuffer->enqueueKernel(this->_commandQueue);
+        this->_taskParticlesInGrid->enqueueKernel(this->_commandQueue);
+        this->_taskApplyForces->enqueueKernel(this->_commandQueue);
+        this->_taskFindNeighbors->enqueueKernel(this->_commandQueue);
+        for (int i = 0; i < 3; i++) {
+            this->_taskCalcLambda->enqueueKernel(this->_commandQueue);
+            this->_taskAddConst->enqueueKernel(this->_commandQueue);
+        }
+        this->_taskEndSim->enqueueKernel(this->_commandQueue);
     }
-    this->_taskEndSim->enqueueKernel(this->_commandQueue);
     clFinish(this->_commandQueue);
     gettimeofday(&timeVal2, NULL);
     start = 1000000 * timeVal1.tv_sec + (timeVal1.tv_usec);
     end = 1000000 * timeVal2.tv_sec + (timeVal2.tv_usec);
     time = ((double)(end - start)) / 1000000.0;
-    time2 = end - start;
-    printf("Execution time: %lf ms, %llu us\n", time * 1000.0f, time2);
+    time2 = (end - start) / NB_TRY;
+    printf("Execution time: %llu ms, %llu us\n", time2 / 1000, time2);
 
 
     err = clEnqueueReleaseGLObjects(
             this->_commandQueue,
             1,
-            &this->_particle,
+            &this->_particlesVBO,
             0,
             NULL,
             NULL);
@@ -278,18 +266,18 @@ void    OpenCL::executeKernel() {
 void    OpenCL::release() {
     std::cout << "OpenCL ressources release" << std::endl;
     clFinish(this->_commandQueue);
-    clReleaseMemObject(this->_particle);
-    clReleaseMemObject(this->_particleIdByCells);
-    clReleaseMemObject(this->_particleVelocity);
-    clReleaseMemObject(this->_particleProjection);
-    clReleaseMemObject(this->_particleLambda);
-    clReleaseMemObject(this->_particleNeighbors);
+    clReleaseMemObject(this->_particles);
+    clReleaseMemObject(this->_particlesIdByCells);
+    clReleaseMemObject(this->_particlesVelocity);
+    clReleaseMemObject(this->_particlesProjection);
+    clReleaseMemObject(this->_particlesLambda);
+    clReleaseMemObject(this->_particlesNeighbors);
 
-    this->_taskParticleInGrid->releaseKernel();
+    this->_taskParticlesInGrid->releaseKernel();
     this->_taskApplyForces->releaseKernel();
     this->_taskAddConst->releaseKernel();
     this->_taskInitBuffer->releaseKernel();
-    this->_taskInitParticle->releaseKernel();
+    this->_taskInitParticles->releaseKernel();
     this->_taskCalcLambda->releaseKernel();
     this->_taskFindNeighbors->releaseKernel();
     this->_taskEndSim->releaseKernel();
@@ -301,24 +289,62 @@ void    OpenCL::release() {
 
 void    OpenCL::_bindBuffer() {
     int     err;
+    size_t  sizeParticlesBuffer = this->_nbParticles * 4 * sizeof(cl_float);
 
-    this->_sizeGrid = this->_gridSize[OpenCL::X] * this->_gridSize[OpenCL::Y] * this->_gridSize[OpenCL::Z] * (this->_maxParticlePerCell + 1);
+    this->_sizeGrid = this->_gridSize[OpenCL::X] * this->_gridSize[OpenCL::Y] * this->_gridSize[OpenCL::Z] * (this->_maxParticlesPerCell + 1);
     std::cout << "size: " << this->_sizeGrid << std::endl;
-    this->_particleIdByCells = clCreateBuffer(this->_context,
+    this->_particlesIdByCells = clCreateBuffer(this->_context,
             CL_MEM_READ_WRITE, this->_sizeGrid * sizeof(cl_int),
             NULL,
             &err);
     checkCLSuccess(err, "clCreateBuffer id by cell");
 
-    this->_particleVelocity = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float) * 3, NULL, &err);
+    std::cout << "Buffer size: " << sizeParticlesBuffer << std::endl;
+    this->_particles = clCreateBuffer(
+            this->_context,
+            CL_MEM_READ_WRITE,
+            sizeParticlesBuffer,
+            NULL,
+            &err);
+    std::cout << "err: " << err << std::endl;
+    std::cout << "CL_INVALID_CONTEXT" << CL_INVALID_CONTEXT << std::endl;
+    std::cout << "CL_INVALID_VALUE" << CL_INVALID_VALUE << std::endl;
+    std::cout << "CL_INVALID_BUFFER_SIZE" << CL_INVALID_BUFFER_SIZE << std::endl;
+    std::cout << "CL_INVALID_HOST_PTR" << CL_INVALID_HOST_PTR << std::endl;
+    std::cout << "CL_MEM_OBJECT_ALLOCATION_FAILURE" << CL_MEM_OBJECT_ALLOCATION_FAILURE << std::endl;
+    std::cout << "CL_OUT_OF_RESOURCES" << CL_OUT_OF_RESOURCES << std::endl;
+    std::cout << "CL_OUT_OF_HOST_MEMORY" << CL_OUT_OF_HOST_MEMORY << std::endl;
     checkCLSuccess(err, "clCreateBuffer particle velocity");
 
-    this->_particleProjection = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float) * 3, NULL, &err);
+    this->_particlesVelocity = clCreateBuffer(this->_context,
+            CL_MEM_READ_WRITE,
+            sizeParticlesBuffer,
+            NULL,
+            &err);
+    checkCLSuccess(err, "clCreateBuffer particle velocity");
+
+    this->_particlesProjection = clCreateBuffer(
+            this->_context,
+            CL_MEM_READ_WRITE,
+            sizeParticlesBuffer,
+            NULL,
+            &err);
     checkCLSuccess(err, "clCreateBuffer projection");
 
-    this->_particleLambda = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_float), NULL, &err);
+    this->_particlesLambda = clCreateBuffer(
+            this->_context,
+            CL_MEM_READ_WRITE,
+            this->_nbParticles * sizeof(cl_float),
+            NULL,
+            &err);
     checkCLSuccess(err, "clCreateBuffer projection");
-    this->_particleNeighbors = clCreateBuffer(this->_context, CL_MEM_READ_WRITE, this->_nbParticle * sizeof(cl_int) * 200, NULL, &err);
+
+    this->_particlesNeighbors = clCreateBuffer(
+            this->_context,
+            CL_MEM_READ_WRITE,
+            this->_nbParticles * sizeof(cl_int) * 200,
+            NULL,
+            &err);
     checkCLSuccess(err, "clCreateBuffer projection");
 }
 
@@ -326,7 +352,17 @@ void    OpenCL::_bindBuffer() {
 void    OpenCL::_bindVBO(GLuint vbo) {
     cl_int     err;
 
-    this->_particle = clCreateFromGLBuffer(this->_context, CL_MEM_READ_WRITE, vbo, &err);
+    std::cout << "vbo: " << vbo << std::endl;
+    this->_particlesVBO = clCreateFromGLBuffer(
+            this->_context,
+            CL_MEM_READ_WRITE,
+            vbo,
+            &err);
+    std::cout << "CL_INVALID_CONTEXT" << CL_INVALID_CONTEXT << std::endl;
+    std::cout << "CL_INVALID_VALUE" << CL_INVALID_VALUE << std::endl;
+    std::cout << "CL_INVALID_GL_OBJECT" << CL_INVALID_GL_OBJECT << std::endl;
+    std::cout << "CL_OUT_OF_HOST_MEMORY" << CL_OUT_OF_HOST_MEMORY << std::endl;
+    std::cout << "err: " << err << std::endl;
     checkCLSuccess(err, "clCreateFromGLBuffer");
 }
 

@@ -61,7 +61,7 @@ class							OpenGLManager
 		void					setUserPtr( t_user_ptr *s );
 		void					createProjectionMatrix( void );
 		void					addMatricesToProgram( OpenGLMatrix model, OpenGLMatrix view, float an, float bn );
-		void					run(CameraControl *cam, Mesh mesh);
+		void					run(CameraControl *cam, Mesh *mesh);
 		void					run(CameraControl *cam, OpenGLScene *scene);
         void                    setNbParticles( int n );
 
