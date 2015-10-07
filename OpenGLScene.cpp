@@ -74,7 +74,6 @@ int					OpenGLScene::addParticleSystem(int type, std::string filename, int nb, i
 	this->_meshes[progID].push_back(mesh);
 
 	this->_openCL = new OpenCL(nb, 2.0f, 4000, 30, 30, 30);
-	std::cout << "vbo to bind: " << mesh->getVBO()[3] << std::endl;
 	this->_openCL->initOpenCL(mesh->getVBO()[3]);
 	(void)type;
 	return (1);
@@ -92,7 +91,7 @@ int					OpenGLScene::drawScene(OpenGLMatrix view, OpenGLMatrix project, float t)
 		{
 			this->addMatricesToProgram(progID, *(itVector->getModelMatrix()), view, project, 50);
 			itVector->updateMesh(t);
-			itVector->drawMesh();
+			itVector->drawMeshInstanced();
 		}
 		glUseProgram(0);
 	}

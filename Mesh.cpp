@@ -94,7 +94,6 @@ void							Mesh::bindVBOInstance(GLuint program)
 	glEnableVertexAttribArray(attrloc);
 	glVertexAttribPointer(attrloc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glVertexAttribDivisor(attrloc, 1);
-    std::cout << "vbo: " << this->_vbo[3] << std::endl;
 
 	glBindVertexArray(0);
 }
@@ -115,11 +114,12 @@ void							Mesh::drawMeshInstanced() const
 
 void							Mesh::updateMesh(float t)
 {
+	if (!this->_dynamic)
+		return ;
+
 	std::vector<t_vec>			tops;
 	GRID						map(this->_gridSize, std::vector<float>(this->_gridSize));
 
-	if (!this->_dynamic)
-		return ;
 
 	createMap(map, this->_gridSize, this->_maxHeight, tops, t);
 	this->_vertexOO.clear();

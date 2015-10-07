@@ -237,7 +237,7 @@ void    OpenCL::executeKernel() {
     end = 1000000 * timeVal2.tv_sec + (timeVal2.tv_usec);
     time = ((double)(end - start)) / 1000000.0;
     time2 = (end - start) / NB_TRY;
-    printf("Execution time: %llu ms, %llu us\n", time2 / 1000, time2);
+// printf("Execution time: %llu ms, %llu us\n", time2 / 1000, time2);
 
 
     err = clEnqueueReleaseGLObjects(
@@ -306,14 +306,6 @@ void    OpenCL::_bindBuffer() {
             sizeParticlesBuffer,
             NULL,
             &err);
-    std::cout << "err: " << err << std::endl;
-    std::cout << "CL_INVALID_CONTEXT" << CL_INVALID_CONTEXT << std::endl;
-    std::cout << "CL_INVALID_VALUE" << CL_INVALID_VALUE << std::endl;
-    std::cout << "CL_INVALID_BUFFER_SIZE" << CL_INVALID_BUFFER_SIZE << std::endl;
-    std::cout << "CL_INVALID_HOST_PTR" << CL_INVALID_HOST_PTR << std::endl;
-    std::cout << "CL_MEM_OBJECT_ALLOCATION_FAILURE" << CL_MEM_OBJECT_ALLOCATION_FAILURE << std::endl;
-    std::cout << "CL_OUT_OF_RESOURCES" << CL_OUT_OF_RESOURCES << std::endl;
-    std::cout << "CL_OUT_OF_HOST_MEMORY" << CL_OUT_OF_HOST_MEMORY << std::endl;
     checkCLSuccess(err, "clCreateBuffer particle velocity");
 
     this->_particlesVelocity = clCreateBuffer(this->_context,
@@ -358,11 +350,6 @@ void    OpenCL::_bindVBO(GLuint vbo) {
             CL_MEM_READ_WRITE,
             vbo,
             &err);
-    std::cout << "CL_INVALID_CONTEXT" << CL_INVALID_CONTEXT << std::endl;
-    std::cout << "CL_INVALID_VALUE" << CL_INVALID_VALUE << std::endl;
-    std::cout << "CL_INVALID_GL_OBJECT" << CL_INVALID_GL_OBJECT << std::endl;
-    std::cout << "CL_OUT_OF_HOST_MEMORY" << CL_OUT_OF_HOST_MEMORY << std::endl;
-    std::cout << "err: " << err << std::endl;
     checkCLSuccess(err, "clCreateFromGLBuffer");
 }
 
