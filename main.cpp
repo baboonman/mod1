@@ -26,9 +26,9 @@ int					createScene(OpenGLScene *scene, std::string filename)
 
 int					main(int ac, char **av)
 {
-	OpenGLManager	oGlMan(800, 800, "Biatch");
-//	OpenGLManager	oGlMan(1920,1050, "Biatch toi meme");
-	t_vecf			eye = {0.0f, 75.0f, -120.0f};
+//	OpenGLManager	oGlMan(800, 800, "Biatch");
+	OpenGLManager	oGlMan(1920,1050, "Biatch toi meme");
+	t_vecf			eye = {0.0f, 35.0f, -60.0f};
 	CameraControl	*camera3 = new FreeCamera(eye, 0.4f, 0.0f);
 	std::string		filename = "resources/Suzanne.obj";
 	OpenGLScene		*scene = new OpenGLScene;

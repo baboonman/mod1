@@ -66,6 +66,7 @@ void error_callback(int error, const char* description)
 
 void				OpenGLManager::initOpenGl( void )
 {
+    int     width, height;
     glfwSetErrorCallback(error_callback);
     
     if (!glfwInit())
@@ -97,7 +98,8 @@ void				OpenGLManager::initOpenGl( void )
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-    glViewport(0, 0, this->_winInfo.width, this->_winInfo.height);
+	glfwGetFramebufferSize(this->_window, &(width), &(height));
+    glViewport(0, 0, width, height);
 }
 
 OpenGLManager::OpenGLManager()

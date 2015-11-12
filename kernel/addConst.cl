@@ -6,7 +6,7 @@ float4   spikyGradientKernel(float4 currentParticle, float4 neighbor) {
     length = distance(currentParticle, neighbor);
   //  printf("delta: %f.%f.%f  %f %f %f, dist: %f\n", currentParticle.x, currentParticle.y, currentParticle.z, neighbor.x, neighbor.y, neighbor.z, length);
     float   hrTerm = RANGE - length; 
-    float   gradientMagnitude = 45.0f / (M_PI * pown(RANGE, 6)) * hrTerm * hrTerm;
+    float   gradientMagnitude = 45.0f / (MY_PI * pown(RANGE, 6)) * hrTerm * hrTerm;
     float   div = length + 0.001f;
     return gradientMagnitude * 1.0f / div * res;
 
@@ -15,7 +15,7 @@ float4   spikyGradientKernel(float4 currentParticle, float4 neighbor) {
 float   poly6Kernel(float4 currentParticle, float4 neighbor, int gid) {
     float r = distance(currentParticle, neighbor);
     float hrTerm = (RANGE * RANGE - r * r);
-    float div = 64.0f * M_PI * pown(RANGE, 9);
+    float div = 64.0f * MY_PI * pown(RANGE, 9);
     float res = 315.0f / div * hrTerm * hrTerm * hrTerm;
     if (res != res) {
         printf("FAILddd gid: %d :: %f, %f, %f, r: %f (%f, %f, %f :: %f, %f, %f)\n", gid, div, hrTerm, res, r, currentParticle.x, currentParticle.y, currentParticle.z, neighbor.x, neighbor.y, neighbor.z);

@@ -39,7 +39,7 @@ void        Task::_createKernel(std::string filename, std::string kernelName)
     std::string     *source;
     const char      *char_source;
     int             err;
-    std::string     options = "-cl-mad-enable -cl-fast-relaxed-math -D RANGE=1.5f -D REST_DENSITY=7000.0f -D BOX_SIZE=25 -D MAX=15.0f -D MIN=-15.0f -D EPSILON=0.0001f -D M_PI=3.14159f";
+    std::string     options = "-cl-mad-enable -cl-fast-relaxed-math -D RANGE=1.5f -D REST_DENSITY=7000.0f -D BOX_SIZE=25 -D MAX=15.0f -D MIN=-15.0f -D EPSILON=0.0001f -D MY_PI=3.14159f";
 
     source = this->getSrc(filename);
     char_source = source->c_str();

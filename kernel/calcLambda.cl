@@ -1,7 +1,7 @@
 float   poly6Kernel(float4 currentParticle, float4 neighbor) {
     float r = distance(currentParticle, neighbor);
     float hrTerm = (RANGE * RANGE - r * r);
-    return 315.0f / (64.0f * M_PI * pown(RANGE, 9)) * hrTerm * hrTerm * hrTerm;
+    return 315.0f / (64.0f * MY_PI * pown(RANGE, 9)) * hrTerm * hrTerm * hrTerm;
 }
 
 float4   spikyGradientKernel(float4 currentParticle, float4 neighbor) {
@@ -9,7 +9,7 @@ float4   spikyGradientKernel(float4 currentParticle, float4 neighbor) {
 
     length = distance(currentParticle, neighbor);
     float   hrTerm = RANGE - length; 
-    return 45.0f / (((float)(M_PI)) * pown(RANGE, 6)) * hrTerm * hrTerm
+    return 45.0f / (((float)(MY_PI)) * pown(RANGE, 6)) * hrTerm * hrTerm
             * 1.0f / (length + 0.001f) * (currentParticle - neighbor);
 
 }
