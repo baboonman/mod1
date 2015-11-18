@@ -9,18 +9,19 @@
 int					createScene(OpenGLScene *scene, std::string filename)
 {
 //	int				wID;
-//	int				mID;
+	int				mID;
 	int				pID;
 //	int				oID;
 
 //	wID = scene->addShaderProg("shader/water.vert", "shader/lightning.frag");
-//	mID = scene->addShaderProg("shader/elevation.vert", "shader/lightning.frag");
+	mID = scene->addShaderProg("shader/elevation.vert", "shader/lightning.frag");
 	pID = scene->addShaderProg("shader/particles.vert", "shader/lightning.frag");
 //	oID = scene->addShaderProg("shader/particles.vert", "shader/lightning.frag");
-	if (pID == -1 /* || wID == -1 */)
+	if (pID == -1 || mID == -1)
 		return (-1);
+	scene->addMesh(MESH_MOUNT, mID);
 //	scene->addMesh(MESH_OBJ, filename, oID);
-	scene->addParticleSystem(MESH_OBJ, filename, 10000, pID);
+//	scene->addParticleSystem(MESH_OBJ, filename, 10000, pID);
 	return (1);
 }
 
