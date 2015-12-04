@@ -164,6 +164,10 @@ void				OpenGLManager::setUserPtr(t_user_ptr *s)
 void				OpenGLManager::run(CameraControl *cam, OpenGLScene *scene)
 {
 	float			t = 0.f;
+    struct timeval      timeVal1;
+    struct timeval      timeVal2;
+    unsigned long long int  start;
+    unsigned long long int  end;
 	OpenGLMatrix	modelMat;
 	t_user_ptr		*userPtr = new t_user_ptr;
 

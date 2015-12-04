@@ -1,5 +1,62 @@
 #include "vector.hpp"
 
+t_vec				normalize(t_vec v)
+{
+	t_vec			v2;
+	int				len;
+	float			e = 10E-6;
+
+	len = v.x * v.x + v.y * v.y + v.z * v.z;
+	if (len < e )
+		return v;
+	len = sqrt(len);
+	v2.x = v.x / len;
+	v2.y = v.y / len;
+	v2.z = v.z / len;
+	return v2;
+}
+
+t_vec				addVec(t_vec v1, t_vec v2)
+{
+	t_vec			retV;
+
+	retV.x = v1.x + v2.x;
+	retV.y = v1.y + v2.y;
+	retV.z = v1.z + v2.z;
+	return retV;
+}
+
+t_vec				cross(t_vec v1, t_vec v2)
+{
+	t_vec			res;
+
+	res.x = v1.y * v2.z - v1.z * v2.y;
+	res.y = v1.z * v2.x - v1.x * v2.z;
+	res.z = v1.x * v2.y - v1.y * v2.x;
+	return res;
+}
+
+t_vec				add(t_vec v1, t_vec v2)
+{
+	t_vec			res;
+
+	res.x = v1.x + v2.x;
+	res.y = v1.y + v2.y;
+	res.z = v1.z + v2.z;
+	return res;
+}
+
+t_vec				sub(t_vec v1, t_vec v2)
+{
+	t_vec			res;
+
+	res.x = v1.x - v2.x;
+	res.y = v1.y - v2.y;
+	res.z = v1.z - v2.z;
+	return res;
+}
+
+
 t_vecf				normalize(t_vecf v)
 {
 	t_vecf			v2;

@@ -19,6 +19,10 @@ SRC= main.cpp \
 	 TaskEndSim.cpp \
 	 Matrix.cpp \
 	 Mesh.cpp \
+	 MeshObj.cpp \
+	 MeshInstance.cpp \
+	 MeshGenerator.cpp \
+	 ImportObj.cpp \
 	 OpenGLMatrix.cpp \
 	 OpenGLShader.cpp \
 	 OpenGLManager.cpp \
@@ -28,6 +32,7 @@ SRC= main.cpp \
 	 FreeCamera.cpp \
 	 Noise.cpp \
 	 ProcMap.cpp \
+	 HeightmapGenerator.cpp \
 	 vector.cpp
 
 OBJ= $(SRC:.cpp=.o)

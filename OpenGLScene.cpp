@@ -31,11 +31,11 @@ int					OpenGLScene::addMesh(int type, int progID)
 	Mesh			*mesh;
 	switch (type)
 	{
-		case MESH_WATER:
-			mesh = new Mesh(true);
-			break;
+//		case MESH_WATER:
+//			mesh = new Mesh(true);
+//			break;
 		case MESH_MOUNT:
-			mesh = new Mesh;
+			mesh = new MeshGenerator();
 			break;
 		default:
 			return (-1);
@@ -50,7 +50,7 @@ int					OpenGLScene::addMesh(int type, std::string filename, int progID)
 	Mesh			*mesh;
 	if (type == MESH_OBJ)
 	{
-		mesh = new Mesh(filename);
+		mesh = new MeshObj(filename);
 		mesh->bindVBO(this->_progs[progID]->getProgram());
 		this->_meshes[progID].push_back(mesh);
 		return (progID);
@@ -69,10 +69,18 @@ int					OpenGLScene::addParticleSystem(int type, std::string filename, int nb, i
 	Mesh			*mesh;
 	this->_isOpenCL = true;
 
-	mesh = new Mesh(filename);
-	mesh->setNbParticles(nb);
-	mesh->bindVBOInstance(this->_progs[progID]->getProgram());
-	this->_meshes[progID].push_back(mesh);
+//	if (type == PS_BALL)
+//	{
+		MeshObj			*instObj = new MeshObj(filename);
+
+		mesh = new MeshInstance(*instObj, nb);
+		delete(instObj);
+		mesh->bindVBO(this->_progs[progID]->getProgram());
+		this->_meshes[progID].push_back(mesh);
+//	}
+//	else if (type == PS_SURF)
+//	{
+//	}
 
 	this->_openCL = new OpenCL(nb, 2.0f, 4000, 30, 30, 30);
 	this->_openCL->initOpenCL(mesh->getVBO()[3]);
@@ -92,7 +100,8 @@ int					OpenGLScene::drawScene(OpenGLMatrix view, OpenGLMatrix project, float t)
 		{
 			this->addMatricesToProgram(progID, *(itVector->getModelMatrix()), view, project, 50);
 			itVector->updateMesh(t);
-			itVector->drawMeshInstanced();
+//			itVector->drawMeshInstanced();
+			itVector->drawMesh();
 		}
 		glUseProgram(0);
 	}

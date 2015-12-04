@@ -6,11 +6,16 @@
 # include "OpenCL.hpp"
 # include "OpenGLShader.hpp"
 # include "Mesh.hpp"
+# include "MeshObj.hpp"
+# include "MeshInstance.hpp"
+# include "MeshGenerator.hpp"
 
 # define MESH_OBJ			0
 # define MESH_WATER			1
 # define MESH_MOUNT			2
-# define LIGHT				3
+# define PS_BALL			3
+# define PS_SURF			4
+# define LIGHT				5
 
 class						OpenGLScene
 {
